@@ -2,6 +2,7 @@ from datetime import timezone
 from django.conf import settings
 from django.db import models
 
+
 class Customer(models.Model):
     """ 
     Class Object Customer
