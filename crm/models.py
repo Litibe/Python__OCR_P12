@@ -18,7 +18,7 @@ class Customer(models.Model):
     date_updated = models.DateTimeField(verbose_name="Date Updated")
     sales_contact = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
-        limit_choices_to={'profile_staff': 'SALES'},
+        limit_choices_to={'profile_staff': 2},
         on_delete=models.CASCADE)
 
 
@@ -43,7 +43,7 @@ class Event(models.Model):
     date_finished = models.DateTimeField(verbose_name="Date End")
     support_contact = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
-        limit_choices_to={'profile_staff': 'SUPPORT'},
+        limit_choices_to={'profile_staff': 3},
         on_delete=models.CASCADE)
     contract_assigned = models.ForeignKey(
         to=Contract, on_delete=models.CASCADE)
@@ -55,9 +55,5 @@ class Need(models.Model):
     title = models.CharField(max_length=125, verbose_name="title Need")
     success = models.BooleanField('signed', default=False)
     date_updated = models.DateTimeField(verbose_name="Date Updated")
-    support_contact = models.ForeignKey(
-        to=settings.AUTH_USER_MODEL,
-        limit_choices_to={'profile_staff': 'SUPPORT'},
-        on_delete=models.CASCADE)
     event_assigned = models.ForeignKey(
         to=Event, on_delete=models.CASCADE)
