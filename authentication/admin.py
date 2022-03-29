@@ -99,6 +99,12 @@ class UserAdmin(BaseUserAdmin):
             return True
         else:
             return False
+    
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
 
 
 admin.site.register(MyUser, UserAdmin)
@@ -106,30 +112,28 @@ admin.site.unregister(Group)
 
 @admin.register(ProfileStaff)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('name', 'manage_staff_create_user', 'manage_staff_read_user', 'manage_staff_update_user', 'manage_staff_delete_user')
+    list_display = [field.name for field in ProfileStaff._meta.fields if field.name != "id"]
 
     filter_horizontal = ()
 
     def has_add_permission(self, request):
         if request.user.profile_staff.manage_staff_create_user:
             return True
-        else:
-            return False
     
     def has_module_permission(self, request):
         if request.user.profile_staff.manage_staff_read_user:
             return True
-        else:
-            return False
-
+        
     def has_change_permission(self, request, obj=None):
         if request.user.profile_staff.manage_staff_update_user:
             return True
-        else:
-            return False
-
+       
     def has_delete_permission(self, request, obj=None):
         if request.user.profile_staff.manage_staff_delete_user:
             return True
-        else:
-            return False
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions

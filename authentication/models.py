@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser
 
 class ProfileStaff(models.Model):
     name = models.CharField(max_length=30, default="Null",
-                            verbose_name='Name Grade')
+                            verbose_name='Name Profile')
     manage_staff_create_user = models.BooleanField(verbose_name='Staff - Create User',
                                                    default=False)
     manage_staff_read_user = models.BooleanField(verbose_name='Staff - Read User',
@@ -14,7 +14,23 @@ class ProfileStaff(models.Model):
                                                    default=False)
     manage_staff_delete_user = models.BooleanField(verbose_name='Staff - Delete User',
                                                    default=False)
-    
+    customer_create = models.BooleanField(verbose_name='Customer - Create',
+                                          default=False)
+    customer_read = models.BooleanField(verbose_name='Customer - Read',
+                                        default=False)
+    customer_update = models.BooleanField(verbose_name='Customer - Update',
+                                          default=False)
+    customer_delete = models.BooleanField(verbose_name='Customer - Delete',
+                                          default=False)
+    contract_create = models.BooleanField(verbose_name='Contract - Create',
+                                          default=False)
+    contract_read = models.BooleanField(verbose_name='Contract - Read',
+                                        default=False)
+    contract_update = models.BooleanField(verbose_name='Contract - Update',
+                                          default=False)
+    contract_delete = models.BooleanField(verbose_name='Contract - Delete',
+                                           default=False)
+
     def __str__(self):
         return f'{self.name}'
 
