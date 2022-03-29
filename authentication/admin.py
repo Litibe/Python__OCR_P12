@@ -6,6 +6,7 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
 from authentication.models import User as MyUser
+from authentication.models import ProfileStaff
 
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required
@@ -14,11 +15,10 @@ class UserCreationForm(forms.ModelForm):
     password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput)
     last_name = forms.CharField(label='Last Name', widget=forms.TextInput)
     first_name = forms.CharField(label='First Name', widget=forms.TextInput)
-    profile = forms.ChoiceField(label='Profile', choices=MyUser.profile_choices.choices)
 
     class Meta:
         model = MyUser
-        fields = ('email', 'password', 'last_name', 'first_name', 'profile')
+        fields = ('email', 'password', 'last_name', 'first_name')
 
     def clean_password2(self):
         # Check that the two password entries match
@@ -46,7 +46,7 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = MyUser
-        fields = ('email', 'password', 'last_name', 'first_name', 'profile')
+        fields = ('email', 'password', 'last_name', 'first_name')
 
 
 class UserAdmin(BaseUserAdmin):
@@ -57,28 +57,79 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ('email', 'last_name', 'first_name', 'profile')
-    list_filter = ('profile',)
+    list_display = ('email', 'last_name', 'first_name', 'profile_staff')
+    list_filter = ('profile_staff',)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Personal info', {'fields': ('last_name','first_name')}),
-        ('Permissions', {'fields': ('profile',)}),
+        ('Permissions', {'fields': ('profile_staff',)}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2', 'last_name', 'first_name', 'profile'),
+            'fields': ('email', 'password1', 'password2', 'last_name', 'first_name', 'profile_staff'),
         }),
     )
-    search_fields = ('email', 'profile')
-    ordering = ('email', 'profile')
+    search_fields = ('email', 'profile_staff')
+    ordering = ('last_name', 'email', 'profile_staff')
     filter_horizontal = ()
 
+    def has_add_permission(self, request):
+        if request.user.profile_staff.manage_staff_create_user:
+            return True
+        else:
+            return False
+    
+    def has_module_permission(self, request):
+        if request.user.profile_staff.manage_staff_read_user:
+            return True
+        else:
+            return False
 
-# Now register the new UserAdmin...
+    def has_change_permission(self, request, obj=None):
+        if request.user.profile_staff.manage_staff_update_user:
+            return True
+        else:
+            return False
+
+    def has_delete_permission(self, request, obj=None):
+        if request.user.profile_staff.manage_staff_delete_user:
+            return True
+        else:
+            return False
+
+
 admin.site.register(MyUser, UserAdmin)
-# ... and, since we're not using Django's built-in permissions,
-# unregister the Group model from admin.
 admin.site.unregister(Group)
+
+@admin.register(ProfileStaff)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('name', 'manage_staff_create_user', 'manage_staff_read_user', 'manage_staff_update_user', 'manage_staff_delete_user')
+
+    filter_horizontal = ()
+
+    def has_add_permission(self, request):
+        if request.user.profile_staff.manage_staff_create_user:
+            return True
+        else:
+            return False
+    
+    def has_module_permission(self, request):
+        if request.user.profile_staff.manage_staff_read_user:
+            return True
+        else:
+            return False
+
+    def has_change_permission(self, request, obj=None):
+        if request.user.profile_staff.manage_staff_update_user:
+            return True
+        else:
+            return False
+
+    def has_delete_permission(self, request, obj=None):
+        if request.user.profile_staff.manage_staff_delete_user:
+            return True
+        else:
+            return False
