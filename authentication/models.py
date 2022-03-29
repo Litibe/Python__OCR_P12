@@ -51,3 +51,4 @@ class User(AbstractUser):
                                       related_name="Profile_Staff_name")
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["first_name", "last_name", "profile_staff"]
+

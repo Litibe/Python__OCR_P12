@@ -83,9 +83,14 @@ class UserAdmin(BaseUserAdmin):
             return False
     
     def has_module_permission(self, request):
-        if request.user.profile_staff.manage_staff_read_user:
-            return True
-        else:
+        try: 
+            print("try")
+            if request.user.profile_staff.manage_staff_read_user:
+                print("user", True)
+                return True
+            else:
+                return False
+        except AttributeError: 
             return False
 
     def has_change_permission(self, request, obj=None):
@@ -119,18 +124,29 @@ class ProfileAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         if request.user.profile_staff.manage_staff_create_user:
             return True
+        else:
+            False
     
     def has_module_permission(self, request):
-        if request.user.profile_staff.manage_staff_read_user:
-            return True
+        try: 
+            if request.user.profile_staff.manage_staff_read_user:
+                return True
+            else:
+                return False
+        except AttributeError: 
+            return False
         
     def has_change_permission(self, request, obj=None):
         if request.user.profile_staff.manage_staff_update_user:
             return True
+        else:
+            False
        
     def has_delete_permission(self, request, obj=None):
         if request.user.profile_staff.manage_staff_delete_user:
             return True
+        else:
+            False
 
     def get_actions(self, request):
         actions = super().get_actions(request)
