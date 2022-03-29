@@ -29,10 +29,27 @@ class ProfileStaff(models.Model):
     contract_update = models.BooleanField(verbose_name='Contract - Update',
                                           default=False)
     contract_delete = models.BooleanField(verbose_name='Contract - Delete',
-                                           default=False)
+                                          default=False)
+    event_create = models.BooleanField(verbose_name='Event - Create',
+                                       default=False)
+    event_read = models.BooleanField(verbose_name='Event - Read',
+                                     default=False)
+    event_update = models.BooleanField(verbose_name='Event - Update',
+                                       default=False)
+    event_delete = models.BooleanField(verbose_name='Event - Delete',
+                                       default=False)
+    need_create = models.BooleanField(verbose_name='Need - Create',
+                                      default=False)
+    need_read = models.BooleanField(verbose_name='Need - Read',
+                                    default=False)
+    need_update = models.BooleanField(verbose_name='Need - Update',
+                                      default=False)
+    need_delete = models.BooleanField(verbose_name='Need - Delete',
+                                      default=False)
 
     def __str__(self):
         return f'{self.name}'
+
 
 class User(AbstractUser):
     is_active = models.BooleanField('active', default=True)
