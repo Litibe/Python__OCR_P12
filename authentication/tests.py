@@ -1,6 +1,3 @@
-import email
-from urllib import response
-import pytest
 from django.test import Client, TestCase
 from django.urls import reverse, resolve
 
