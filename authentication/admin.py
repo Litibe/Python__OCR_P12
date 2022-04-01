@@ -128,12 +128,12 @@ class ProfileAdmin(admin.ModelAdmin):
             False
     
     def has_module_permission(self, request):
-        try: 
+        try:
             if request.user.profile_staff.manage_staff_read_user:
                 return True
             else:
                 return False
-        except AttributeError: 
+        except AttributeError:
             return False
         
     def has_change_permission(self, request, obj=None):
