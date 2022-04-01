@@ -4,7 +4,7 @@ from django.db import models
 
 
 class Customer(models.Model):
-    """ 
+    """
     Class Object Customer
     """
     first_name = models.CharField(max_length=25, verbose_name="First Name")
@@ -25,15 +25,17 @@ class Customer(models.Model):
         on_delete=models.CASCADE)
 
 
-
 class Contract(models.Model):
     """
     Class Object Contract for Customer
     """
+    title = models.CharField(max_length=125,
+                             verbose_name="Title Contract",
+                             default="Titlte Contract")
     date_start_contract = models.DateTimeField(
         verbose_name="Date Start Contract", default=timezone.now)
     date_end_contract = models.DateTimeField(
-        verbose_name="Date End Contract", default=timezone.now)
+        verbose_name="Date End Contract")
     signed = models.BooleanField('signed', default=False)
     customer_assigned = models.ForeignKey(
         to=Customer, on_delete=models.CASCADE)
