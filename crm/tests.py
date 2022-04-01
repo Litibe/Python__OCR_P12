@@ -1,7 +1,7 @@
 from django.test import TestCase
 from authentication.models import ProfileStaff, User
 
-from crm.models import Customer
+from crm.models import Contract, Customer
 
 
 def create_new_user_support():
@@ -30,16 +30,13 @@ def create_new_user_sales():
     )
     new_user.set_password("epicevents")
     new_user.save()
-
-
-class TestUnitaireModels(TestCase):
-    def test_create_new_customer(self):
-        create_new_user_sales()
-        profile_staff = ProfileStaff.objects.filter(name="SALES").first()
-
-        user_sales = User.objects.filter(
+    user_sales = User.objects.filter(
             profile_staff=profile_staff).first()
-        new_customer = Customer.objects.create(
+    return user_sales
+
+
+def create_new_customer(user_sales):
+    new_customer = Customer.objects.create(
             first_name="Tony",
             last_name="DURAND",
             email="tonydurant@entreprise.com",
@@ -48,8 +45,26 @@ class TestUnitaireModels(TestCase):
             company_name="Entreprise SAS",
             sales_contact=user_sales
         )
-        new_customer.save()
-        db_customer = Customer.objects.all().first()
+    new_customer.save()
+    search_customer = Customer.objects.all().first()
+    return search_customer
+
+def create_new_contract(search_customer):
+    new_contract = Contract.objects.create(
+        
+    )
+
+class TestUnitaireModels(TestCase):
+    def test_create_new_customer(self):
+        user_sales = create_new_user_sales()
+        db_customer = create_new_customer(user_sales)
         assert db_customer.id == 1
         assert db_customer.first_name == "Tony"
         assert db_customer.sales_contact.profile_staff.name == "SALES"
+
+    def test_create_new_contract(self):
+        user_sales = create_new_user_sales()
+        db_customer = create_new_customer(user_sales)
+        assert db_customer.id == 1
+
+
