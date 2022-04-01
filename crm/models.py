@@ -25,13 +25,14 @@ class Customer(models.Model):
         on_delete=models.CASCADE)
 
 
+
 class Contract(models.Model):
     """
     Class Object Contract for Customer
     """
-    date_created = models.DateTimeField(
+    date_start_contract = models.DateTimeField(
         verbose_name="Date Start Contract", default=timezone.now)
-    date_finished = models.DateTimeField(
+    date_end_contract = models.DateTimeField(
         verbose_name="Date End Contract", default=timezone.now)
     signed = models.BooleanField('signed', default=False)
     customer_assigned = models.ForeignKey(
