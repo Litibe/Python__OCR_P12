@@ -37,6 +37,10 @@ class Customer(models.Model):
                 self.id = "CM" + id.zfill(5)
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return f'{self.id} - {self.first_name} {self.last_name} - {self.email} ##\
+         Sales_contact : {self.sales_contact}'
+
 
 class Contract(models.Model):
     """
@@ -47,12 +51,16 @@ class Contract(models.Model):
                              verbose_name="Title Contract",
                              default="Title Contract")
     date_start_contract = models.DateTimeField(
-        verbose_name="Date Start Contract", auto_now_add=True)
+        verbose_name="Date Start Contract")
     date_end_contract = models.DateTimeField(
         verbose_name="Date End Contract")
     signed = models.BooleanField(verbose_name='signed', default=False)
     customer_assigned = models.ForeignKey(
-        to=Customer, on_delete=models.CASCADE)
+        to=Customer,
+        on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return f'{self.id} - {self.title} ## {self.customer_assigned}'
 
     def save(self, *args, **kwargs):
         """Save Method surcharged to update ID Contract CTXXXXX
@@ -63,7 +71,7 @@ class Contract(models.Model):
                 self.id = "CT00001"
             else:
                 id = str(int(last_contract.id[2:])+1)
-                self.id = "CM" + id.zfill(5)
+                self.id = "CT" + id.zfill(5)
         super().save(*args, **kwargs)
 
 
@@ -74,7 +82,7 @@ class Event(models.Model):
     id = models.CharField(primary_key=True, unique=True, max_length=8)
     title = models.CharField(max_length=125, verbose_name="Title Event")
     date_started = models.DateTimeField(
-        verbose_name="Date Start", auto_now_add=True)
+        verbose_name="Date Start")
     date_updated = models.DateTimeField(
         verbose_name="Date Updated", auto_now_add=True)
     date_finished = models.DateTimeField(verbose_name="Date End")
@@ -96,6 +104,10 @@ class Event(models.Model):
                 id = str(int(last_event.id[2:])+1)
                 self.id = "E" + id.zfill(5)
         super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return f'{self.id} - {self.title} ##\
+         Support_contact : {self.support_contact} ## {self.contract_assigned.id} {self.contract_assigned.title}'
 
 
 class Need(models.Model):

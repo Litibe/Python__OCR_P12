@@ -9,7 +9,7 @@ admin.site.site_title = "EpicEvents CRM Portal"
 admin.site.index_title = "Welcome to EpicEvents CRM Portal"
 
 urlpatterns = [
-     path('crm/', admin.site.urls),
+     path('portal/', admin.site.urls),
      path('api/authentication/login/',
           DRF_jwt_views.TokenObtainPairView.as_view(), name='login'),
      path('api/authentication/login/refresh/',
