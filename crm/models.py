@@ -11,10 +11,10 @@ class Customer(models.Model):
     first_name = models.CharField(max_length=25, verbose_name="First Name")
     last_name = models.CharField(max_length=25, verbose_name="Last Name")
     email = models.EmailField(
-        max_length=100, verbose_name="email", unique=True)
+        max_length=100, verbose_name="email")
     phone = models.CharField(max_length=20, verbose_name="Phone Number")
     mobile = models.CharField(max_length=20, verbose_name="Mobile Number")
-    company_name = models.CharField(max_length=250, 
+    company_name = models.CharField(max_length=250,
                                     verbose_name="Compagny Name")
     date_created = models.DateTimeField(
         verbose_name="Date Created", auto_now_add=True)
@@ -24,7 +24,7 @@ class Customer(models.Model):
         to=settings.AUTH_USER_MODEL,
         limit_choices_to={'profile_staff': 2},
         on_delete=models.CASCADE)
-    
+
     def save(self, *args, **kwargs):
         """Save Method surcharged to update ID Customer CMXXXXX
         """
@@ -69,7 +69,7 @@ class Event(models.Model):
     """
     id = models.CharField(primary_key=True, unique=True, max_length=8)
     title = models.CharField(max_length=125, verbose_name="Title Event")
-    date_created = models.DateTimeField(
+    date_started = models.DateTimeField(
         verbose_name="Date Start", auto_now_add=True)
     date_updated = models.DateTimeField(
         verbose_name="Date Updated", auto_now_add=True)
