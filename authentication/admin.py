@@ -8,11 +8,14 @@ from django.core.exceptions import ValidationError
 from authentication.models import User as MyUser
 from authentication.models import ProfileStaff
 
+
 class UserCreationForm(forms.ModelForm):
     """A form for creating new users. Includes all the required
     fields, plus a repeated password."""
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput)
+    password1 = forms.CharField(
+        label='Password', widget=forms.PasswordInput)
+    password2 = forms.CharField(
+        label='Password confirmation', widget=forms.PasswordInput)
     last_name = forms.CharField(label='Last Name', widget=forms.TextInput)
     first_name = forms.CharField(label='First Name', widget=forms.TextInput)
 
@@ -61,7 +64,7 @@ class UserAdmin(BaseUserAdmin):
     list_filter = ('profile_staff',)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        ('Personal info', {'fields': ('last_name','first_name')}),
+        ('Personal info', {'fields': ('last_name', 'first_name')}),
         ('Permissions', {'fields': ('profile_staff',)}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
@@ -80,7 +83,7 @@ class UserAdmin(BaseUserAdmin):
             return True
         else:
             return False
-    
+
     def has_module_permission(self, request):
         try:
             if request.user.profile_staff.manage_staff_read_user:
@@ -101,7 +104,7 @@ class UserAdmin(BaseUserAdmin):
             return True
         else:
             return False
-    
+
     def get_actions(self, request):
         actions = super().get_actions(request)
         if 'delete_selected' in actions:
@@ -112,35 +115,38 @@ class UserAdmin(BaseUserAdmin):
 admin.site.register(MyUser, UserAdmin)
 admin.site.unregister(Group)
 
+
 @admin.register(ProfileStaff)
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = [field.name for field in ProfileStaff._meta.fields if field.name != "id"]
+    list_display = [
+        field.name for field in ProfileStaff._meta.fields if field.name != "id"
+        ]
 
     filter_horizontal = ()
 
     def has_add_permission(self, request):
-        if request.user.profile_staff.manage_staff_create_user:
+        if request.user.profile_staff.manage_staff_user_crud:
             return True
         else:
             False
-    
+
     def has_module_permission(self, request):
         try:
-            if request.user.profile_staff.manage_staff_read_user:
+            if request.user.profile_staff.manage_staff_user_crud:
                 return True
             else:
                 return False
         except AttributeError:
             return False
-        
+
     def has_change_permission(self, request, obj=None):
-        if request.user.profile_staff.manage_staff_update_user:
+        if request.user.profile_staff.manage_staff_user_crud:
             return True
         else:
             False
-       
+
     def has_delete_permission(self, request, obj=None):
-        if request.user.profile_staff.manage_staff_delete_user:
+        if request.user.profile_staff.manage_staff_user_crud:
             return True
         else:
             False
