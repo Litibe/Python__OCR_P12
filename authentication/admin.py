@@ -79,14 +79,14 @@ class UserAdmin(BaseUserAdmin):
     filter_horizontal = ()
 
     def has_add_permission(self, request):
-        if request.user.profile_staff.manage_staff_create_user:
+        if request.user.profile_staff.manage_staff_user_crud:
             return True
         else:
             return False
 
     def has_module_permission(self, request):
         try:
-            if request.user.profile_staff.manage_staff_read_user:
+            if request.user.profile_staff.manage_staff_user_crud:
                 return True
             else:
                 return False
@@ -94,13 +94,13 @@ class UserAdmin(BaseUserAdmin):
             return False
 
     def has_change_permission(self, request, obj=None):
-        if request.user.profile_staff.manage_staff_update_user:
+        if request.user.profile_staff.manage_staff_user_crud:
             return True
         else:
             return False
 
     def has_delete_permission(self, request, obj=None):
-        if request.user.profile_staff.manage_staff_delete_user:
+        if request.user.profile_staff.manage_staff_user_crud:
             return True
         else:
             return False
