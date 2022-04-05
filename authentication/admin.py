@@ -67,10 +67,9 @@ class UserAdmin(BaseUserAdmin):
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
     add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': ('email', 'password1', 'password2', 'last_name', 'first_name', 'profile_staff'),
-        }),
+        ("User Login", {'fields': ('email', 'password', 'password2')}),
+        ('Personal info', {'fields': ('last_name', 'first_name')}),
+        ('Permissions', {'fields': ('profile_staff',)}),
     )
     search_fields = ('email', 'profile_staff')
     ordering = ('last_name', 'email', 'profile_staff')
@@ -83,14 +82,12 @@ class UserAdmin(BaseUserAdmin):
             return False
     
     def has_module_permission(self, request):
-        try: 
-            print("try")
+        try:
             if request.user.profile_staff.manage_staff_read_user:
-                print("user", True)
                 return True
             else:
                 return False
-        except AttributeError: 
+        except AttributeError:
             return False
 
     def has_change_permission(self, request, obj=None):
