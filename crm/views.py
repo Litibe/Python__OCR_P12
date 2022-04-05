@@ -22,11 +22,12 @@ class CustomerViews(ViewSet):
         request.user.profile_staff.customer_read
         serializer = CustomerSerialiser(data=request.data)
         if request.user.profile_staff.customer_read and (
-            request.user.profile_staff == profile_manage):
-                customers = Customer.objects.all()
-                serializer = CustomerSerialiser(customers, many=True)
-                return Response(serializer.data,
-                                status=status.HTTP_202_ACCEPTED)
+           request.user.profile_staff == profile_manage
+           ):
+            customers = Customer.objects.all()
+            serializer = CustomerSerialiser(customers, many=True)
+            return Response(serializer.data,
+                            status=status.HTTP_202_ACCEPTED)
         elif request.user.profile_staff.customer_read:
             customers = Customer.objects.filter(
                 sales_contact=request.user
