@@ -28,11 +28,13 @@ class Customer(models.Model):
     def save(self, *args, **kwargs):
         """Save Method surcharged to update ID Customer CMXXXXX
         """
-        last_customer = Customer.objects.all().order_by('id').last()
-        if not last_customer:
-            self.id = "CM00001"
-        else:
-            self.id = "CM" + str(int(last_customer.id[2:])+1)
+        if not self.id:
+            last_customer = Customer.objects.all().order_by('id').last()
+            if not last_customer:
+                self.id = "CM00001"
+            else:
+                id = str(int(last_customer.id[2:])+1)
+                self.id = "CM" + id.zfill(5)
         super().save(*args, **kwargs)
 
 
@@ -55,11 +57,13 @@ class Contract(models.Model):
     def save(self, *args, **kwargs):
         """Save Method surcharged to update ID Contract CTXXXXX
         """
-        last_contract = Contract.objects.all().order_by('id').last()
-        if not last_contract:
-            self.id = "CT00001"
-        else:
-            self.id = "CT" + str(int(last_contract.id[2:])+1)
+        if not self.id:
+            last_contract = Contract.objects.all().order_by('id').last()
+            if not last_contract:
+                self.id = "CT00001"
+            else:
+                id = str(int(last_contract.id[2:])+1)
+                self.id = "CM" + id.zfill(5)
         super().save(*args, **kwargs)
 
 
@@ -84,11 +88,13 @@ class Event(models.Model):
     def save(self, *args, **kwargs):
         """Save Method surcharged to update ID Event EXXXXX
         """
-        last_event = Event.objects.all().order_by('id').last()
-        if not last_event:
-            self.id = "E00001"
-        else:
-            self.id = "E" + str(int(last_event.id[1:])+1)
+        if not self.id:
+            last_event = Event.objects.all().order_by('id').last()
+            if not last_event:
+                self.id = "E00001"
+            else:
+                id = str(int(last_event.id[2:])+1)
+                self.id = "E" + id.zfill(5)
         super().save(*args, **kwargs)
 
 
@@ -107,9 +113,11 @@ class Need(models.Model):
     def save(self, *args, **kwargs):
         """Save Method surcharged to update ID Need NXXXXX
         """
-        last_need = Need.objects.all().order_by('id').last()
-        if not last_need:
-            self.id = "N00001"
-        else:
-            self.id = "N" + str(int(last_need.id[1:])+1)
+        if not self.id:
+            last_need = Need.objects.all().order_by('id').last()
+            if not last_need:
+                self.id = "N00001"
+            else:
+                id = str(int(last_need.id[2:])+1)
+                self.id = "N" + id.zfill(5)
         super().save(*args, **kwargs)
