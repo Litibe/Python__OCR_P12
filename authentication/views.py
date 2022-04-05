@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
@@ -7,6 +8,7 @@ from authentication.models import ProfileStaff
 
 
 class UserSignUpView(ViewSet):
+    permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
 
     def create_a_new_user(self, request, format=None):
