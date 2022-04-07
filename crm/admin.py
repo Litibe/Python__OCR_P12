@@ -1,5 +1,4 @@
 from django.db.models import Q
-from django import forms
 from django.contrib import admin
 from authentication.models import User
 
@@ -36,7 +35,7 @@ class CustomerAdmin(admin.ModelAdmin):
                 return False
         except AttributeError:
             return False
-        
+
     def has_module_permission(self, request, obj=None):
         try:
             if request.user.profile_staff.customer_CRU_assigned:
@@ -79,20 +78,17 @@ class CustomerAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         if request.user.profile_staff.customer_CRUD_all:
-            qs = super().get_queryset(request)
             form = super(CustomerAdmin, self).get_form(request, obj, **kwargs)
             list_sales_user = User.objects.filter(profile_staff__id=2)
             form.base_fields['sales_contact'].queryset = list_sales_user
             return form
         elif request.user.profile_staff.customer_CRU_assigned:
-            qs = super().get_queryset(request)
             form = super(CustomerAdmin, self).get_form(request, obj, **kwargs)
             list_sales_user = User.objects.filter(id=request.user.id)
             form.base_fields['sales_contact'].queryset = list_sales_user
             return form
         else:
             return None
-
 
 
 @admin.register(Contract)
@@ -170,21 +166,17 @@ class ContractAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         if request.user.profile_staff.contract_CRUD_all:
-            print("get form crud true")
-            qs = super().get_queryset(request)
             form = super(ContractAdmin, self).get_form(request, obj, **kwargs)
             customer_list = Customer.objects.all()
             form.base_fields['customer_assigned'].queryset = customer_list
             return form
         elif request.user.profile_staff.contract_CRU_assigned:
-            qs = super().get_queryset(request)
             form = super(ContractAdmin, self).get_form(request, obj, **kwargs)
             customer_list = Customer.objects.filter(sales_contact=request.user)
             form.base_fields['customer_assigned'].queryset = customer_list
             return form
         else:
             return None
-
 
 
 @admin.register(Event)
@@ -255,13 +247,11 @@ class EventAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         if request.user.profile_staff.event_CRUD_all:
-            qs = super().get_queryset(request)
             form = super(EventAdmin, self).get_form(request, obj, **kwargs)
             contract_list = Contract.objects.filter(signed=True)
             form.base_fields['contract_assigned'].queryset = contract_list
             return form
         elif request.user.profile_staff.event_CRU_assigned:
-            qs = super().get_queryset(request)
             form = super(EventAdmin, self).get_form(request, obj, **kwargs)
             customer_list = Customer.objects.filter(
                 sales_contact=request.user)
@@ -339,13 +329,11 @@ class NeedAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         if request.user.profile_staff.need_CRUD_all:
-            qs = super().get_queryset(request)
             form = super(NeedAdmin, self).get_form(request, obj, **kwargs)
             event_list = Event.objects.all()
             form.base_fields['event_assigned'].queryset = event_list
             return form
         elif request.user.profile_staff.need_CRU_assigned:
-            qs = super().get_queryset(request)
             form = super(NeedAdmin, self).get_form(request, obj, **kwargs)
             event_list = Event.objects.filter(
                 support_contact=request.user)

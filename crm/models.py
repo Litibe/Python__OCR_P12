@@ -38,8 +38,9 @@ class Customer(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.id} - {self.first_name} {self.last_name} - {self.email} ##\
-         Sales_contact : {self.sales_contact}'
+        return f'{self.id} - {self.first_name} \
+            {self.last_name} - {self.email} ## \
+            Sales_contact : {self.sales_contact}'
 
 
 class Contract(models.Model):
@@ -58,7 +59,7 @@ class Contract(models.Model):
     customer_assigned = models.ForeignKey(
         to=Customer,
         on_delete=models.CASCADE)
-    
+
     def __str__(self):
         return f'{self.id} - {self.title} ## {self.customer_assigned}'
 
@@ -104,10 +105,11 @@ class Event(models.Model):
                 id = str(int(last_event.id[2:])+1)
                 self.id = "E" + id.zfill(5)
         super().save(*args, **kwargs)
-    
+
     def __str__(self):
         return f'{self.id} - {self.title} ##\
-         Support_contact : {self.support_contact} ## {self.contract_assigned.id} {self.contract_assigned.title}'
+         Support_contact : {self.support_contact} ##\
+          {self.contract_assigned.id} {self.contract_assigned.title}'
 
 
 class Need(models.Model):

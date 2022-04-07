@@ -3,12 +3,14 @@ from django.urls import path
 from rest_framework_simplejwt import views as DRF_jwt_views
 
 from authentication.views import UserSignUpView
-from crm.views import CustomerViews
+from crm.views import main_page, CustomerViews
+
 admin.site.site_header = "EpicEvents CRM"
 admin.site.site_title = "EpicEvents CRM Portal"
 admin.site.index_title = "Welcome to EpicEvents CRM Portal"
 
 urlpatterns = [
+     path('', main_page, name='homepage'),
      path('portal/', admin.site.urls),
      path('api/authentication/login/',
           DRF_jwt_views.TokenObtainPairView.as_view(), name='login'),

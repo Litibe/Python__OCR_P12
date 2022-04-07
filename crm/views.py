@@ -1,3 +1,4 @@
+from django.shortcuts import render
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -6,6 +7,10 @@ from authentication.models import ProfileStaff
 from crm.models import Customer
 
 from crm.serializers import CustomerSerialiser
+
+
+def main_page(request):
+    return render(request, "crm/index.html")
 
 
 class CustomerViews(ViewSet):
