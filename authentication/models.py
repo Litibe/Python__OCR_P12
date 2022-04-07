@@ -8,18 +8,26 @@ class ProfileStaff(models.Model):
                             verbose_name='Name Profile')
     manage_staff_user_crud = models.BooleanField(
         verbose_name='Manage Staff - CRUD method for User', default=False)
+    customer_read = models.BooleanField(
+        verbose_name='Customer - Read', default=False)
     customer_CRU_assigned = models.BooleanField(
         verbose_name='Customer - CRU method for assigned user', default=False)
     customer_CRUD_all = models.BooleanField(
         verbose_name='Customer - CRUD method for all ', default=False)
+    contract_read = models.BooleanField(
+        verbose_name='Contract - Read', default=False)
     contract_CRU_assigned = models.BooleanField(
         verbose_name='Contract - CRU method for assigned user', default=False)
     contract_CRUD_all = models.BooleanField(
         verbose_name='Contract - CRUD method for all', default=False)
+    event_read = models.BooleanField(
+        verbose_name='Event - Read', default=False)
     event_CRU_assigned = models.BooleanField(
         verbose_name='Event - CRU method for assigned user', default=False)
     event_CRUD_all = models.BooleanField(
         verbose_name='Event - CRUD method for all', default=False)
+    need_read = models.BooleanField(
+        verbose_name='Need - Read', default=False)
     need_CRU_assigned = models.BooleanField(
         verbose_name='Need - CRU method for assigned user', default=False)
     need_CRUD_all = models.BooleanField(
