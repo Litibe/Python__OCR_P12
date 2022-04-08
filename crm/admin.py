@@ -7,8 +7,9 @@ from crm.models import Customer, Contract, Event, Need
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
-
+    list_filter = [['sales_contact', admin.RelatedOnlyFieldListFilter]]
     list_display = [field.name for field in Customer._meta.fields]
+    #list_display_links = None
     fieldsets = (
         ('Personal info', {'fields': (
             'last_name', 'first_name',
@@ -16,6 +17,7 @@ class CustomerAdmin(admin.ModelAdmin):
         ('Assignation', {'fields': (
             'sales_contact',)})
     )
+    
 
     def has_add_permission(self, request, obj=None):
         if request.user.profile_staff.customer_CRU_assigned:
@@ -48,10 +50,15 @@ class CustomerAdmin(admin.ModelAdmin):
             return False
 
     def has_change_permission(self, request, obj=None):
-        if request.user.profile_staff.customer_CRU_assigned:
+        if obj is None:
+            return False
+        if request.user.profile_staff.customer_CRUD_all:
             return True
-        elif request.user.profile_staff.customer_CRUD_all:
-            return True
+        elif request.user.profile_staff.customer_CRU_assigned:
+            if request.user == obj.sales_contact:
+                return True
+            else:
+                return False
         else:
             return False
 
@@ -67,29 +74,20 @@ class CustomerAdmin(admin.ModelAdmin):
             del actions['delete_selected']
         return actions
 
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        if request.user.profile_staff.customer_CRUD_all:
-            return qs
-        elif request.user.profile_staff.customer_CRU_assigned:
-            return qs.filter(sales_contact=request.user)
-        else:
-            return None
-
     def get_form(self, request, obj=None, **kwargs):
+        form = super(CustomerAdmin, self).get_form(request, obj, **kwargs)
+        print(form.base_fields)
         if request.user.profile_staff.customer_CRUD_all:
-            form = super(CustomerAdmin, self).get_form(request, obj, **kwargs)
             list_sales_user = User.objects.filter(profile_staff__id=2)
             form.base_fields['sales_contact'].queryset = list_sales_user
             return form
         elif request.user.profile_staff.customer_CRU_assigned:
-            form = super(CustomerAdmin, self).get_form(request, obj, **kwargs)
             list_sales_user = User.objects.filter(id=request.user.id)
-            form.base_fields['sales_contact'].queryset = list_sales_user
+            if form.base_fields:
+                form.base_fields['sales_contact'].queryset = list_sales_user
             return form
         else:
             return None
-
 
 @admin.register(Contract)
 class ContractAdmin(admin.ModelAdmin):
