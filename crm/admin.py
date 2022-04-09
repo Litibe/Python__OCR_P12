@@ -193,7 +193,9 @@ class EventAdmin(admin.ModelAdmin):
     )
 
     def has_add_permission(self, request):
-        if request.user.profile_staff.event_CRU_assigned:
+        if request.user.profile_staff.id == 3:
+            return False
+        elif request.user.profile_staff.event_CRU_assigned:
             return True
         elif request.user.profile_staff.event_CRUD_all:
             return True
@@ -251,10 +253,11 @@ class EventAdmin(admin.ModelAdmin):
             form.base_fields['contract_assigned'].queryset = contract_list
             return form
         elif request.user.profile_staff.event_CRU_assigned:
-            form.base_fields[
-                'contract_assigned'].widget.attrs['disabled'] = 'disabled'
-            form.base_fields[
-                'support_contact'].widget.attrs['disabled'] = 'disabled'
+            if request.user.profile_staff.id == 3:
+                form.base_fields[
+                    'contract_assigned'].widget.attrs['disabled'] = 'disabled'
+                form.base_fields[
+                    'support_contact'].widget.attrs['disabled'] = 'disabled'
             customer_list = Customer.objects.filter(
                 sales_contact=request.user)
             contract_list = Contract.objects.filter(
