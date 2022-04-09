@@ -1,9 +1,11 @@
 from django.db.models import Q
 from django.contrib import admin
-from authentication.models import User
+from datetime import datetime
 
+from authentication.models import User
 from crm.models import Customer, Contract, Event, Need
 
+date_now = datetime.now()
 
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
@@ -27,7 +29,9 @@ class CustomerAdmin(admin.ModelAdmin):
 
     def has_view_permission(self, request, obj=None):
         try:
-            if request.user.profile_staff.customer_CRU_assigned:
+            if request.user.profile_staff.customer_read:
+                return True
+            elif request.user.profile_staff.customer_CRU_assigned:
                 return True
             elif request.user.profile_staff.customer_CRUD_all:
                 return True
@@ -38,7 +42,9 @@ class CustomerAdmin(admin.ModelAdmin):
 
     def has_module_permission(self, request, obj=None):
         try:
-            if request.user.profile_staff.customer_CRU_assigned:
+            if request.user.profile_staff.customer_read:
+                return True
+            elif request.user.profile_staff.customer_CRU_assigned:
                 return True
             elif request.user.profile_staff.customer_CRUD_all:
                 return True
@@ -77,14 +83,11 @@ class CustomerAdmin(admin.ModelAdmin):
         if request.user.profile_staff.customer_CRUD_all:
             list_sales_user = User.objects.filter(profile_staff__id=2)
             form.base_fields['sales_contact'].queryset = list_sales_user
-            return form
         elif request.user.profile_staff.customer_CRU_assigned:
             list_sales_user = User.objects.filter(id=request.user.id)
             if form.base_fields:
                 form.base_fields['sales_contact'].queryset = list_sales_user
-            return form
-        else:
-            return None
+        return form
 
 
 @admin.register(Contract)
@@ -111,7 +114,9 @@ class ContractAdmin(admin.ModelAdmin):
 
     def has_module_permission(self, request):
         try:
-            if request.user.profile_staff.contract_CRU_assigned:
+            if request.user.profile_staff.contract_read:
+                return True
+            elif request.user.profile_staff.contract_CRU_assigned:
                 return True
             elif request.user.profile_staff.contract_CRUD_all:
                 return True
@@ -122,7 +127,9 @@ class ContractAdmin(admin.ModelAdmin):
 
     def has_view_permission(self, request, obj=None):
         try:
-            if request.user.profile_staff.contract_CRU_assigned:
+            if request.user.profile_staff.contract_read:
+                return True
+            elif request.user.profile_staff.contract_CRU_assigned:
                 return True
             elif request.user.profile_staff.contract_CRUD_all:
                 return True
@@ -137,12 +144,10 @@ class ContractAdmin(admin.ModelAdmin):
         if request.user.profile_staff.contract_CRUD_all:
             return True
         elif request.user.profile_staff.contract_CRU_assigned:
-            print(obj.customer_assigned.sales_contact)
-            print("email", request.user.email)
             if request.user == obj.customer_assigned.sales_contact:
                 return True
             else:
-                return None
+                return False
         else:
             return False
 
@@ -163,12 +168,10 @@ class ContractAdmin(admin.ModelAdmin):
         if request.user.profile_staff.contract_CRUD_all:
             customer_list = Customer.objects.all()
             form.base_fields['customer_assigned'].queryset = customer_list
-            return form
         elif request.user.profile_staff.contract_CRU_assigned:
             customer_list = Customer.objects.filter(sales_contact=request.user)
             if form.base_fields:
                 form.base_fields['customer_assigned'].queryset = customer_list
-                return form
         return form
 
 
@@ -219,6 +222,8 @@ class EventAdmin(admin.ModelAdmin):
             return False
 
     def has_change_permission(self, request, obj=None):
+        if obj is None:
+            return False
         if request.user.profile_staff.event_CRU_assigned:
             return True
         elif request.user.profile_staff.event_CRUD_all:
@@ -238,23 +243,24 @@ class EventAdmin(admin.ModelAdmin):
             del actions['delete_selected']
         return actions
 
-    def get_form(self, request, obj=None, **kwargs):
+    def get_form(self, request, obj=None, *args, **kwargs):
+        form = super(EventAdmin, self).get_form(request, obj, **kwargs)            
         if request.user.profile_staff.event_CRUD_all:
-            form = super(EventAdmin, self).get_form(request, obj, **kwargs)
             contract_list = Contract.objects.filter(signed=True)
             form.base_fields['contract_assigned'].queryset = contract_list
             return form
         elif request.user.profile_staff.event_CRU_assigned:
-            form = super(EventAdmin, self).get_form(request, obj, **kwargs)
+            form.base_fields[
+                'contract_assigned'].widget.attrs['disabled'] = 'disabled'
+            form.base_fields[
+                'support_contact'].widget.attrs['disabled'] = 'disabled'
             customer_list = Customer.objects.filter(
                 sales_contact=request.user)
             contract_list = Contract.objects.filter(
                 Q(customer_assigned__in=customer_list) | Q(signed=True))
             form.base_fields['contract_assigned'].queryset = contract_list
-            return form
-        else:
-            return None
-
+        return form
+        
 
 @admin.register(Need)
 class NeedAdmin(admin.ModelAdmin):
@@ -301,6 +307,10 @@ class NeedAdmin(admin.ModelAdmin):
             return False
 
     def has_change_permission(self, request, obj=None):
+        if obj is None:
+            return False
+        if obj.event_assigned.date_finished.isoformat() < date_now.isoformat():
+            return False
         if request.user.profile_staff.need_CRU_assigned:
             return True
         elif request.user.profile_staff.need_CRUD_all:
@@ -309,6 +319,10 @@ class NeedAdmin(admin.ModelAdmin):
             return False
 
     def has_delete_permission(self, request, obj=None):
+        if obj is None:
+            return False
+        if obj.event_assigned.date_finished.isoformat() < date_now.isoformat():
+            return False
         if request.user.profile_staff.need_CRUD_all:
             return True
         else:
@@ -321,16 +335,15 @@ class NeedAdmin(admin.ModelAdmin):
         return actions
 
     def get_form(self, request, obj=None, **kwargs):
-        if request.user.profile_staff.need_CRUD_all:
-            form = super(NeedAdmin, self).get_form(request, obj, **kwargs)
-            event_list = Event.objects.all()
-            form.base_fields['event_assigned'].queryset = event_list
-            return form
-        elif request.user.profile_staff.need_CRU_assigned:
-            form = super(NeedAdmin, self).get_form(request, obj, **kwargs)
+        form = super(NeedAdmin, self).get_form(request, obj, **kwargs)
+        if request.user.profile_staff.need_CRU_assigned:
             event_list = Event.objects.filter(
                 support_contact=request.user)
-            form.base_fields['event_assigned'].queryset = event_list
-            return form
-        else:
-            return None
+            if form.base_fields:
+                form.base_fields['event_assigned'].queryset = event_list
+        if request.user.profile_staff.need_CRUD_all:
+            event_list = Event.objects.all()
+            if form.base_fields:
+                form.base_fields['event_assigned'].queryset = event_list
+        return form
+       
