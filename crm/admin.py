@@ -7,6 +7,7 @@ from crm.models import Customer, Contract, Event, Need
 
 date_now = datetime.now()
 
+
 @admin.register(Customer)
 class CustomerAdmin(admin.ModelAdmin):
     list_filter = [['sales_contact', admin.RelatedOnlyFieldListFilter]]
@@ -243,8 +244,8 @@ class EventAdmin(admin.ModelAdmin):
             del actions['delete_selected']
         return actions
 
-    def get_form(self, request, obj=None, *args, **kwargs):
-        form = super(EventAdmin, self).get_form(request, obj, **kwargs)            
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(EventAdmin, self).get_form(request, obj, **kwargs)
         if request.user.profile_staff.event_CRUD_all:
             contract_list = Contract.objects.filter(signed=True)
             form.base_fields['contract_assigned'].queryset = contract_list
@@ -260,7 +261,7 @@ class EventAdmin(admin.ModelAdmin):
                 Q(customer_assigned__in=customer_list) | Q(signed=True))
             form.base_fields['contract_assigned'].queryset = contract_list
         return form
-        
+
 
 @admin.register(Need)
 class NeedAdmin(admin.ModelAdmin):
@@ -346,4 +347,3 @@ class NeedAdmin(admin.ModelAdmin):
             if form.base_fields:
                 form.base_fields['event_assigned'].queryset = event_list
         return form
-       
