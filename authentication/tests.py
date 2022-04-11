@@ -1,7 +1,10 @@
 from django.test import Client, TestCase
-from django.urls import reverse, resolve
+from django.urls import reverse
+from django.contrib.admin.sites import AdminSite
 
 from authentication.models import User, ProfileStaff
+from authentication.admin import UserAdmin
+
 
 def create_profile_staff_support():
     profile_support = ProfileStaff.objects.create(name="SUPPORT")
@@ -22,33 +25,70 @@ def create_new_user_support():
     new_user.save()
 
 
+def create_new_user_manage():
+    profile_manage = ProfileStaff.objects.create(
+        name="MANAGE",
+        manage_staff_user_crud=True)
+    profile_manage.save()
+    profile_staff = ProfileStaff.objects.filter(name="MANAGE").first()
+    new_user = User.objects.create(
+        email="manage@epicevents.fr",
+        first_name="prenom",
+        last_name='nom',
+        profile_staff=profile_staff,
+    )
+    new_user.set_password("epicevents")
+    new_user.save()
+
+
+def create_new_user_manage_support():
+    create_new_user_manage()
+    create_new_user_support()
+
+
 class TestUnitaireAPI(TestCase):
-    
-    def test_int_create_new_user_error(self):
-        client = Client()
-        response = client.post(reverse("sign_up"), data={'key1': 'data1',
-                                                         'key2': 'data2'})
-        assert response.status_code == 406
+    @classmethod
+    def setup_class(cls):
+        create_new_user_manage_support()
+        print("--> Setup Users")
 
-    def test_int_create_new_user_success(self):
-        client = Client()
-        create_profile_staff_support()
-        response = client.post(reverse("sign_up"),
-                               data={'email': 'lioneltissier2@epicevents.fr',
-                                     'first_name': 'Lionel2',
-                                     'last_name': 'TISSIER2',
-                                     'password': 'epicevents',
-                                     'profile_staff': 'SUPPORT'})
-        assert response.status_code == 201
-
-    def test_int_login_user_success(self):
-        create_new_user_support()
+    def test_000_login_user_success_support(self):
         client = Client()
         response = client.post(reverse("login"),
                                data={'email': 'support@epicevents.fr',
                                      'password': 'epicevents'})
-        print(response.data)
+        self.token_user_support = response.get("access")
         assert response.status_code == 200
+
+    def test_001_login_user_success_manage(self):
+        client = Client()
+        response = client.post(reverse("login"),
+                               data={'email': 'manage@epicevents.fr',
+                                     'password': 'epicevents'})
+        self.token_user_manage = response.get("access")
+        assert response.status_code == 200
+
+    def test_002_create_new_user_error_without_loggin(self):
+        client = Client()
+        response = client.post(reverse("sign_up"), data={'key1': 'data1',
+                                                         'key2': 'data2'})
+        assert response.status_code == 401
+
+    def test_003_create_new_user_success_with_login(self):
+        client = Client()
+        response = client.post(reverse("login"),
+                               data={'email': 'manage@epicevents.fr',
+                                     'password': 'epicevents'})
+        access_token = 'Bearer ' + response.data.get('access')
+        client.defaults['HTTP_AUTHORIZATION'] = access_token
+        response = client.post(
+            reverse("sign_up"),
+            data={'email': 'lioneltissier2@epicevents.fr',
+                  'first_name': 'Lionel2',
+                  'last_name': 'TISSIER2',
+                  'password': 'epicevents',
+                  'profile_staff': 'SUPPORT'})
+        assert response.status_code == 201
 
 
 class TestUnitaireModels(TestCase):
@@ -72,3 +112,54 @@ class TestUnitaireModels(TestCase):
             email='lioneltissier2@epicevents.fr').first()
         assert search_user.email == 'lioneltissier2@epicevents.fr'
         assert search_user.first_name == 'Lionel2'
+
+
+class OurRequests(object):
+    def __init__(self, user):
+        self.user = user
+
+
+class TestUnitaireModelsAdminAccess(TestCase):
+
+    def SetUp(self):
+        create_new_user_manage_support()
+        print("--> Setup Users")
+
+    def test_permission_user_manage(
+            self, profile_staff=1,
+            bol_ad=True, bol_module=True, bol_change=True, bol_del=True):
+        self.user_model_admin = UserAdmin(model=User, admin_site=AdminSite())
+        user_profil = User.objects.filter(profile_staff=profile_staff).first()
+        my_request = OurRequests(user_profil)
+        self.assertEqual(
+            self.user_model_admin.has_add_permission(
+                my_request), bol_ad)
+        self.assertEqual(
+            self.user_model_admin.has_module_permission(
+                my_request), bol_module)
+        self.assertEqual(
+            self.user_model_admin.has_change_permission(
+                my_request), bol_change)
+        self.assertEqual(
+            self.user_model_admin.has_delete_permission(
+                my_request), bol_del)
+    
+    def test_permission_user_support(
+            self, profile_staff=2,
+            bol_ad=False, bol_module=False, bol_change=False, bol_del=False):
+        self.user_model_admin = UserAdmin(model=User, admin_site=AdminSite())
+        user_profil = User.objects.filter(profile_staff=profile_staff).first()
+        my_request = OurRequests(user_profil)
+        self.assertEqual(
+            self.user_model_admin.has_add_permission(
+                my_request), bol_ad)
+        self.assertEqual(
+            self.user_model_admin.has_module_permission(
+                my_request), bol_module)
+        self.assertEqual(
+            self.user_model_admin.has_change_permission(
+                my_request), bol_change)
+        self.assertEqual(
+            self.user_model_admin.has_delete_permission(
+                my_request), bol_del)
+
