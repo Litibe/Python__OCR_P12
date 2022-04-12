@@ -71,7 +71,6 @@ def create_new_user_sales():
         contract_CRU_assigned=True,
         event_read=True,
         event_CRU_assigned=True,
-        need_read=True,
     )
     profile_manage.save()
     profile_staff = ProfileStaff.objects.filter(name="SALES").first()
@@ -83,6 +82,7 @@ def create_new_user_sales():
     )
     new_user.set_password("epicevents")
     new_user.save()
+
 
 def create_new_users():
     create_new_user_manage()
@@ -166,7 +166,7 @@ class OurRequests(object):
 class TestUnitaireModelsAdminAccess(TestCase):
 
     def SetUp(self):
-        create_new_user_manage_support()
+        create_new_users()
         print("--> Setup Users")
 
     def test_permission_user_manage(
