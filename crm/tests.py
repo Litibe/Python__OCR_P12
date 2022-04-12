@@ -1,51 +1,10 @@
-import datetime
+from parameterized import parameterized
 from django.test import TestCase
+from django.contrib.admin.sites import AdminSite
+
 from authentication.models import ProfileStaff, User
-
+from crm.admin import CustomerAdmin, ContractAdmin, EventAdmin, NeedAdmin
 from crm.models import Contract, Customer, Event, Need
-
-
-def create_new_user_support():
-    """Create New User with profile_staff.name==SUPPORT into DB TEST
-
-    Returns:
-        User Object with Profile_staff.id=3 created after search into db
-    """
-    profile_support = ProfileStaff.objects.create(name="SUPPORT")
-    profile_support.save()
-    profile_staff = ProfileStaff.objects.filter(name="SUPPORT").first()
-    new_user = User.objects.create(
-        email="support@epicevents.fr",
-        first_name="prenom",
-        last_name='nom',
-        profile_staff=profile_staff,
-    )
-    new_user.set_password("epicevents")
-    new_user.save()
-    user_support = User.objects.filter(profile_staff=profile_staff).first()
-    return user_support
-
-
-def create_new_user_sales():
-    """Create New User with profile_staff.name==SALES into DB TEST
-
-    Returns:
-        User Object with Profile_staff.id=2 created after search into db
-    """
-    profile_sales = ProfileStaff.objects.create(name="SALES")
-    profile_sales.save()
-    profile_staff = ProfileStaff.objects.filter(name="SALES").first()
-    new_user = User.objects.create(
-        email="sales@epicevents.fr",
-        first_name="prenom",
-        last_name='nom',
-        profile_staff=profile_staff,
-    )
-    new_user.set_password("epicevents")
-    new_user.save()
-    user_sales = User.objects.filter(
-            profile_staff=profile_staff).first()
-    return user_sales
 
 
 def create_new_customer(user_sales):
@@ -143,7 +102,9 @@ class TestUnitaireModels(TestCase):
     def test_01_create_new_customer(self):
         """create new user_sales into db and new customer with sales_contact
         """
-        user_sales = create_new_user_sales()
+        profile_staff = ProfileStaff.objects.filter(name="SALES").first()
+        user_sales = User.objects.filter(
+            profile_staff=profile_staff).first()
         db_customer = create_new_customer(user_sales)
         assert db_customer.id == "CM00001"
         assert db_customer.first_name == "Tony"
@@ -153,7 +114,9 @@ class TestUnitaireModels(TestCase):
     def test_02_create_new_contract(self):
         """create new contract for a customer
         """
-        user_sales = create_new_user_sales()
+        profile_staff = ProfileStaff.objects.filter(name="SALES").first()
+        user_sales = User.objects.filter(
+            profile_staff=profile_staff).first()
         db_customer = create_new_customer(user_sales)
         print(db_customer)
         db_contract = create_new_contract(db_customer)
@@ -164,10 +127,12 @@ class TestUnitaireModels(TestCase):
     def test_03_create_new_event(self):
         """create new event for a contract
         """
-        user_sales = create_new_user_sales()
-        print(user_sales)
-        user_support = create_new_user_support()
-        print(user_support)
+        profile_staff = ProfileStaff.objects.filter(name="SALES").first()
+        user_sales = User.objects.filter(
+            profile_staff=profile_staff).first()
+        profile_staff = ProfileStaff.objects.filter(name="SUPPORT").first()
+        user_support = User.objects.filter(
+            profile_staff=profile_staff).first()
         db_customer = create_new_customer(user_sales)
         print(db_customer)
         db_contract = create_new_contract(db_customer)
@@ -178,10 +143,12 @@ class TestUnitaireModels(TestCase):
     def test_04_create_new_need(self):
         """create new need for a event
         """
-        user_sales = create_new_user_sales()
-        print(user_sales)
-        user_support = create_new_user_support()
-        print(user_support)
+        profile_staff = ProfileStaff.objects.filter(name="SALES").first()
+        user_sales = User.objects.filter(
+            profile_staff=profile_staff).first()
+        profile_staff = ProfileStaff.objects.filter(name="SUPPORT").first()
+        user_support = User.objects.filter(
+            profile_staff=profile_staff).first()
         db_customer = create_new_customer(user_sales)
         print(db_customer)
         db_contract = create_new_contract(db_customer)
@@ -190,3 +157,38 @@ class TestUnitaireModels(TestCase):
         print(db_event)
         db_need = create_new_need(db_event)
         print(db_need)
+
+
+class OurRequests(object):
+    def __init__(self, user):
+        self.user = user
+
+
+class TestUnitaireModelsAdminAccess(TestCase):
+    @parameterized.expand([
+            [1, True, True, True, True, True],
+            [2, True, True, True, True, True],
+            [3, True, True, True, True, True],
+            ])
+    def test_permission_customer(
+            self, profile_staff,
+            bol_ad, bol_view, bol_module, bol_change, bol_del):
+        self.user_model_admin = CustomerAdmin(
+            model=User, admin_site=AdminSite())
+        user_profil = User.objects.filter(profile_staff=profile_staff).first()
+        my_request = OurRequests(user_profil)
+        self.assertEqual(
+            self.user_model_admin.has_add_permission(
+                my_request), bol_ad)
+        self.assertEqual(
+            self.user_model_admin.has_view_permission(
+                my_request), bol_view)
+        self.assertEqual(
+            self.user_model_admin.has_module_permission(
+                my_request), bol_module)
+        self.assertEqual(
+            self.user_model_admin.has_change_permission(
+                my_request), bol_change)
+        self.assertEqual(
+            self.user_model_admin.has_delete_permission(
+                my_request), bol_del)
