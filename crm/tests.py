@@ -1,12 +1,15 @@
 from parameterized import parameterized
 from django.test import TestCase
 from django.contrib.admin.sites import AdminSite
-import pytest
+from datetime import datetime
+
 
 from authentication.models import ProfileStaff, User
 from authentication.tests import create_new_users
 from crm.admin import CustomerAdmin, ContractAdmin, EventAdmin, NeedAdmin
 from crm.models import Contract, Customer, Event, Need
+
+date_now = datetime.now()
 
 
 def create_C_C_E_N():
@@ -17,13 +20,13 @@ def create_C_C_E_N():
     user_support = User.objects.filter(
             profile_staff=profile_staff).first()
     db_customer = create_new_customer(user_sales)
-    print(db_customer)
+    print(db_customer.id)
     db_contract = create_new_contract(db_customer)
-    print(db_contract)
+    print(db_contract.id)
     db_event = create_new_event(db_contract, user_support)
-    print(db_event)
+    print(db_event.id)
     db_need = create_new_need(db_event)
-    print(db_need)
+    print(db_need.id)
 
 
 def create_new_customer(user_sales):
@@ -128,7 +131,6 @@ class TestUnitaireModels(TestCase):
         assert db_customer.id == "CM00001"
         assert db_customer.first_name == "Tony"
         assert db_customer.sales_contact.profile_staff.name == "SALES"
-        print(db_customer)
 
     def test_02_create_new_contract(self):
         """create new contract for a customer
@@ -137,11 +139,9 @@ class TestUnitaireModels(TestCase):
         user_sales = User.objects.filter(
             profile_staff=profile_staff).first()
         db_customer = create_new_customer(user_sales)
-        print(db_customer)
         db_contract = create_new_contract(db_customer)
         assert db_contract.customer_assigned == db_customer
         assert db_contract.id == "CT00001"
-        print(db_contract)
 
     def test_03_create_new_event(self):
         """create new event for a contract
@@ -153,11 +153,8 @@ class TestUnitaireModels(TestCase):
         user_support = User.objects.filter(
             profile_staff=profile_staff).first()
         db_customer = create_new_customer(user_sales)
-        print(db_customer)
         db_contract = create_new_contract(db_customer)
-        print(db_contract)
         db_event = create_new_event(db_contract, user_support)
-        print(db_event)
 
     def test_04_create_new_need(self):
         """create new need for a event
@@ -183,7 +180,6 @@ class TestUnitaireModelsAdminAccess(TestCase):
             contract_CRU_assigned=True,
             event_read=True,
             event_CRU_assigned=True,
-            need_read=True,
         )
         profile_manage.save()
         profile_staff = ProfileStaff.objects.filter(name="SALES").first()
@@ -195,6 +191,32 @@ class TestUnitaireModelsAdminAccess(TestCase):
         )
         new_user.set_password("epicevents")
         new_user.save()
+        """Create another user Support"""
+        profile_manage = ProfileStaff.objects.create(
+            name="SUPPORT",
+            customer_read=True,
+            contract_read=True,
+            event_read=True,
+            event_CRU_assigned=True,
+            need_read=True,
+            need_CRU_assigned=True,
+        )
+        profile_manage.save()
+        profile_staff = ProfileStaff.objects.filter(name="SUPPORT").first()
+        new_user = User.objects.create(
+            email="support2@epicevents.fr",
+            first_name="prenom2",
+            last_name='nom2',
+            profile_staff=profile_staff,
+        )
+        new_user.set_password("epicevents")
+        new_user.save()
+        """Create Another Contract"""
+        profile_staff = ProfileStaff.objects.filter(name="SALES").first()
+        user_sales = User.objects.filter(
+            profile_staff=profile_staff)[1]
+        db_customer = create_new_customer(user_sales)
+        db_contract = create_new_contract(db_customer)
         print("--> Setup C.C.E.N")
 
     @parameterized.expand([
@@ -207,7 +229,7 @@ class TestUnitaireModelsAdminAccess(TestCase):
             self, profile_staff, user_id,
             bol_ad, bol_view, bol_module, bol_change, bol_del):
         """
-        Test Permission differents user into db, 2 user sales differents 
+        Test Permission differents user into db, 2 user sales differents
         only first autorized to update Customer Object
         """
         self.user_model_admin = CustomerAdmin(
@@ -229,5 +251,124 @@ class TestUnitaireModelsAdminAccess(TestCase):
             self.user_model_admin.has_change_permission(
                 my_request, obj), bol_change)
         self.assertEqual(
+            self.user_model_admin.has_change_permission(
+                my_request), False)
+        self.assertEqual(
             self.user_model_admin.has_delete_permission(
                 my_request), bol_del)
+
+    @parameterized.expand([
+            ["MANAGE", 0, True, True, True, True, True],
+            ["SALES", 0, True, True, True, True, False],
+            ["SALES", 1, True, True, True, False, False],
+            ["SUPPORT", 0, False, True, True, False, False]
+            ])
+    def test_permission_contract(
+            self, profile_staff, user_id,
+            bol_ad, bol_view, bol_module, bol_change, bol_del):
+        """
+        Test Permission differents user into db, 2 user sales differents
+        only first autorized to update Contract Object
+        """
+        self.user_model_admin = ContractAdmin(
+            model=User, admin_site=AdminSite())
+        user_profil = User.objects.filter(
+            profile_staff__name=profile_staff)[user_id]
+        my_request = OurRequests(user_profil)
+        self.assertEqual(
+            self.user_model_admin.has_add_permission(
+                my_request), bol_ad)
+        self.assertEqual(
+            self.user_model_admin.has_view_permission(
+                my_request), bol_view)
+        self.assertEqual(
+            self.user_model_admin.has_module_permission(
+                my_request), bol_module)
+        obj = Contract.objects.all().first()
+        self.assertEqual(
+            self.user_model_admin.has_change_permission(
+                my_request, obj), bol_change)
+        self.assertEqual(
+            self.user_model_admin.has_delete_permission(
+                my_request), bol_del)
+ 
+    @parameterized.expand([
+            ["MANAGE", 0, True, True, True, True, True],
+            ["SALES", 0, True, True, True, True, False],
+            ["SALES", 1, True, True, True, False, False],
+            ["SUPPORT", 0, False, True, True, False, False]
+            ])
+    def test_permission_events(
+            self, profile_staff, user_id,
+            bol_ad, bol_view, bol_module, bol_change, bol_del):
+        """
+        Test Permission differents user into db, 2 user sales differents
+        only first autorized to update Event Object
+        """
+        self.user_model_admin = EventAdmin(
+            model=User, admin_site=AdminSite())
+        user_profil = User.objects.filter(
+            profile_staff__name=profile_staff)[user_id]
+        my_request = OurRequests(user_profil)
+        self.assertEqual(
+            self.user_model_admin.has_add_permission(
+                my_request), bol_ad)
+        self.assertEqual(
+            self.user_model_admin.has_view_permission(
+                my_request), bol_view)
+        self.assertEqual(
+            self.user_model_admin.has_module_permission(
+                my_request), bol_module)
+        obj = Event.objects.all().first()
+        self.assertEqual(
+            self.user_model_admin.has_change_permission(
+                my_request, obj), bol_change)
+        self.assertEqual(
+            self.user_model_admin.has_delete_permission(
+                my_request), bol_del)
+
+    @parameterized.expand([
+            ["MANAGE", 0, True, True, True, True, True],
+            ["SALES", 0, False, False, False, False, False],
+            ["SALES", 1, False, False, False, False, False],
+            ["SUPPORT", 0, True, True, True, True, False],
+            ["SUPPORT", 1, True, True, True, False, False]
+            ])
+    def test_permission_needs(
+            self, profile_staff, user_id,
+            bol_ad, bol_view, bol_module, bol_change, bol_del):
+        """
+        Test Permission differents user into db, 2 user sales differents
+        only first autorized to update Need Object
+        """
+        self.user_model_admin = NeedAdmin(
+            model=User, admin_site=AdminSite())
+        user_profil = User.objects.filter(
+            profile_staff__name=profile_staff)[user_id]
+        my_request = OurRequests(user_profil)
+        obj = Need.objects.all().first()
+        print(obj)
+        if obj.event_assigned.date_finished.isoformat() < date_now.isoformat():
+            bol_change = False
+            bol_del = False
+        else:
+            bol_change = True
+            bol_del = True
+        self.assertEqual(
+            self.user_model_admin.has_add_permission(
+                my_request), bol_ad)       
+        self.assertEqual(
+            self.user_model_admin.has_view_permission(
+                my_request, obj), bol_view)
+        """       
+        self.assertEqual(
+            self.user_model_admin.has_module_permission(
+                my_request), bol_module)
+        
+        self.assertEqual(
+            self.user_model_admin.has_change_permission(
+                my_request, obj), bol_change)
+        self.assertEqual(
+            self.user_model_admin.has_delete_permission(
+                my_request, obj), bol_del)
+""" 

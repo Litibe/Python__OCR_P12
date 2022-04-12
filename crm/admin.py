@@ -21,20 +21,18 @@ class CustomerAdmin(admin.ModelAdmin):
     )
 
     def has_add_permission(self, request, obj=None):
-        if request.user.profile_staff.customer_CRU_assigned:
-            return True
-        elif request.user.profile_staff.customer_CRUD_all:
+        user_perms = request.user.profile_staff
+        if user_perms.customer_CRUD_all or user_perms.customer_CRU_assigned:
             return True
         else:
             return False
 
     def has_view_permission(self, request, obj=None):
         try:
-            if request.user.profile_staff.customer_read:
-                return True
-            elif request.user.profile_staff.customer_CRU_assigned:
-                return True
-            elif request.user.profile_staff.customer_CRUD_all:
+            user_perms = request.user.profile_staff
+            if (user_perms.customer_read) or (
+                user_perms.customer_CRU_assigned) or (
+                    user_perms.customer_CRUD_all):
                 return True
             else:
                 return False
@@ -43,11 +41,10 @@ class CustomerAdmin(admin.ModelAdmin):
 
     def has_module_permission(self, request, obj=None):
         try:
-            if request.user.profile_staff.customer_read:
-                return True
-            elif request.user.profile_staff.customer_CRU_assigned:
-                return True
-            elif request.user.profile_staff.customer_CRUD_all:
+            user_perms = request.user.profile_staff
+            if (user_perms.customer_read) or (
+                user_perms.customer_CRU_assigned) or (
+                    user_perms.customer_CRUD_all):
                 return True
             else:
                 return False
@@ -55,7 +52,6 @@ class CustomerAdmin(admin.ModelAdmin):
             return False
 
     def has_change_permission(self, request, obj=None):
-        print(obj)
         if obj is None:
             return False
         if request.user.profile_staff.customer_CRUD_all:
@@ -107,20 +103,21 @@ class ContractAdmin(admin.ModelAdmin):
     )
 
     def has_add_permission(self, request):
-        if request.user.profile_staff.contract_CRU_assigned:
-            return True
-        elif request.user.profile_staff.contract_CRUD_all:
+        user_perms = request.user.profile_staff
+        if user_perms.contract_CRU_assigned or (
+            user_perms.contract_CRUD_all
+        ):
             return True
         else:
             return False
 
     def has_module_permission(self, request):
         try:
-            if request.user.profile_staff.contract_read:
-                return True
-            elif request.user.profile_staff.contract_CRU_assigned:
-                return True
-            elif request.user.profile_staff.contract_CRUD_all:
+            user_perms = request.user.profile_staff
+            if user_perms.contract_read or (
+                user_perms.contract_CRU_assigned) or (
+                    user_perms.contract_CRUD_all
+                    ):
                 return True
             else:
                 return False
@@ -129,11 +126,11 @@ class ContractAdmin(admin.ModelAdmin):
 
     def has_view_permission(self, request, obj=None):
         try:
-            if request.user.profile_staff.contract_read:
-                return True
-            elif request.user.profile_staff.contract_CRU_assigned:
-                return True
-            elif request.user.profile_staff.contract_CRUD_all:
+            user_perms = request.user.profile_staff
+            if user_perms.contract_read or (
+                user_perms.contract_CRU_assigned) or (
+                    user_perms.contract_CRUD_all
+                    ):
                 return True
             else:
                 return False
@@ -194,20 +191,20 @@ class EventAdmin(admin.ModelAdmin):
     )
 
     def has_add_permission(self, request):
-        if request.user.profile_staff.id == 3:
+        user_perms = request.user.profile_staff
+        if user_perms.name == "SUPPORT":
             return False
-        elif request.user.profile_staff.event_CRU_assigned:
-            return True
-        elif request.user.profile_staff.event_CRUD_all:
+        elif user_perms.event_CRU_assigned or user_perms.event_CRUD_all:
             return True
         else:
             return False
 
     def has_module_permission(self, request):
         try:
-            if request.user.profile_staff.event_CRU_assigned:
-                return True
-            elif request.user.profile_staff.event_CRUD_all:
+            user_perms = request.user.profile_staff
+            if user_perms.event_read or (
+                user_perms.event_CRU_assigned
+            ) or user_perms.event_CRUD_all:
                 return True
             else:
                 return False
@@ -216,9 +213,10 @@ class EventAdmin(admin.ModelAdmin):
 
     def has_view_permission(self, request, obj=None):
         try:
-            if request.user.profile_staff.event_CRU_assigned:
-                return True
-            elif request.user.profile_staff.event_CRUD_all:
+            user_perms = request.user.profile_staff
+            if user_perms.event_read or (
+                user_perms.event_CRU_assigned
+            ) or user_perms.event_CRUD_all:
                 return True
             else:
                 return False
@@ -228,10 +226,15 @@ class EventAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         if obj is None:
             return False
-        if request.user.profile_staff.event_CRU_assigned:
+        user_perms = request.user.profile_staff
+        if user_perms.event_CRUD_all:
             return True
-        elif request.user.profile_staff.event_CRUD_all:
-            return True
+        elif user_perms.event_CRU_assigned:
+            if obj.contract_assigned.customer_assigned.sales_contact == (
+               request.user):
+                return True
+            else:
+                return False
         else:
             return False
 
@@ -282,18 +285,17 @@ class NeedAdmin(admin.ModelAdmin):
     )
 
     def has_add_permission(self, request):
-        if request.user.profile_staff.need_CRU_assigned:
-            return True
-        elif request.user.profile_staff.need_CRUD_all:
+        user_perms = request.user.profile_staff
+        if user_perms.need_CRU_assigned or user_perms.need_CRUD_all:
             return True
         else:
             return False
 
     def has_module_permission(self, request):
         try:
-            if request.user.profile_staff.need_CRU_assigned:
-                return True
-            elif request.user.profile_staff.need_CRUD_all:
+            user_perms = request.user.profile_staff
+            if user_perms.need_read or (
+               user_perms.need_CRU_assigned) or (user_perms.need_CRUD_all):
                 return True
             else:
                 return False
@@ -302,9 +304,9 @@ class NeedAdmin(admin.ModelAdmin):
 
     def has_view_permission(self, request, obj=None):
         try:
-            if request.user.profile_staff.need_CRU_assigned:
-                return True
-            elif request.user.profile_staff.need_CRUD_all:
+            user_perms = request.user.profile_staff
+            if user_perms.need_read or (
+               user_perms.need_CRU_assigned) or (user_perms.need_CRUD_all):
                 return True
             else:
                 return False
@@ -316,9 +318,8 @@ class NeedAdmin(admin.ModelAdmin):
             return False
         if obj.event_assigned.date_finished.isoformat() < date_now.isoformat():
             return False
-        if request.user.profile_staff.need_CRU_assigned:
-            return True
-        elif request.user.profile_staff.need_CRUD_all:
+        user_perms = request.user.profile_staff
+        if user_perms.need_CRU_assigned or user_perms.need_CRUD_all:
             return True
         else:
             return False
