@@ -291,7 +291,7 @@ class TestUnitaireModelsAdminAccess(TestCase):
         self.assertEqual(
             self.user_model_admin.has_delete_permission(
                 my_request), bol_del)
- 
+
     @parameterized.expand([
             ["MANAGE", 0, True, True, True, True, True],
             ["SALES", 0, True, True, True, True, False],
@@ -347,28 +347,60 @@ class TestUnitaireModelsAdminAccess(TestCase):
             profile_staff__name=profile_staff)[user_id]
         my_request = OurRequests(user_profil)
         obj = Need.objects.all().first()
-        print(obj)
+        print(obj, obj.event_assigned.support_contact)
         if obj.event_assigned.date_finished.isoformat() < date_now.isoformat():
+            print("date event end")
             bol_change = False
             bol_del = False
-        else:
-            bol_change = True
-            bol_del = True
         self.assertEqual(
             self.user_model_admin.has_add_permission(
-                my_request), bol_ad)       
+                my_request), bol_ad)
         self.assertEqual(
             self.user_model_admin.has_view_permission(
                 my_request, obj), bol_view)
-        """       
         self.assertEqual(
             self.user_model_admin.has_module_permission(
                 my_request), bol_module)
-        
         self.assertEqual(
             self.user_model_admin.has_change_permission(
                 my_request, obj), bol_change)
         self.assertEqual(
             self.user_model_admin.has_delete_permission(
                 my_request, obj), bol_del)
-""" 
+
+"""
+class TestUnitaireModelsAdminGetForm(TestCase):
+    @parameterized.expand([
+            ["MANAGE", 0],
+            ["SALES", 0],
+            ["SALES", 1],
+            ])
+    def test_get_form_customer(
+            self, profile_staff, user_id):
+        
+        Test Form to add Customer, filter form.base_fields['sales_contact']
+        only himself if "SALES_STAFF", all if "MANAGE_STAFF", None else.
+        
+        
+        self.user_model_admin = CustomerAdmin(
+            model=User, admin_site=AdminSite())
+        user_profil = User.objects.filter(
+            profile_staff__name=profile_staff)[user_id]
+        my_request = OurRequests(user_profil)
+        my_customer = Customer.objects.all().first()
+        list_sales_user = User.objects.filter(profile_staff__id=2)
+        if profile_staff == "MANAGE":
+            form = self.user_model_admin.get_form(
+                    my_request, my_customer)
+            print(form)
+            
+            #list_sales = form.fields['sales_contact'].queryset
+            #self.assertEqual(list_sales, list_sales_user)
+        
+        if profile_staff == "SALES":
+            form = self.user_model_admin.get_form(
+                    my_request, my_customer)
+            if form.base_fields:
+                list_sales = form.base_fields['sales_contact'].queryset
+                self.assertEqual(list_sales, user_profil)
+"""

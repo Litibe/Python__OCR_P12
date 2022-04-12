@@ -319,8 +319,14 @@ class NeedAdmin(admin.ModelAdmin):
         if obj.event_assigned.date_finished.isoformat() < date_now.isoformat():
             return False
         user_perms = request.user.profile_staff
-        if user_perms.need_CRU_assigned or user_perms.need_CRUD_all:
+        if user_perms.need_CRUD_all:
             return True
+        elif user_perms.need_CRU_assigned:
+            if obj.event_assigned.support_contact == (
+               request.user):
+                return True
+            else:
+                return False
         else:
             return False
 
