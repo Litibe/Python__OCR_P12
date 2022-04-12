@@ -41,15 +41,31 @@ def create_new_user_manage():
     new_user.save()
 
 
-def create_new_user_manage_support():
+def create_new_user_sales():
+    profile_manage = ProfileStaff.objects.create(
+        name="SALES",
+        manage_staff_user_crud=False)
+    profile_manage.save()
+    profile_staff = ProfileStaff.objects.filter(name="SALES").first()
+    new_user = User.objects.create(
+        email="sales@epicevents.fr",
+        first_name="prenom",
+        last_name='nom',
+        profile_staff=profile_staff,
+    )
+    new_user.set_password("epicevents")
+    new_user.save()
+
+def create_new_users():
     create_new_user_manage()
+    create_new_user_sales()
     create_new_user_support()
 
 
 class TestUnitaireAPI(TestCase):
     @classmethod
     def setup_class(cls):
-        create_new_user_manage_support()
+        create_new_users()
         print("--> Setup Users")
 
     def test_000_login_user_success_support(self):
