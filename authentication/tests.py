@@ -143,8 +143,8 @@ class TestUnitaireModelsAdminAccess(TestCase):
         self.assertEqual(
             self.user_model_admin.has_delete_permission(
                 my_request), bol_del)
-    
-    def test_permission_user_support(
+
+    def test_permission_user_sales(
             self, profile_staff=2,
             bol_ad=False, bol_module=False, bol_change=False, bol_del=False):
         self.user_model_admin = UserAdmin(model=User, admin_site=AdminSite())
@@ -163,3 +163,21 @@ class TestUnitaireModelsAdminAccess(TestCase):
             self.user_model_admin.has_delete_permission(
                 my_request), bol_del)
 
+    def test_permission_user_support(
+            self, profile_staff=3,
+            bol_ad=False, bol_module=False, bol_change=False, bol_del=False):
+        self.user_model_admin = UserAdmin(model=User, admin_site=AdminSite())
+        user_profil = User.objects.filter(profile_staff=profile_staff).first()
+        my_request = OurRequests(user_profil)
+        self.assertEqual(
+            self.user_model_admin.has_add_permission(
+                my_request), bol_ad)
+        self.assertEqual(
+            self.user_model_admin.has_module_permission(
+                my_request), bol_module)
+        self.assertEqual(
+            self.user_model_admin.has_change_permission(
+                my_request), bol_change)
+        self.assertEqual(
+            self.user_model_admin.has_delete_permission(
+                my_request), bol_del)
