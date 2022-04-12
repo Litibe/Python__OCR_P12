@@ -12,7 +12,15 @@ def create_profile_staff_support():
 
 
 def create_new_user_support():
-    profile_support = ProfileStaff.objects.create(name="SUPPORT")
+    profile_support = ProfileStaff.objects.create(
+        name="SUPPORT",
+        customer_read=True,
+        contract_read=True,
+        event_read=True,
+        event_CRU_assigned=True,
+        need_read=True,
+        need_CRU_assigned=True,
+        )
     profile_support.save()
     profile_staff = ProfileStaff.objects.filter(name="SUPPORT").first()
     new_user = User.objects.create(
@@ -28,7 +36,20 @@ def create_new_user_support():
 def create_new_user_manage():
     profile_manage = ProfileStaff.objects.create(
         name="MANAGE",
-        manage_staff_user_crud=True)
+        manage_staff_user_crud=True,
+        customer_read=True,
+        customer_CRU_assigned=True,
+        customer_CRUD_all=True,
+        contract_read=True,
+        contract_CRU_assigned=True,
+        contract_CRUD_all=True,
+        event_read=True,
+        event_CRU_assigned=True,
+        event_CRUD_all=True,
+        need_read=True,
+        need_CRU_assigned=True,
+        need_CRUD_all=True
+        )
     profile_manage.save()
     profile_staff = ProfileStaff.objects.filter(name="MANAGE").first()
     new_user = User.objects.create(
@@ -44,7 +65,14 @@ def create_new_user_manage():
 def create_new_user_sales():
     profile_manage = ProfileStaff.objects.create(
         name="SALES",
-        manage_staff_user_crud=False)
+        customer_read=True,
+        customer_CRU_assigned=True,
+        contract_read=True,
+        contract_CRU_assigned=True,
+        event_read=True,
+        event_CRU_assigned=True,
+        need_read=True,
+    )
     profile_manage.save()
     profile_staff = ProfileStaff.objects.filter(name="SALES").first()
     new_user = User.objects.create(
