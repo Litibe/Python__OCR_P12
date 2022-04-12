@@ -1,10 +1,29 @@
 from parameterized import parameterized
 from django.test import TestCase
 from django.contrib.admin.sites import AdminSite
+import pytest
 
 from authentication.models import ProfileStaff, User
+from authentication.tests import create_new_users
 from crm.admin import CustomerAdmin, ContractAdmin, EventAdmin, NeedAdmin
 from crm.models import Contract, Customer, Event, Need
+
+
+def create_C_C_E_N():
+    profile_staff = ProfileStaff.objects.filter(name="SALES").first()
+    user_sales = User.objects.filter(
+            profile_staff=profile_staff).first()
+    profile_staff = ProfileStaff.objects.filter(name="SUPPORT").first()
+    user_support = User.objects.filter(
+            profile_staff=profile_staff).first()
+    db_customer = create_new_customer(user_sales)
+    print(db_customer)
+    db_contract = create_new_contract(db_customer)
+    print(db_contract)
+    db_event = create_new_event(db_contract, user_support)
+    print(db_event)
+    db_need = create_new_need(db_event)
+    print(db_need)
 
 
 def create_new_customer(user_sales):
@@ -143,20 +162,7 @@ class TestUnitaireModels(TestCase):
     def test_04_create_new_need(self):
         """create new need for a event
         """
-        profile_staff = ProfileStaff.objects.filter(name="SALES").first()
-        user_sales = User.objects.filter(
-            profile_staff=profile_staff).first()
-        profile_staff = ProfileStaff.objects.filter(name="SUPPORT").first()
-        user_support = User.objects.filter(
-            profile_staff=profile_staff).first()
-        db_customer = create_new_customer(user_sales)
-        print(db_customer)
-        db_contract = create_new_contract(db_customer)
-        print(db_contract)
-        db_event = create_new_event(db_contract, user_support)
-        print(db_event)
-        db_need = create_new_need(db_event)
-        print(db_need)
+        create_C_C_E_N()
 
 
 class OurRequests(object):
@@ -165,17 +171,49 @@ class OurRequests(object):
 
 
 class TestUnitaireModelsAdminAccess(TestCase):
+    @classmethod
+    def setup_class(cls):
+        create_C_C_E_N()
+        """Create another user Sales"""
+        profile_manage = ProfileStaff.objects.create(
+            name="SALES",
+            customer_read=True,
+            customer_CRU_assigned=True,
+            contract_read=True,
+            contract_CRU_assigned=True,
+            event_read=True,
+            event_CRU_assigned=True,
+            need_read=True,
+        )
+        profile_manage.save()
+        profile_staff = ProfileStaff.objects.filter(name="SALES").first()
+        new_user = User.objects.create(
+            email="sales2@epicevents.fr",
+            first_name="prenom2",
+            last_name='nom2',
+            profile_staff=profile_staff,
+        )
+        new_user.set_password("epicevents")
+        new_user.save()
+        print("--> Setup C.C.E.N")
+
     @parameterized.expand([
-            [1, True, True, True, True, True],
-            [2, True, True, True, True, True],
-            [3, True, True, True, True, True],
+            ["MANAGE", 0, True, True, True, True, True],
+            ["SALES", 0, True, True, True, True, False],
+            ["SALES", 1, True, True, True, False, False],
+            ["SUPPORT", 0, False, True, True, False, False]
             ])
     def test_permission_customer(
-            self, profile_staff,
+            self, profile_staff, user_id,
             bol_ad, bol_view, bol_module, bol_change, bol_del):
+        """
+        Test Permission differents user into db, 2 user sales differents 
+        only first autorized to update Customer Object
+        """
         self.user_model_admin = CustomerAdmin(
             model=User, admin_site=AdminSite())
-        user_profil = User.objects.filter(profile_staff=profile_staff).first()
+        user_profil = User.objects.filter(
+            profile_staff__name=profile_staff)[user_id]
         my_request = OurRequests(user_profil)
         self.assertEqual(
             self.user_model_admin.has_add_permission(
@@ -186,9 +224,10 @@ class TestUnitaireModelsAdminAccess(TestCase):
         self.assertEqual(
             self.user_model_admin.has_module_permission(
                 my_request), bol_module)
+        obj = Customer.objects.all().first()
         self.assertEqual(
             self.user_model_admin.has_change_permission(
-                my_request), bol_change)
+                my_request, obj), bol_change)
         self.assertEqual(
             self.user_model_admin.has_delete_permission(
                 my_request), bol_del)

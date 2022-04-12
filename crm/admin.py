@@ -55,6 +55,7 @@ class CustomerAdmin(admin.ModelAdmin):
             return False
 
     def has_change_permission(self, request, obj=None):
+        print(obj)
         if obj is None:
             return False
         if request.user.profile_staff.customer_CRUD_all:
