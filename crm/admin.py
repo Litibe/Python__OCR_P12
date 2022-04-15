@@ -78,10 +78,9 @@ class CustomerAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(CustomerAdmin, self).get_form(request, obj, **kwargs)
-        if request.user.profile_staff.customer_CRUD_all:
-            list_sales_user = User.objects.filter(profile_staff__id=2)
-            form.base_fields['sales_contact'].queryset = list_sales_user
-        elif request.user.profile_staff.customer_CRU_assigned:
+        list_sales_user = User.objects.filter(profile_staff__id=2)
+        form.base_fields['sales_contact'].queryset = list_sales_user
+        if request.user.profile_staff.customer_CRU_assigned:
             list_sales_user = User.objects.filter(id=request.user.id)
             if form.base_fields:
                 form.base_fields['sales_contact'].queryset = list_sales_user

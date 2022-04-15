@@ -1,6 +1,7 @@
 from parameterized import parameterized
 from django.test import TestCase
 from django.contrib.admin.sites import AdminSite
+from django.contrib.admin.options import ModelAdmin
 from datetime import datetime
 
 
@@ -368,39 +369,20 @@ class TestUnitaireModelsAdminAccess(TestCase):
             self.user_model_admin.has_delete_permission(
                 my_request, obj), bol_del)
 
-"""
-class TestUnitaireModelsAdminGetForm(TestCase):
-    @parameterized.expand([
-            ["MANAGE", 0],
-            ["SALES", 0],
-            ["SALES", 1],
-            ])
-    def test_get_form_customer(
-            self, profile_staff, user_id):
-        
-        Test Form to add Customer, filter form.base_fields['sales_contact']
-        only himself if "SALES_STAFF", all if "MANAGE_STAFF", None else.
-        
-        
-        self.user_model_admin = CustomerAdmin(
-            model=User, admin_site=AdminSite())
-        user_profil = User.objects.filter(
-            profile_staff__name=profile_staff)[user_id]
-        my_request = OurRequests(user_profil)
-        my_customer = Customer.objects.all().first()
-        list_sales_user = User.objects.filter(profile_staff__id=2)
-        if profile_staff == "MANAGE":
-            form = self.user_model_admin.get_form(
-                    my_request, my_customer)
-            print(form)
-            
-            #list_sales = form.fields['sales_contact'].queryset
-            #self.assertEqual(list_sales, list_sales_user)
-        
-        if profile_staff == "SALES":
-            form = self.user_model_admin.get_form(
-                    my_request, my_customer)
-            if form.base_fields:
-                list_sales = form.base_fields['sales_contact'].queryset
-                self.assertEqual(list_sales, user_profil)
-"""
+
+class MockRequest:
+    pass
+
+
+request = MockRequest()
+
+
+class TestCrmAdmin(TestCase):
+    def setUp(self):
+        self.admin_site = AdminSite()
+
+    def test_model_admin_customer(self):
+        obj_customer = Customer.objects.all().first()
+        mod_customer = ModelAdmin(Customer, self.admin_site)
+        form = mod_customer.get_form(obj_customer)
+        print(form.base_fields['sales_contact'].queryset)
