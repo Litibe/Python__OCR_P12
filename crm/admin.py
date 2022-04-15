@@ -257,19 +257,25 @@ class EventAdmin(admin.ModelAdmin):
         form = super(EventAdmin, self).get_form(request, obj, **kwargs)
         if request.user.profile_staff.event_CRUD_all:
             contract_list = Contract.objects.filter(signed=True)
-            form.base_fields['contract_assigned'].queryset = contract_list
+            if form.base_fields:
+                form.base_fields['contract_assigned'].queryset = contract_list
             return form
         elif request.user.profile_staff.event_CRU_assigned:
             if request.user.profile_staff.id == 3:
-                form.base_fields[
-                    'contract_assigned'].widget.attrs['disabled'] = 'disabled'
-                form.base_fields[
-                    'support_contact'].widget.attrs['disabled'] = 'disabled'
+                if form.base_fields:
+                    form.base_fields[
+                        'contract_assigned'].widget.attrs[
+                            'disabled'] = 'disabled'
+                if form.base_fields:
+                    form.base_fields[
+                        'support_contact'].widget.attrs[
+                            'disabled'] = 'disabled'
             customer_list = Customer.objects.filter(
                 sales_contact=request.user)
             contract_list = Contract.objects.filter(
                 Q(customer_assigned__in=customer_list) | Q(signed=True))
-            form.base_fields['contract_assigned'].queryset = contract_list
+            if form.base_fields:    
+                form.base_fields['contract_assigned'].queryset = contract_list
         return form
 
 
