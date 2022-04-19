@@ -22,9 +22,12 @@ urlpatterns = [
              {'post': "create_a_new_user"}), name='sign_up'),
      path('api/crm/customer/',
           CustomerViews.as_view(
-             {'get': "read_customer"}), name='read_customer'),
+             {'get': "read_customer",
+              'post': 'create_customer'
+              }), name='read_customer'),
      path('api/crm/customer/<id_customer>/',
           CustomerViews.as_view(
              {"get": "details_customer",
-              "put": "put_customer"}), name='customer'),
+              "put": "put_customer",
+              'delete': 'delete_customer'}), name='customer'),
 ]

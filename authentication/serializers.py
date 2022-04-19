@@ -21,8 +21,10 @@ class UserSerializer(ModelSerializer):
     )
     password = CharField(write_only=True, required=True,
                          validators=[validate_password])
-    profile_staff = ProfileStaffSerializer(read_only=True, 
-            error_messages ={'required': "Merci de saisir l'ID de Profil Staff a attribué"})
+    profile_staff = ProfileStaffSerializer(
+        read_only=True,
+        error_messages={
+            'required': "Merci de saisir l'ID de Profil Staff a attribué"})
 
     class Meta:
         model = User
@@ -30,7 +32,8 @@ class UserSerializer(ModelSerializer):
                   'last_name', 'first_name', 'profile_staff', 'id')
 
     def create(self, validated_data):
-        profile = ProfileStaff.objects.filter(name=validated_data['profile_staff']).first()
+        profile = ProfileStaff.objects.filter(
+            name=validated_data['profile_staff']).first()
         user = User.objects.create(
             email=validated_data['email'],
             first_name=validated_data['first_name'],
