@@ -23,4 +23,8 @@ urlpatterns = [
      path('api/crm/customer/',
           CustomerViews.as_view(
              {'get': "read_customer"}), name='read_customer'),
+     path('api/crm/customer/<id_customer>/',
+          CustomerViews.as_view(
+             {"get": "details_customer",
+              "put": "put_customer"}), name='customer'),
 ]

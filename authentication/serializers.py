@@ -14,8 +14,6 @@ class ProfileStaffSerializer(ModelSerializer):
         fields = ('name')
 
 
-
-
 class UserSerializer(ModelSerializer):
     email = EmailField(
         required=True,
@@ -42,3 +40,16 @@ class UserSerializer(ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+
+class UserSerializerRead(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('email',
+                  'last_name', 'first_name', 'profile_staff')
+
+
+class UserSerializerPut(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('email')
