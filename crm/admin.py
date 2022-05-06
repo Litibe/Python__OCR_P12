@@ -81,13 +81,13 @@ class CustomerAdmin(admin.ModelAdmin):
         list_sales_user = User.objects.filter(profile_staff__id=2)
         if form.base_fields:
             form.base_fields['sales_contact'].queryset = list_sales_user
-        if request.user.profile_staff.customer_CRU_assigned:
+        if request.user.profile_staff.customer_CRU_assigned and (
+            not request.user.profile_staff.customer_CRUD_all
+        ):
             list_sales_user = User.objects.filter(id=request.user.id)
             if form.base_fields:
                 form.base_fields['sales_contact'].queryset = list_sales_user
-                if str(request.path).split("/")[-2] == "change":
-                    form.base_fields['sales_contact'
-                                     ].widget.attrs['disabled'] = 'disabled'
+                
         return form
 
 

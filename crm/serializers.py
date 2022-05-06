@@ -5,7 +5,7 @@ from crm.models import Customer, Contract, Event, Need
 from authentication.serializers import UserSerializer, UserSerializerRead
 
 
-class CustomerSerialiserRead(ModelSerializer):
+class CustomerSerializerRead(ModelSerializer):
     sales_contact = UserSerializerRead(many=False)
 
     class Meta:
@@ -15,7 +15,7 @@ class CustomerSerialiserRead(ModelSerializer):
         depth = 2
 
 
-class CustomerSerialiserCRUD(ModelSerializer):
+class CustomerSerializerCRUD(ModelSerializer):
     first_name = fields.CharField(required=True, max_length=25)
     last_name = fields.CharField(required=True, max_length=25)
     email = fields.EmailField(required=True, max_length=100)
@@ -58,3 +58,13 @@ class CustomerSerialiserCRUD(ModelSerializer):
         customer = Customer.objects.filter(id=pk).first()
         customer.delete()
         return True
+
+
+class ContractSerializerRead(ModelSerializer):
+    customer_assigned = CustomerSerializerRead(many=False)
+
+    class Meta:
+        model = Contract
+        fields = ['id', 'title', 'date_start_contract',
+                  'date_end_contract', 'signed', 'customer_assigned']
+        depth = 2
