@@ -3,10 +3,10 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
+
 from authentication.models import ProfileStaff, User
 from crm.models import Contract, Customer
-
-from crm.serializers import CustomerSerializerCRUD, CustomerSerializerRead, ContractSerializerRead
+from crm import serializers as srlz
 
 
 def main_page(request):
@@ -15,19 +15,19 @@ def main_page(request):
 
 class CustomerViews(ViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = CustomerSerializerRead
+    serializer_class = srlz.CustomerSerializerRead
 
     def read_customer(self, request, format=None):
         """
-        GET Method - Get List of Customers into db 
+        GET Method - Get List of Customers into db
         Return :
             - List of Customers
         """
         request.user.profile_staff.customer_read
-        serializer = CustomerSerializerRead(data=request.data)
+        serializer = srlz.CustomerSerializerRead(data=request.data)
         if request.user.profile_staff.customer_read:
             customers = Customer.objects.all()
-            serializer = CustomerSerializerRead(customers, many=True)
+            serializer = srlz.CustomerSerializerRead(customers, many=True)
             return Response(serializer.data,
                             status=status.HTTP_202_ACCEPTED)
         else:
@@ -46,13 +46,13 @@ class CustomerViews(ViewSet):
             email = request.data.get('sales_contact__email', '')
             user_sales_contact = User.objects.filter(email=email).first()
             if user_sales_contact is not None:
-                serializer = CustomerSerializerCRUD(data=request.data)
+                serializer = srlz.CustomerSerializerCRUD(data=request.data)
                 if serializer.is_valid():
                     save_ok = serializer.create(
                         serializer.data, user_sales_contact)
                     if save_ok:
                         customer = Customer.objects.all().last()
-                        serializer = CustomerSerializerRead(customer)
+                        serializer = srlz.CustomerSerializerRead(customer)
                         return Response(
                             serializer.data, status=status.HTTP_202_ACCEPTED)
                 else:
@@ -72,7 +72,8 @@ class CustomerViews(ViewSet):
         get_object_or_404(Customer, id=id_customer)
         customer = Customer.objects.filter(id=id_customer)
         if customer.exists():
-            serializer = CustomerSerializerRead(customer.first(), many=False)
+            serializer = srlz.CustomerSerializerRead(
+                customer.first(), many=False)
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
 
     def put_customer(self, request, id_customer):
@@ -98,14 +99,14 @@ class CustomerViews(ViewSet):
 
             user_sales_contact = User.objects.filter(email=email).first()
             if customer is not None and user_sales_contact is not None:
-                serializer = CustomerSerializerCRUD(data=request.data)
+                serializer = srlz.CustomerSerializerCRUD(data=request.data)
                 if serializer.is_valid():
                     save_ok = serializer.put(
                         serializer.data, id_customer, user_sales_contact)
                     if save_ok:
                         customer = Customer.objects.filter(
                             id=id_customer).first()
-                        serializer = CustomerSerializerRead(customer)
+                        serializer = srlz.CustomerSerializerRead(customer)
                         return Response(
                             serializer.data, status=status.HTTP_202_ACCEPTED)
                 else:
@@ -126,7 +127,7 @@ class CustomerViews(ViewSet):
         get_object_or_404(Customer, id=id_customer)
         customer = Customer.objects.filter(id=id_customer)
         if customer.exists() and request.user.profile_staff.customer_CRUD_all:
-            serializer = CustomerSerializerCRUD(customer)
+            serializer = srlz.CustomerSerializerCRUD(customer)
             serializer.delete(pk=id_customer)
             return Response("Successfully", status=status.HTTP_202_ACCEPTED)
         else:
@@ -136,7 +137,7 @@ class CustomerViews(ViewSet):
 
 class ContractViews(ViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = ContractSerializerRead
+    serializer_class = srlz.ContractSerializerRead
 
     def read_contract(self, request, format=None):
         """
@@ -144,12 +145,60 @@ class ContractViews(ViewSet):
         Return :
             - List of Contract
         """
-        serializer = ContractSerializerRead(data=request.data)
+        serializer = srlz.ContractSerializerRead(data=request.data)
         if request.user.profile_staff.contract_read:
             contracts = Contract.objects.all()
-            serializer = ContractSerializerRead(contracts, many=True)
+            serializer = srlz.ContractSerializerRead(contracts, many=True)
             return Response(serializer.data,
                             status=status.HTTP_202_ACCEPTED)
         else:
             return Response({'ERROR profile to read contract'},
                             status=status.HTTP_401_UNAUTHORIZED)
+
+    def create_contract(self, request):
+        """
+        POST Method to create new contract
+        Return :
+            - details contract
+        """
+        if request.POST.get("customer_assigned", "") != "":
+            customer = Customer.objects.filter(
+                id=request.POST.get("customer_assigned", "")).first()
+        else:
+            return Response("Error ID Customer assigned",
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+        if request.user.profile_staff.contract_CRUD_all or (
+            request.user.profile_staff.contract_CRU_assigned
+        ):
+            email = request.data.get('sales_contact__email', '')
+            user_sales_contact = User.objects.filter(email=email).first()
+            if user_sales_contact is not None:
+                serializer = srlz.ContractSerializerCRUD(data=request.data)
+                if serializer.is_valid():
+                    save_ok = serializer.create(
+                        serializer.data, user_sales_contact)
+                    if save_ok:
+                        customer = Customer.objects.all().last()
+                        serializer = srlz.CustomerSerializerRead(customer)
+                        return Response(
+                            serializer.data, status=status.HTTP_202_ACCEPTED)
+                else:
+                    return Response(
+                        serializer.errors,
+                        status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response("Error Sales_contact Data",
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_409_CONFLICT)
+
+    def details_customer(self, request, id_customer):
+        """
+        GET Method for details project
+        Return :
+            - details customer ID
+        """
+        get_object_or_404(Customer, id=id_customer)
+        customer = Customer.objects.filter(id=id_customer)
+        if customer.exists():
+            serializer = srlz.CustomerSerializerRead(
+                customer.first(), many=False)
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
