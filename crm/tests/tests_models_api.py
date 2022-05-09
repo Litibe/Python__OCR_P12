@@ -194,3 +194,10 @@ class TestUnitaireApiContract(TestCase):
         assert response.status_code == 202
         assert (response.data[0].get("id", "")) == "CT00001"
         print(response.data)
+
+    def test_01_get_all_401__read_contract(self):
+        client = Client()
+        response = client.get(
+            reverse("read_contract"))
+        assert response.status_code == 401
+        print(response.data)

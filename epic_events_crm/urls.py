@@ -22,7 +22,12 @@ urlpatterns = [
              {'post': "create_a_new_user"}), name='sign_up'),
      path('api/crm/contract/',
           ContractViews.as_view(
-             {'get': "read_contract"}), name='read_contract'),
+             {'get': "read_contract",
+              'post': 'create_contract'}), name='read_contract'),
+     path('api/crm/contract/<id_contract>/',
+          ContractViews.as_view(
+              {'get': "details_contract"}), name='contract'
+          ),
      path('api/crm/customer/',
           CustomerViews.as_view(
              {'get': "read_customer",

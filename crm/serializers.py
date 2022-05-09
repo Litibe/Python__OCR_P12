@@ -73,7 +73,8 @@ class ContractSerializerRead(ModelSerializer):
 
 class ContractSerializerCRUD(ModelSerializer):
     title = fields.CharField(required=True, max_length=125)
-    date_start_contract = fields.CharField(default=date.today)
+    #char ou datefield
+    date_start_contract = fields.DateField(default=date.today)
     date_end_contract = fields.DateField(required=True)
     signed = fields.BooleanField(default=False)
     customer_assigned = CustomerSerializerRead(many=False, read_only=True)
@@ -84,31 +85,28 @@ class ContractSerializerCRUD(ModelSerializer):
             'title', 'date_start_contract',
             'date_end_contract', 'signed', 'customer_assigned']
 
-    def create(self, validated_data, user_sales_contact):
-        customer = Customer.objects.create(
-            first_name=validated_data["first_name"],
-            last_name=validated_data["last_name"],
-            email=validated_data["email"],
-            phone=validated_data["phone"],
-            mobile=validated_data["mobile"],
-            company_name=validated_data["company_name"],
-            sales_contact=user_sales_contact)
-        customer.save()
+    def create(self, validated_data, customer):
+        contract = Contract.objects.create(
+            title=validated_data["title"],
+            date_start_contract=validated_data["date_start_contract"],
+            date_end_contract=validated_data["date_end_contract"],
+            signed=validated_data["signed"],
+            customer_assigned=customer)
+        contract.save()
         return True
 
-    def put(self, validated_data, pk, user_sales_contact):
-        customer = Customer.objects.filter(id=pk).first()
-        customer.first_name = validated_data["first_name"]
-        customer.last_name = validated_data["last_name"]
-        customer.email = validated_data["email"]
-        customer.phone = validated_data["phone"]
-        customer.mobile = validated_data["mobile"]
-        customer.company_name = validated_data["company_name"]
-        customer.sales_contact = user_sales_contact
-        customer.save()
+    def put(self, validated_data, pk, customer):
+        contract = Contract.objects.filter(id=pk).first()
+        contract.title = validated_data["title"]
+        contract.date_start_contract = validated_data["date_start_contract"]
+        contract.date_end_contract = validated_data["date_end_contract"]
+        contract.signed = validated_data["signed"]
+        contract.mobile = validated_data["mobile"]
+        contract.customer_assigned = customer
+        contract.save()
         return True
 
     def delete(self, pk):
-        customer = Customer.objects.filter(id=pk).first()
-        customer.delete()
+        contract = Contract.objects.filter(id=pk).first()
+        contract.delete()
         return True

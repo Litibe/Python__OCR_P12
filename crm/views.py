@@ -161,44 +161,47 @@ class ContractViews(ViewSet):
         Return :
             - details contract
         """
-        if request.POST.get("customer_assigned", "") != "":
+        if request.POST.get("customer_assigned__id", "") != "":
             customer = Customer.objects.filter(
-                id=request.POST.get("customer_assigned", "")).first()
+                id=request.POST.get("customer_assigned__id", "")).first()
         else:
             return Response("Error ID Customer assigned",
                             status=status.HTTP_406_NOT_ACCEPTABLE)
+        sales_contact_email = customer.sales_contact.email
+
         if request.user.profile_staff.contract_CRUD_all or (
-            request.user.profile_staff.contract_CRU_assigned
+            request.user.profile_staff.contract_CRU_assigned and (
+                request.user.email == sales_contact_email
+            )
         ):
-            email = request.data.get('sales_contact__email', '')
-            user_sales_contact = User.objects.filter(email=email).first()
-            if user_sales_contact is not None:
+            if customer is not None:
                 serializer = srlz.ContractSerializerCRUD(data=request.data)
+                print(request.data)
                 if serializer.is_valid():
                     save_ok = serializer.create(
-                        serializer.data, user_sales_contact)
+                        serializer.data, customer)
                     if save_ok:
-                        customer = Customer.objects.all().last()
-                        serializer = srlz.CustomerSerializerRead(customer)
+                        contract = Contract.objects.all().last()
+                        serializer = srlz.ContractSerializerRead(contract)
                         return Response(
                             serializer.data, status=status.HTTP_202_ACCEPTED)
                 else:
                     return Response(
                         serializer.errors,
                         status=status.HTTP_406_NOT_ACCEPTABLE)
-            return Response("Error Sales_contact Data",
+            return Response("Error Customer_assigned to create new contract",
                             status=status.HTTP_406_NOT_ACCEPTABLE)
-        return Response(status=status.HTTP_409_CONFLICT)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-    def details_customer(self, request, id_customer):
+    def details_contract(self, request, id_contract):
         """
         GET Method for details project
         Return :
             - details customer ID
         """
-        get_object_or_404(Customer, id=id_customer)
-        customer = Customer.objects.filter(id=id_customer)
-        if customer.exists():
-            serializer = srlz.CustomerSerializerRead(
-                customer.first(), many=False)
+        get_object_or_404(Contract, id=id_contract)
+        contract = Contract.objects.filter(id=id_contract)
+        if contract.exists():
+            serializer = srlz.ContractSerializerRead(
+                contract.first(), many=False)
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
