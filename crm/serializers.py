@@ -1,9 +1,8 @@
 from datetime import date
-from turtle import title
-from rest_framework.serializers import ModelSerializer, EmailField, CharField
+from rest_framework.serializers import ModelSerializer
 from rest_framework import fields
 
-from crm.models import Customer, Contract, Event, Need
+from crm.models import Customer, Contract
 from authentication.serializers import UserSerializer, UserSerializerRead
 
 
@@ -74,9 +73,9 @@ class ContractSerializerRead(ModelSerializer):
 
 class ContractSerializerCRUD(ModelSerializer):
     title = fields.CharField(required=True, max_length=125)
-    date_start_contract = fields.CharField(required=True, default=date.today)
+    date_start_contract = fields.CharField(default=date.today)
     date_end_contract = fields.DateField(required=True)
-    signed = fields.BooleanField(required=True, default=False)
+    signed = fields.BooleanField(default=False)
     customer_assigned = CustomerSerializerRead(many=False, read_only=True)
 
     class Meta:
