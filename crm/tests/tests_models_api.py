@@ -179,3 +179,18 @@ class TestUnitaireApiCustomer(TestCase):
             reverse("customer", kwargs={'id_customer': "CM00002"}))
         print(response.data)
         assert response.status_code == 202
+
+
+class TestUnitaireApiContract(TestCase):
+    def test_01_get_all__read_contract(self):
+        client = Client()
+        response = client.post(reverse("login"),
+                               data={'email': 'manage@epicevents.fr',
+                                     'password': 'epicevents'})
+        access_token = 'Bearer ' + response.data.get('access')
+        client.defaults['HTTP_AUTHORIZATION'] = access_token
+        response = client.get(
+            reverse("read_contract"))
+        assert response.status_code == 202
+        assert (response.data[0].get("id", "")) == "CT00001"
+        print(response.data)
