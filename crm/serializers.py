@@ -74,8 +74,10 @@ class ContractSerializerRead(ModelSerializer):
 class ContractSerializerCRUD(ModelSerializer):
     title = fields.CharField(required=True, max_length=125)
     #char ou datefield
-    date_start_contract = fields.DateField(default=date.today)
-    date_end_contract = fields.DateField(required=True)
+    date_start_contract = fields.DateField(
+        required=True, input_formats=['%Y-%m-%d %H:%M'])
+    date_end_contract = fields.DateField(
+        required=True, input_formats=['%Y-%m-%d %H:%M'])
     signed = fields.BooleanField(default=False)
     customer_assigned = CustomerSerializerRead(many=False, read_only=True)
 
@@ -101,7 +103,6 @@ class ContractSerializerCRUD(ModelSerializer):
         contract.date_start_contract = validated_data["date_start_contract"]
         contract.date_end_contract = validated_data["date_end_contract"]
         contract.signed = validated_data["signed"]
-        contract.mobile = validated_data["mobile"]
         contract.customer_assigned = customer
         contract.save()
         return True

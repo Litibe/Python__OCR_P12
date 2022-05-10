@@ -176,7 +176,6 @@ class ContractViews(ViewSet):
         ):
             if customer is not None:
                 serializer = srlz.ContractSerializerCRUD(data=request.data)
-                print(request.data)
                 if serializer.is_valid():
                     save_ok = serializer.create(
                         serializer.data, customer)
@@ -205,3 +204,59 @@ class ContractViews(ViewSet):
             serializer = srlz.ContractSerializerRead(
                 contract.first(), many=False)
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+    
+    def put_contract(self, request, id_contract):
+        """
+        PUT Method to modify a contract by id
+        Return :
+            - details contract
+        """
+        get_object_or_404(Contract, id=id_contract)
+        contract = Contract.objects.filter(id=id_contract).first()
+        if request.POST.get("customer_assigned__id", "") != "":
+            customer = Customer.objects.filter(
+                id=request.POST.get("customer_assigned__id", "")).first()
+        else:
+            return Response("Error ID Customer assigned",
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+        sales_contact_email = customer.sales_contact.email
+
+        if request.user.profile_staff.contract_CRUD_all or (
+            request.user.profile_staff.contract_CRU_assigned and (
+                request.user.email == sales_contact_email
+            )
+        ):
+            if customer is not None:
+                serializer = srlz.ContractSerializerCRUD(data=request.data)
+                if serializer.is_valid():
+                    save_ok = serializer.put(
+                        serializer.data, pk=id_contract, customer=customer)
+                    if save_ok:
+                        contract = Contract.objects.filter(
+                            id=id_contract).first()
+                        serializer = srlz.ContractSerializerRead(contract)
+                        return Response(
+                            serializer.data, status=status.HTTP_202_ACCEPTED)
+                else:
+                    return Response(
+                        serializer.errors,
+                        status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response("Error Customer_assigned to create new contract",
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    def delete_contract(self, request, id_contract):
+        """
+        DELETE Method to delete a contract
+        Return :
+            - Boolean
+        """
+        get_object_or_404(Contract, id=id_contract)
+        contract = Contract.objects.filter(id=id_contract)
+        if contract.exists() and request.user.profile_staff.contract_CRUD_all:
+            serializer = srlz.ContractSerializerCRUD(contract)
+            serializer.delete(pk=id_contract)
+            return Response("Successfully", status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)

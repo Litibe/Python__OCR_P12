@@ -26,7 +26,9 @@ urlpatterns = [
               'post': 'create_contract'}), name='read_contract'),
      path('api/crm/contract/<id_contract>/',
           ContractViews.as_view(
-              {'get': "details_contract"}), name='contract'
+              {'get': "details_contract",
+               'put': "put_contract",
+               'delete': 'delete_contract'}), name='contract'
           ),
      path('api/crm/customer/',
           CustomerViews.as_view(
