@@ -73,7 +73,6 @@ class ContractSerializerRead(ModelSerializer):
 
 class ContractSerializerCRUD(ModelSerializer):
     title = fields.CharField(required=True, max_length=125)
-    #char ou datefield
     date_start_contract = fields.DateField(
         required=True, input_formats=['%Y-%m-%d %H:%M'])
     date_end_contract = fields.DateField(

@@ -204,7 +204,7 @@ class ContractViews(ViewSet):
             serializer = srlz.ContractSerializerRead(
                 contract.first(), many=False)
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
-    
+
     def put_contract(self, request, id_contract):
         """
         PUT Method to modify a contract by id
@@ -243,7 +243,8 @@ class ContractViews(ViewSet):
                         status=status.HTTP_406_NOT_ACCEPTABLE)
             return Response("Error Customer_assigned to create new contract",
                             status=status.HTTP_406_NOT_ACCEPTABLE)
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        return Response("UNAUTHORIZED for your Profile Staff",
+                        status=status.HTTP_401_UNAUTHORIZED)
 
     def delete_contract(self, request, id_contract):
         """
