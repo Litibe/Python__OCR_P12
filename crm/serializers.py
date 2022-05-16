@@ -1,4 +1,5 @@
 from datetime import date
+from django.conf import settings
 from rest_framework.serializers import ModelSerializer
 from rest_framework import fields
 
@@ -73,8 +74,10 @@ class ContractSerializerRead(ModelSerializer):
 
 class ContractSerializerCRUD(ModelSerializer):
     title = fields.CharField(required=True, max_length=125)
-    date_start_contract = fields.DateField(
-        required=True, input_formats=['%Y-%m-%d %H:%M'])
+    date_start_contract = fields.DateTimeField(
+        format=settings.DATETIME_FORMAT,
+        input_formats=settings.DATETIME_INPUT_FORMAT,
+        default_timezone=None)
     date_end_contract = fields.DateField(
         required=True, input_formats=['%Y-%m-%d %H:%M'])
     signed = fields.BooleanField(default=False)

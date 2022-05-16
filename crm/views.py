@@ -161,12 +161,12 @@ class ContractViews(ViewSet):
         Return :
             - details contract
         """
-        if request.POST.get("customer_assigned__id", "") != "":
+        if request.data.get("customer_assigned__id", "") != "":
             customer = Customer.objects.filter(
-                id=request.POST.get("customer_assigned__id", "")).first()
+                id=request.data.get("customer_assigned__id", "")).first()
         else:
             return Response("Error ID Customer assigned",
-                            status=status.HTTP_406_NOT_ACCEPTABLE)
+                            status=status.HTTP_400_BAD_REQUEST)
         sales_contact_email = customer.sales_contact.email
 
         if request.user.profile_staff.contract_CRUD_all or (
@@ -189,8 +189,9 @@ class ContractViews(ViewSet):
                         serializer.errors,
                         status=status.HTTP_406_NOT_ACCEPTABLE)
             return Response("Error Customer_assigned to create new contract",
-                            status=status.HTTP_406_NOT_ACCEPTABLE)
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
+                            status=status.HTTP_401_UNAUTHORIZED)
+        return Response({'ERROR profile to read contract'},
+                        status=status.HTTP_401_UNAUTHORIZED)
 
     def details_contract(self, request, id_contract):
         """
@@ -200,10 +201,14 @@ class ContractViews(ViewSet):
         """
         get_object_or_404(Contract, id=id_contract)
         contract = Contract.objects.filter(id=id_contract)
-        if contract.exists():
-            serializer = srlz.ContractSerializerRead(
-                contract.first(), many=False)
-            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+        if request.user.profile_staff.contract_read:
+            if contract.exists():
+                serializer = srlz.ContractSerializerRead(
+                    contract.first(), many=False)
+                return Response(
+                    serializer.data, status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
     def put_contract(self, request, id_contract):
         """
@@ -213,9 +218,9 @@ class ContractViews(ViewSet):
         """
         get_object_or_404(Contract, id=id_contract)
         contract = Contract.objects.filter(id=id_contract).first()
-        if request.POST.get("customer_assigned__id", "") != "":
+        if request.data.get("customer_assigned__id", "") != "":
             customer = Customer.objects.filter(
-                id=request.POST.get("customer_assigned__id", "")).first()
+                id=request.data.get("customer_assigned__id", "")).first()
         else:
             return Response("Error ID Customer assigned",
                             status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -243,8 +248,9 @@ class ContractViews(ViewSet):
                         status=status.HTTP_406_NOT_ACCEPTABLE)
             return Response("Error Customer_assigned to create new contract",
                             status=status.HTTP_406_NOT_ACCEPTABLE)
-        return Response("UNAUTHORIZED for your Profile Staff",
-                        status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
 
     def delete_contract(self, request, id_contract):
         """

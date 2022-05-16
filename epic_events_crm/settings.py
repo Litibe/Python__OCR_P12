@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 ]
 
 REST_FRAMEWORK = {
+    'DATETIME_FORMAT': '%Y-%m-%d %H:%M',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 10,
     'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework_simplejwt.authentication.JWTAuthentication',)
@@ -127,6 +128,10 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'fr-fr'
 
 TIME_ZONE = 'Europe/Paris'
+
+DATETIME_FORMAT = '%Y-%m-%d %H:%M'
+
+DATETIME_INPUT_FORMAT = ['%Y-%m-%d %H:%M']
 
 USE_I18N = True
 
