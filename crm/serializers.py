@@ -163,3 +163,28 @@ class NeedSerializer(ModelSerializer):
         model = Need
         fields = ['id', 'title', 'success',
                   'date_updated', 'event_assigned']
+
+    def create(self, validated_data, event_assigned):
+        need = Need.objects.create(
+            title=validated_data["title"],
+            success=validated_data["success"],
+            date_updated=datetime.now(),
+            event_assigned=event_assigned)
+        need.save()
+        return True
+
+    def put(
+            self, validated_data, id_need,
+            event_assigned):
+        need = Need.objects.filter(id=id_need).first()
+        need.title = validated_data["title"]
+        need.success = validated_data["success"]
+        need.date_updated = datetime.now()
+        need.event_assigned = event_assigned
+        need.save()
+        return True
+
+    def delete(self, pk):
+        need = Need.objects.filter(id=pk).first()
+        need.delete()
+        return True

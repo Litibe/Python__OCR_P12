@@ -467,3 +467,97 @@ class NeedViews(ViewSet):
         else:
             return Response({'ERROR profile read need'},
                             status=status.HTTP_401_UNAUTHORIZED)
+
+    def delete_need(self, request, id_need):
+        """
+        DELETE Method to delete a need
+        Return :
+            - Boolean
+        """
+        get_object_or_404(Need, id=id_need)
+        need = Need.objects.filter(id=id_need)
+        if need.exists() and request.user.profile_staff.need_CRUD_all:
+            serializer = srlz.NeedSerializer(need)
+            serializer.delete(pk=id_need)
+            return Response("Successfully", status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+    def create_need(self, request):
+        """
+        POST Method to create new need
+        Return :
+            - details need
+        """
+        if request.data.get("event_assigned__id", "") != "":
+            event_assigned = Event.objects.filter(
+                id=request.data.get("event_assigned__id", "")).first()
+            if event_assigned is None:
+                return Response("Error ID Event assigned",
+                                status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response("Error ID Event assigned",
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        support_contact_email = (
+            event_assigned.support_contact.email)
+        if request.user.profile_staff.need_CRUD_all or (
+            request.user.profile_staff.need_CRU_assigned and (
+                request.user.email == support_contact_email
+            )
+        ):
+            if event_assigned is not None:
+                serializer = srlz.NeedSerializer(data=request.data)
+                if serializer.is_valid():
+                    save_ok = serializer.create(
+                        serializer.data, event_assigned)
+                    if save_ok:
+                        need = Need.objects.all().last()
+                        serializer = srlz.NeedSerializer(need)
+                        return Response(
+                            serializer.data, status=status.HTTP_202_ACCEPTED)
+                else:
+                    return Response(
+                        serializer.errors,
+                        status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response({'ERROR profile to create need'},
+                        status=status.HTTP_401_UNAUTHORIZED)
+
+    def put_need(self, request, id_need):
+        """
+        PUT Method to modify need by ID
+        Return :
+            - details need
+        """
+        get_object_or_404(Need, id=id_need)
+        need = Need.objects.filter(id=id_need)
+        if request.data.get("event_assigned__id", "") != "":
+            event_assigned = Event.objects.filter(
+                id=request.data.get("event_assigned__id", "")).first()
+            if event_assigned is None:
+                return Response("Error ID Event assigned",
+                                status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response("Error ID Event assigned",
+                            status=status.HTTP_400_BAD_REQUEST)
+        support_contact_email = (
+            event_assigned.support_contact.email)
+        if request.user.profile_staff.need_CRUD_all :
+            if event_assigned is not None:
+                serializer = srlz.NeedSerializer(data=request.data)
+                if serializer.is_valid():
+                    save_ok = serializer.put(
+                        serializer.data, id_need,
+                        event_assigned)
+                    if save_ok:
+                        need = Need.objects.filter(id=id_need).first()
+                        serializer = srlz.NeedSerializer(need)
+                        return Response(
+                            serializer.data, status=status.HTTP_202_ACCEPTED)
+                else:
+                    return Response(
+                        serializer.errors,
+                        status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response({'ERROR profile to put need'},
+                        status=status.HTTP_401_UNAUTHORIZED)
