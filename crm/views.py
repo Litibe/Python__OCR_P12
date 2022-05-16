@@ -1,11 +1,12 @@
+from multiprocessing import Event
 from django.shortcuts import get_object_or_404, render
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
-from authentication.models import ProfileStaff, User
-from crm.models import Contract, Customer
+from authentication.models import User
+from crm.models import Contract, Customer, Event, Need
 from crm import serializers as srlz
 
 
@@ -195,7 +196,7 @@ class ContractViews(ViewSet):
 
     def details_contract(self, request, id_contract):
         """
-        GET Method for details project
+        GET Method for details contract
         Return :
             - details customer ID
         """
@@ -266,4 +267,44 @@ class ContractViews(ViewSet):
             return Response("Successfully", status=status.HTTP_202_ACCEPTED)
         else:
             return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+
+class EventViews(ViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = srlz.EventSerializerRead
+
+    def read_event(self, request, format=None):
+        """
+        GET Method - Get List of Events into db
+        Return :
+            - List of Events
+        """
+        request.user.profile_staff.event_read
+        serializer = srlz.EventSerializerRead(data=request.data)
+        if request.user.profile_staff.event_read:
+            events = Event.objects.all()
+            serializer = srlz.EventSerializerRead(events, many=True)
+            return Response(serializer.data,
+                            status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response({'ERROR profile read events'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+    def details_event(self, request, id_event):
+        """
+        GET Method for details event
+        Return :
+            - details event ID
+        """
+        get_object_or_404(Event, id=id_event)
+        event = Event.objects.filter(id=id_event)
+        if request.user.profile_staff.event_read:
+            if event.exists():
+                serializer = srlz.EventSerializerRead(
+                    event.first(), many=False)
+                return Response(
+                    serializer.data, status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response({'ERROR profile read events'},
                             status=status.HTTP_401_UNAUTHORIZED)

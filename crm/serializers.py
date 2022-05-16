@@ -1,9 +1,8 @@
-from datetime import date
 from django.conf import settings
 from rest_framework.serializers import ModelSerializer
 from rest_framework import fields
 
-from crm.models import Customer, Contract
+from crm.models import Customer, Contract, Event, Need
 from authentication.serializers import UserSerializer, UserSerializerRead
 
 
@@ -113,3 +112,13 @@ class ContractSerializerCRUD(ModelSerializer):
         contract = Contract.objects.filter(id=pk).first()
         contract.delete()
         return True
+
+
+class EventSerializerRead(ModelSerializer):
+    support_contact = UserSerializerRead(many=False)
+    contract_assigned = ContractSerializerRead(many=False)
+
+    class Meta:
+        model = Event
+        fields = ['id', 'title', 'date_started', 'date_finished',
+                  'date_updated', 'support_contact', 'contract_assigned']

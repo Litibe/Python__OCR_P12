@@ -3,7 +3,7 @@ from django.urls import path
 from rest_framework_simplejwt import views as DRF_jwt_views
 
 from authentication.views import UserSignUpView
-from crm.views import ContractViews, main_page, CustomerViews
+from crm.views import ContractViews, EventViews, main_page, CustomerViews
 
 admin.site.site_header = "EpicEvents CRM"
 admin.site.site_title = "EpicEvents CRM Portal"
@@ -40,4 +40,12 @@ urlpatterns = [
              {"get": "details_customer",
               "put": "put_customer",
               'delete': 'delete_customer'}), name='customer'),
+     path('api/crm/event/',
+          EventViews.as_view(
+             {'get': "read_event"}), name='events'),
+     path('api/crm/event/<id_event>/',
+          EventViews.as_view(
+              {'get': "details_event",
+               }), name='event'
+          ),
 ]
