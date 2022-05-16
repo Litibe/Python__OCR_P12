@@ -274,7 +274,7 @@ class EventAdmin(admin.ModelAdmin):
                 sales_contact=request.user)
             contract_list = Contract.objects.filter(
                 Q(customer_assigned__in=customer_list) | Q(signed=True))
-            if form.base_fields:    
+            if form.base_fields:
                 form.base_fields['contract_assigned'].queryset = contract_list
         return form
 

@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.conf import settings
 from rest_framework.serializers import ModelSerializer
 from rest_framework import fields
@@ -114,11 +115,41 @@ class ContractSerializerCRUD(ModelSerializer):
         return True
 
 
-class EventSerializerRead(ModelSerializer):
-    support_contact = UserSerializerRead(many=False)
-    contract_assigned = ContractSerializerRead(many=False)
+class EventSerializer(ModelSerializer):
+    id = fields.CharField(read_only=True)
+    support_contact = UserSerializerRead(many=False, read_only=True)
+    contract_assigned = ContractSerializerRead(many=False, read_only=True)
 
     class Meta:
         model = Event
         fields = ['id', 'title', 'date_started', 'date_finished',
                   'date_updated', 'support_contact', 'contract_assigned']
+
+    def create(self, validated_data, support_contact, contract_assigned):
+        event = Event.objects.create(
+            title=validated_data["title"],
+            date_started=validated_data["date_started"],
+            date_finished=validated_data["date_finished"],
+            date_updated=datetime.now(),
+            support_contact=support_contact,
+            contract_assigned=contract_assigned)
+        event.save()
+        return True
+
+    def put(
+            self, validated_data, id_event,
+            support_contact, contract_assigned):
+        event = Event.objects.filter(id=id_event).first()
+        event.title = validated_data["title"]
+        event.date_started = validated_data["date_started"]
+        event.date_finished = validated_data["date_finished"]
+        event.date_updated = datetime.now()
+        event.support_contact = support_contact
+        event.contract_assigned = contract_assigned
+        event.save()
+        return True
+
+    def delete(self, pk):
+        event = Event.objects.filter(id=pk).first()
+        event.delete()
+        return True

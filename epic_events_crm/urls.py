@@ -42,10 +42,14 @@ urlpatterns = [
               'delete': 'delete_customer'}), name='customer'),
      path('api/crm/event/',
           EventViews.as_view(
-             {'get': "read_event"}), name='events'),
+             {'get': "read_event",
+              'post': 'create_event'
+              }), name='events'),
      path('api/crm/event/<id_event>/',
           EventViews.as_view(
               {'get': "details_event",
+               'put': 'put_event',
+               'delete': 'delete_event'
                }), name='event'
           ),
 ]

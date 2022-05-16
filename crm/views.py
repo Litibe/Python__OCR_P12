@@ -1,4 +1,4 @@
-from multiprocessing import Event
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -191,7 +191,7 @@ class ContractViews(ViewSet):
                         status=status.HTTP_406_NOT_ACCEPTABLE)
             return Response("Error Customer_assigned to create new contract",
                             status=status.HTTP_401_UNAUTHORIZED)
-        return Response({'ERROR profile to read contract'},
+        return Response({'ERROR profile to create contract'},
                         status=status.HTTP_401_UNAUTHORIZED)
 
     def details_contract(self, request, id_contract):
@@ -209,7 +209,9 @@ class ContractViews(ViewSet):
                 return Response(
                     serializer.data, status=status.HTTP_202_ACCEPTED)
         else:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {'ERROR profile to read contract'},
+                status=status.HTTP_401_UNAUTHORIZED)
 
     def put_contract(self, request, id_contract):
         """
@@ -247,7 +249,7 @@ class ContractViews(ViewSet):
                     return Response(
                         serializer.errors,
                         status=status.HTTP_406_NOT_ACCEPTABLE)
-            return Response("Error Customer_assigned to create new contract",
+            return Response("Error Customer_assigned to modify contract",
                             status=status.HTTP_406_NOT_ACCEPTABLE)
         else:
             return Response("UNAUTHORIZED for your Profile Staff",
@@ -272,7 +274,7 @@ class ContractViews(ViewSet):
 
 class EventViews(ViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = srlz.EventSerializerRead
+    serializer_class = srlz.EventSerializer
 
     def read_event(self, request, format=None):
         """
@@ -284,11 +286,11 @@ class EventViews(ViewSet):
         serializer = srlz.EventSerializerRead(data=request.data)
         if request.user.profile_staff.event_read:
             events = Event.objects.all()
-            serializer = srlz.EventSerializerRead(events, many=True)
+            serializer = srlz.EventSerializer(events, many=True)
             return Response(serializer.data,
                             status=status.HTTP_202_ACCEPTED)
         else:
-            return Response({'ERROR profile read events'},
+            return Response({'ERROR profile read events list'},
                             status=status.HTTP_401_UNAUTHORIZED)
 
     def details_event(self, request, id_event):
@@ -301,10 +303,127 @@ class EventViews(ViewSet):
         event = Event.objects.filter(id=id_event)
         if request.user.profile_staff.event_read:
             if event.exists():
-                serializer = srlz.EventSerializerRead(
+                serializer = srlz.EventSerializer(
                     event.first(), many=False)
                 return Response(
                     serializer.data, status=status.HTTP_202_ACCEPTED)
         else:
-            return Response({'ERROR profile read events'},
+            return Response({'ERROR profile read event'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+    def create_event(self, request):
+        """
+        POST Method to create new event
+        Return :
+            - details event
+        """
+        if request.data.get("contract_assigned__id", "") != "":
+            contract_assigned = Contract.objects.filter(
+                id=request.data.get("contract_assigned__id", "")).first()
+            if contract_assigned is None:
+                return Response("Error ID Contract assigned",
+                                status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response("Error ID Contract assigned",
+                            status=status.HTTP_400_BAD_REQUEST)
+        if request.data.get("support_contact__email", "") != "":
+            support_contact = User.objects.filter(
+                Q(email=request.data.get("support_contact__email", "")) | Q(
+                 profile_staff__id=3
+                )).first()
+        else:
+            return Response("Error Support_contact email assigned",
+                            status=status.HTTP_400_BAD_REQUEST)
+        sales_contact_email = (
+            contract_assigned.customer_assigned.sales_contact.email)
+        if request.user.profile_staff.event_CRUD_all or (
+            request.user.profile_staff.event_CRU_assigned and (
+                request.user.email == sales_contact_email
+            ) or (request.user.profile_staff.event_CRU_assigned and (
+                request.user.email == support_contact.email
+            ))
+        ):
+            if contract_assigned is not None:
+                serializer = srlz.EventSerializer(data=request.data)
+                if serializer.is_valid():
+                    save_ok = serializer.create(
+                        serializer.data, support_contact, contract_assigned)
+                    if save_ok:
+                        event = Event.objects.all().last()
+                        serializer = srlz.EventSerializer(event)
+                        return Response(
+                            serializer.data, status=status.HTTP_202_ACCEPTED)
+                else:
+                    return Response(
+                        serializer.errors,
+                        status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response({'ERROR profile to create event'},
+                        status=status.HTTP_401_UNAUTHORIZED)
+
+    def put_event(self, request, id_event):
+        """
+        PUT Method to modify event by ID
+        Return :
+            - details event
+        """
+        get_object_or_404(Event, id=id_event)
+        event = Event.objects.filter(id=id_event)
+        if request.data.get("contract_assigned__id", "") != "":
+            contract_assigned = Contract.objects.filter(
+                id=request.data.get("contract_assigned__id", "")).first()
+            if contract_assigned is None:
+                return Response("Error ID Contract assigned",
+                                status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response("Error ID Contract assigned",
+                            status=status.HTTP_400_BAD_REQUEST)
+        if request.data.get("support_contact__email", "") != "":
+            support_contact = User.objects.filter(
+                Q(email=request.data.get("support_contact__email", "")) | Q(
+                 profile_staff__id=3
+                )).first()
+        else:
+            return Response("Error Support_contact email assigned",
+                            status=status.HTTP_400_BAD_REQUEST)
+        sales_contact_email = (
+            contract_assigned.customer_assigned.sales_contact.email)
+        if request.user.profile_staff.event_CRUD_all or (
+            request.user.profile_staff.event_CRU_assigned and (
+                request.user.email == sales_contact_email
+            ) or (request.user.profile_staff.event_CRU_assigned and (
+                request.user.email == support_contact.email
+            ))
+        ):
+            if contract_assigned is not None:
+                serializer = srlz.EventSerializer(data=request.data)
+                if serializer.is_valid():
+                    save_ok = serializer.put(
+                        serializer.data, id_event,
+                        support_contact, contract_assigned)
+                    if save_ok:
+                        event = Event.objects.filter(id=id_event).first()
+                        serializer = srlz.EventSerializer(event)
+                        return Response(
+                            serializer.data, status=status.HTTP_202_ACCEPTED)
+                else:
+                    return Response(
+                        serializer.errors,
+                        status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response({'ERROR profile to create event'},
+                        status=status.HTTP_401_UNAUTHORIZED)
+
+    def delete_event(self, request, id_event):
+        """
+        DELETE Method to delete a event
+        Return :
+            - Boolean
+        """
+        get_object_or_404(Event, id=id_event)
+        event = Event.objects.filter(id=id_event)
+        if event.exists() and request.user.profile_staff.event_CRUD_all:
+            serializer = srlz.EventSerializer(event)
+            serializer.delete(pk=id_event)
+            return Response("Successfully", status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response("UNAUTHORIZED for your Profile Staff",
                             status=status.HTTP_401_UNAUTHORIZED)
