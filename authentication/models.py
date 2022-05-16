@@ -36,6 +36,8 @@ class ProfileStaff(models.Model):
     def __str__(self):
         return f'{self.name}'
 
+    
+
 
 class User(AbstractUser):
     date_joined = models.DateTimeField(default=timezone.now)

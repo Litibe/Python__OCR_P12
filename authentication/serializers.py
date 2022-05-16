@@ -13,6 +13,11 @@ class ProfileStaffSerializer(ModelSerializer):
         model = ProfileStaff
         fields = ('name')
 
+    def to_representation(self, instance):
+        rep = super(ProfileStaffSerializer, self).to_representation(instance)
+        rep['profile_staff'] = instance.profile_staff.name
+        return rep
+
 
 class UserSerializer(ModelSerializer):
     email = EmailField(
@@ -50,6 +55,11 @@ class UserSerializerRead(ModelSerializer):
         model = User
         fields = ('email',
                   'last_name', 'first_name', 'profile_staff')
+
+    def to_representation(self, instance):
+        rep = super(UserSerializerRead, self).to_representation(instance)
+        rep['profile_staff'] = instance.profile_staff.name
+        return rep
 
 
 class UserSerializerPut(ModelSerializer):
