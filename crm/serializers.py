@@ -153,3 +153,13 @@ class EventSerializer(ModelSerializer):
         event = Event.objects.filter(id=pk).first()
         event.delete()
         return True
+
+
+class NeedSerializer(ModelSerializer):
+    id = fields.CharField(read_only=True)
+    event_assigned = EventSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = Need
+        fields = ['id', 'title', 'success',
+                  'date_updated', 'event_assigned']

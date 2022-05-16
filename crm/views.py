@@ -283,7 +283,7 @@ class EventViews(ViewSet):
             - List of Events
         """
         request.user.profile_staff.event_read
-        serializer = srlz.EventSerializerRead(data=request.data)
+        serializer = srlz.EventSerializer(data=request.data)
         if request.user.profile_staff.event_read:
             events = Event.objects.all()
             serializer = srlz.EventSerializer(events, many=True)
@@ -426,4 +426,44 @@ class EventViews(ViewSet):
             return Response("Successfully", status=status.HTTP_202_ACCEPTED)
         else:
             return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+
+class NeedViews(ViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = srlz.NeedSerializer
+
+    def read_need(self, request, format=None):
+        """
+        GET Method - Get List of Need into db
+        Return :
+            - List of Needs
+        """
+        request.user.profile_staff.need_read
+        serializer = srlz.NeedSerializer(data=request.data)
+        if request.user.profile_staff.need_read:
+            needs = Need.objects.all()
+            serializer = srlz.NeedSerializer(needs, many=True)
+            return Response(serializer.data,
+                            status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response({'ERROR profile read need list'},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+    def details_need(self, request, id_need):
+        """
+        GET Method for details event
+        Return :
+            - details need ID
+        """
+        get_object_or_404(Need, id=id_need)
+        need = Need.objects.filter(id=id_need)
+        if request.user.profile_staff.need_read:
+            if need.exists():
+                serializer = srlz.NeedSerializer(
+                    need.first(), many=False)
+                return Response(
+                    serializer.data, status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response({'ERROR profile read need'},
                             status=status.HTTP_401_UNAUTHORIZED)
