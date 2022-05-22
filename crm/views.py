@@ -24,7 +24,7 @@ class CustomerViews(ViewSet):
         Return :
             - List of Customers
         """
-        request.user.profile_staff.customer_read
+        
         serializer = srlz.CustomerSerializer(data=request.data)
         if (
             request.user.profile_staff.customer_read
@@ -74,7 +74,9 @@ class CustomerViews(ViewSet):
         """
         get_object_or_404(Customer, id=id_customer)
         customer = Customer.objects.filter(id=id_customer)
-        if customer.exists() and request.user.profile_staff.customer_read:
+        if customer.exists() and (
+            request.user.profile_staff.customer_read
+           ) or (request.user.profile_staff.customer_CRUD_all):
             serializer = srlz.CustomerSerializer(
                 customer.first(), many=False)
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
