@@ -39,7 +39,6 @@ class TestUnitaireApiCustomer(TestCase):
         response = client.get(
             reverse("customers"))
         assert response.status_code == 401
-        
 
     def test_02_post_202__customers(self):
         client = Client()

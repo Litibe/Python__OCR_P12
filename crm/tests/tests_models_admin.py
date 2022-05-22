@@ -385,7 +385,7 @@ class TestCrmAdmin(TestCase):
     def test_main_page(self):
         client = Client()
         response = client.get(reverse("homepage"))
-        assert response.status_code == 202
+        assert response.status_code == 200
 
     def test_model_admin_customer(self):
         obj_customer = Customer.objects.all().first()
