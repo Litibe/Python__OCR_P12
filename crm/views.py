@@ -24,7 +24,6 @@ class CustomerViews(ViewSet):
         Return :
             - List of Customers
         """
-        
         serializer = srlz.CustomerSerializer(data=request.data)
         if (
             request.user.profile_staff.customer_read
@@ -64,7 +63,8 @@ class CustomerViews(ViewSet):
                         status=status.HTTP_406_NOT_ACCEPTABLE)
             return Response("Error Sales_contact Data",
                             status=status.HTTP_406_NOT_ACCEPTABLE)
-        return Response(status=status.HTTP_409_CONFLICT)
+        return Response({'ERROR profile to create contract'},
+                        status=status.HTTP_401_UNAUTHORIZED)
 
     def details_customer(self, request, id_customer):
         """
@@ -172,11 +172,10 @@ class ContractViews(ViewSet):
         if request.data.get("customer_assigned__id", "") != "":
             customer = Customer.objects.filter(
                 id=request.data.get("customer_assigned__id", "")).first()
-        else:
+        if customer is None:
             return Response("Error ID Customer assigned",
                             status=status.HTTP_400_BAD_REQUEST)
         sales_contact_email = customer.sales_contact.email
-
         if request.user.profile_staff.contract_CRUD_all or (
             request.user.profile_staff.contract_CRU_assigned and (
                 request.user.email == sales_contact_email
@@ -196,8 +195,9 @@ class ContractViews(ViewSet):
                     return Response(
                         serializer.errors,
                         status=status.HTTP_406_NOT_ACCEPTABLE)
-            return Response("Error Customer_assigned to create new contract",
-                            status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                "Error Sales_contact_assigned to create new contract",
+                status=status.HTTP_401_UNAUTHORIZED)
         return Response({'ERROR profile to create contract'},
                         status=status.HTTP_401_UNAUTHORIZED)
 
@@ -234,6 +234,9 @@ class ContractViews(ViewSet):
         else:
             return Response("Error ID Customer assigned",
                             status=status.HTTP_406_NOT_ACCEPTABLE)
+        if customer is None:
+            return Response("Error ID Customer assigned",
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
         sales_contact_email = customer.sales_contact.email
 
         if request.user.profile_staff.contract_CRUD_all or (
@@ -256,8 +259,9 @@ class ContractViews(ViewSet):
                     return Response(
                         serializer.errors,
                         status=status.HTTP_406_NOT_ACCEPTABLE)
-            return Response("Error Customer_assigned to modify contract",
-                            status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response(
+                "Error sales_contact access into customer to modify contract",
+                status=status.HTTP_406_NOT_ACCEPTABLE)
         else:
             return Response("UNAUTHORIZED for your Profile Staff",
                             status=status.HTTP_401_UNAUTHORIZED)
@@ -291,7 +295,9 @@ class EventViews(ViewSet):
         """
         request.user.profile_staff.event_read
         serializer = srlz.EventSerializer(data=request.data)
-        if request.user.profile_staff.event_read:
+        if request.user.profile_staff.event_read or (
+            request.user.profile_staff.event_CRUD_all
+        ):
             events = Event.objects.all()
             serializer = srlz.EventSerializer(events, many=True)
             return Response(serializer.data,
@@ -308,7 +314,9 @@ class EventViews(ViewSet):
         """
         get_object_or_404(Event, id=id_event)
         event = Event.objects.filter(id=id_event)
-        if request.user.profile_staff.event_read:
+        if request.user.profile_staff.event_read or (
+            request.user.profile_staff.event_CRUD_all
+        ):
             if event.exists():
                 serializer = srlz.EventSerializer(
                     event.first(), many=False)
@@ -335,9 +343,17 @@ class EventViews(ViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         if request.data.get("support_contact__email", "") != "":
             support_contact = User.objects.filter(
+                email=request.data.get("support_contact__email", ""))
+            if support_contact is None:
+                return Response("Error Support_contact email assigned",
+                                status=status.HTTP_400_BAD_REQUEST)
+            support_contact = User.objects.filter(
                 Q(email=request.data.get("support_contact__email", "")) | Q(
                  profile_staff__id=3
                 )).first()
+            if support_contact is None:
+                return Response("Error Support_contact email assigned",
+                                status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response("Error Support_contact email assigned",
                             status=status.HTTP_400_BAD_REQUEST)
@@ -389,6 +405,9 @@ class EventViews(ViewSet):
                 Q(email=request.data.get("support_contact__email", "")) | Q(
                  profile_staff__id=3
                 )).first()
+            if support_contact is None:    
+                return Response("Error Support_contact email assigned",
+                                status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response("Error Support_contact email assigned",
                             status=status.HTTP_400_BAD_REQUEST)
@@ -448,7 +467,9 @@ class NeedViews(ViewSet):
         """
         request.user.profile_staff.need_read
         serializer = srlz.NeedSerializer(data=request.data)
-        if request.user.profile_staff.need_read:
+        if request.user.profile_staff.need_read or (
+            request.user.profile_staff.need_CRUD_all
+        ):
             needs = Need.objects.all()
             serializer = srlz.NeedSerializer(needs, many=True)
             return Response(serializer.data,
@@ -465,7 +486,9 @@ class NeedViews(ViewSet):
         """
         get_object_or_404(Need, id=id_need)
         need = Need.objects.filter(id=id_need)
-        if request.user.profile_staff.need_read:
+        if request.user.profile_staff.need_read or (
+            request.user.profile_staff.need_CRUD_all
+        ):
             if need.exists():
                 serializer = srlz.NeedSerializer(
                     need.first(), many=False)
