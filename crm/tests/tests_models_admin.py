@@ -1,5 +1,6 @@
 from parameterized import parameterized
-from django.test import TestCase
+from django.test import Client, TestCase
+from django.urls import reverse
 from django.contrib.admin.sites import AdminSite
 from django.contrib.admin.options import ModelAdmin
 from datetime import datetime
@@ -380,6 +381,11 @@ request = MockRequest()
 class TestCrmAdmin(TestCase):
     def setUp(self):
         self.admin_site = AdminSite()
+
+    def test_main_page(self):
+        client = Client()
+        response = client.get(reverse("homepage"))
+        assert response.status_code == 202
 
     def test_model_admin_customer(self):
         obj_customer = Customer.objects.all().first()

@@ -3,9 +3,11 @@ from django.urls import reverse
 
 from crm import models
 
+# Test_Number_verbHTML_codeHTML__reversename
+
 
 class TestUnitaireApiCustomer(TestCase):
-    def test_01_get_all__read_customer(self):
+    def test_01_get_all__customers(self):
         client = Client()
         response = client.post(reverse("login"),
                                data={'email': 'manage@epicevents.fr',
@@ -13,7 +15,7 @@ class TestUnitaireApiCustomer(TestCase):
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
         response = client.get(
-            reverse("read_customer"))
+            reverse("customers"))
         assert response.status_code == 202
         assert (response.data[0].get("id", "")) == "CM00001"
         assert (response.data[0].get("first_name", "")) == "Tony"
@@ -27,7 +29,7 @@ class TestUnitaireApiCustomer(TestCase):
         assert (response_api_sales.get("email", "")) == sales_customer1
         assert (response.data[1].get("id", "")) == "CM00002"
 
-    def test_02_post_202__read_customer(self):
+    def test_02_post_202__customers(self):
         client = Client()
         response = client.post(reverse("login"),
                                data={'email': 'manage@epicevents.fr',
@@ -35,7 +37,7 @@ class TestUnitaireApiCustomer(TestCase):
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
         response = client.post(
-            reverse("read_customer"),
+            reverse("customers"),
             data={
                 "first_name": "Brian",
                 "last_name": "Werndow",
@@ -48,7 +50,7 @@ class TestUnitaireApiCustomer(TestCase):
         print(response.data)
         assert response.status_code == 202
 
-    def test_03_post_406__read_customer(self):
+    def test_03_post_406__customers(self):
         client = Client()
         response = client.post(reverse("login"),
                                data={'email': 'manage@epicevents.fr',
@@ -56,7 +58,7 @@ class TestUnitaireApiCustomer(TestCase):
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
         response = client.post(
-            reverse("read_customer"),
+            reverse("customers"),
             data={
                 "first_name": "Brian",
                 "last_name": "Werndow",
@@ -68,10 +70,10 @@ class TestUnitaireApiCustomer(TestCase):
         assert response.status_code == 406
         print(response.data)
 
-    def test_04_post_401__read_customer(self):
+    def test_04_post_401__customers(self):
         client = Client()
         response = client.post(
-            reverse("read_customer"),
+            reverse("customers"),
             data={
                 "first_name": "Brian",
                 "last_name": "Werndow",
@@ -182,7 +184,7 @@ class TestUnitaireApiCustomer(TestCase):
 
 
 class TestUnitaireApiContract(TestCase):
-    def test_00_get_all__read_contract(self):
+    def test_00_get_all__contracts(self):
         client = Client()
         response = client.post(reverse("login"),
                                data={'email': 'manage@epicevents.fr',
@@ -190,15 +192,15 @@ class TestUnitaireApiContract(TestCase):
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
         response = client.get(
-            reverse("read_contract"))
+            reverse("contracts"))
         assert response.status_code == 202
         assert (response.data[0].get("id", "")) == "CT00001"
         print(response.data)
 
-    def test_01_get_all_401__read_contract(self):
+    def test_01_get_all_401__contracts(self):
         client = Client()
         response = client.get(
-            reverse("read_contract"))
+            reverse("contracts"))
         assert response.status_code == 401
         print(response.data)
 
@@ -248,7 +250,7 @@ class TestUnitaireApiContract(TestCase):
         assert response.status_code == 202
         assert (response.data.get("id", "")) == "CT00001"
 
-    def test_06_post_202__read_contract(self):
+    def test_06_post_202__contracts(self):
         client = Client()
         response = client.post(reverse("login"),
                                data={'email': 'manage@epicevents.fr',
@@ -256,7 +258,7 @@ class TestUnitaireApiContract(TestCase):
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
         response = client.post(
-            reverse("read_contract"),
+            reverse("contracts"),
             data={
                 "title": "Contract Conges Beach Summer 22",
                 "date_start_contract": "2022-06-03 08:00",
@@ -268,7 +270,7 @@ class TestUnitaireApiContract(TestCase):
         print(response.data)
         assert response.status_code == 202
 
-    def test_07_post_401_support_unautho__read_contract(self):
+    def test_07_post_401_support_unautho__contracts(self):
         client = Client()
         response = client.post(reverse("login"),
                                data={'email': 'support@epicevents.fr',
@@ -276,7 +278,7 @@ class TestUnitaireApiContract(TestCase):
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
         response = client.post(
-            reverse("read_contract"),
+            reverse("contracts"),
             data={
                 "title": "Contract Conges Beach Summer 23",
                 "date_start_contract": "2023-06-03 08:00",
@@ -327,3 +329,25 @@ class TestUnitaireApiContract(TestCase):
             content_type='application/json')
         print(response.data)
         assert response.status_code == 202
+
+
+class TestUnitaireApiEvent(TestCase):
+    def test_00_get_all__events(self):
+        client = Client()
+        response = client.post(reverse("login"),
+                               data={'email': 'manage@epicevents.fr',
+                                     'password': 'epicevents'})
+        access_token = 'Bearer ' + response.data.get('access')
+        client.defaults['HTTP_AUTHORIZATION'] = access_token
+        response = client.get(
+            reverse("events"))
+        assert response.status_code == 202
+        assert (response.data[0].get("id", "")) == "E00001"
+        print(response.data)
+
+    def test_01_get_all_401__events(self):
+        client = Client()
+        response = client.get(
+            reverse("events"))
+        assert response.status_code == 401
+        print(response.data)

@@ -70,7 +70,6 @@ class CustomerViews(ViewSet):
         """
         GET Method for details project
         Return :
-
             - details customer ID
         """
         get_object_or_404(Customer, id=id_customer)
@@ -129,7 +128,7 @@ class CustomerViews(ViewSet):
         """
         DELETE Method for details project
         Return :
-            - Boolean
+            - Successfully
         """
         get_object_or_404(Customer, id=id_customer)
         customer = Customer.objects.filter(id=id_customer)
@@ -265,7 +264,7 @@ class ContractViews(ViewSet):
         """
         DELETE Method to delete a contract
         Return :
-            - Boolean
+            - Successfully
         """
         get_object_or_404(Contract, id=id_contract)
         contract = Contract.objects.filter(id=id_contract)
@@ -422,7 +421,7 @@ class EventViews(ViewSet):
         """
         DELETE Method to delete a event
         Return :
-            - Boolean
+            - Successfully
         """
         get_object_or_404(Event, id=id_event)
         event = Event.objects.filter(id=id_event)
@@ -478,7 +477,7 @@ class NeedViews(ViewSet):
         """
         DELETE Method to delete a need
         Return :
-            - Boolean
+            - Successfully
         """
         get_object_or_404(Need, id=id_need)
         need = Need.objects.filter(id=id_need)
@@ -549,7 +548,11 @@ class NeedViews(ViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         support_contact_email = (
             event_assigned.support_contact.email)
-        if request.user.profile_staff.need_CRUD_all :
+        if request.user.profile_staff.need_CRUD_all or (
+            request.user.profile_staff.need_CRU and (
+                request.user.email == support_contact_email
+            )
+        ):
             if event_assigned is not None:
                 serializer = srlz.NeedSerializer(data=request.data)
                 if serializer.is_valid():
