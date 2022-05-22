@@ -7,29 +7,20 @@ from crm.models import Customer, Contract, Event, Need
 from authentication.serializers import UserSerializer, UserSerializerRead
 
 
-class CustomerSerializerRead(ModelSerializer):
-    sales_contact = UserSerializerRead(many=False)
-
-    class Meta:
-        model = Customer
-        fields = ["id", "first_name", "last_name", "email",
-                  "phone", "mobile", "company_name", "sales_contact"]
-        depth = 2
-
-
-class CustomerSerializerCRUD(ModelSerializer):
+class CustomerSerializer(ModelSerializer):
+    id = fields.CharField(read_only=True)
     first_name = fields.CharField(required=True, max_length=25)
     last_name = fields.CharField(required=True, max_length=25)
     email = fields.EmailField(required=True, max_length=100)
     phone = fields.CharField(required=True, max_length=25)
     mobile = fields.CharField(required=True, max_length=25)
     company_name = fields.CharField(required=True, max_length=250)
-    sales_contact = UserSerializer(many=False, read_only=True)
+    sales_contact = UserSerializerRead(many=False, read_only=True)
 
     class Meta:
         model = Customer
         fields = [
-            "first_name", "last_name", "email",
+            "id", "first_name", "last_name", "email",
             "phone", "mobile", "company_name", "sales_contact"]
 
     def create(self, validated_data, user_sales_contact):
@@ -62,32 +53,24 @@ class CustomerSerializerCRUD(ModelSerializer):
         return True
 
 
-class ContractSerializerRead(ModelSerializer):
-    customer_assigned = CustomerSerializerRead(many=False)
-
-    class Meta:
-        model = Contract
-        fields = ['id', 'title', 'date_start_contract',
-                  'date_end_contract', 'signed', 'customer_assigned']
-        depth = 2
-
-
-class ContractSerializerCRUD(ModelSerializer):
+class ContractSerializer(ModelSerializer):
+    id = fields.CharField(read_only=True)
     title = fields.CharField(required=True, max_length=125)
     date_start_contract = fields.DateTimeField(
         format=settings.DATETIME_FORMAT,
         input_formats=settings.DATETIME_INPUT_FORMAT,
         default_timezone=None)
-    date_end_contract = fields.DateField(
+    date_end_contract = fields.DateTimeField(
         required=True, input_formats=['%Y-%m-%d %H:%M'])
     signed = fields.BooleanField(default=False)
-    customer_assigned = CustomerSerializerRead(many=False, read_only=True)
+    customer_assigned = CustomerSerializer(many=False, read_only=True)
 
     class Meta:
         model = Contract
         fields = [
-            'title', 'date_start_contract',
+            'id', 'title', 'date_start_contract',
             'date_end_contract', 'signed', 'customer_assigned']
+        depth = 2
 
     def create(self, validated_data, customer):
         contract = Contract.objects.create(
@@ -118,7 +101,7 @@ class ContractSerializerCRUD(ModelSerializer):
 class EventSerializer(ModelSerializer):
     id = fields.CharField(read_only=True)
     support_contact = UserSerializerRead(many=False, read_only=True)
-    contract_assigned = ContractSerializerRead(many=False, read_only=True)
+    contract_assigned = ContractSerializer(many=False, read_only=True)
 
     class Meta:
         model = Event
