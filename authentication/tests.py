@@ -83,11 +83,26 @@ def create_new_user_sales():
     new_user.set_password("epicevents")
     new_user.save()
 
+def create_new_user_without_access():
+    profile_manage = ProfileStaff.objects.create(
+        name="NO_ACCESS"
+    )
+    profile_manage.save()
+    profile_staff = ProfileStaff.objects.filter(name="NO_ACCESS").first()
+    new_user = User.objects.create(
+        email="no_access@epicevents.fr",
+        first_name="prenom",
+        last_name='nom',
+        profile_staff=profile_staff,
+    )
+    new_user.set_password("epicevents")
+    new_user.save()
 
 def create_new_users():
     create_new_user_manage()
     create_new_user_sales()
     create_new_user_support()
+    create_new_user_without_access()
 
 
 class TestUnitaireAPI(TestCase):
