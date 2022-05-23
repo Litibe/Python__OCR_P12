@@ -332,56 +332,62 @@ class EventViews(ViewSet):
         Return :
             - details event
         """
-        if request.data.get("contract_assigned__id", "") != "":
-            contract_assigned = Contract.objects.filter(
-                id=request.data.get("contract_assigned__id", "")).first()
-            if contract_assigned is None:
+        if request.user.profile_staff.event_CRUD_all or (
+           request.user.profile_staff.event_CRU_assigned):
+            if request.data.get("contract_assigned__id", "") != "":
+                contract_assigned = Contract.objects.filter(
+                        id=request.data.get(
+                            "contract_assigned__id", "")).first()
+                if contract_assigned is None:
+                    return Response("Error ID Contract assigned",
+                                    status=status.HTTP_400_BAD_REQUEST)
+            else:
                 return Response("Error ID Contract assigned",
                                 status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response("Error ID Contract assigned",
-                            status=status.HTTP_400_BAD_REQUEST)
-        if request.data.get("support_contact__email", "") != "":
-            support_contact = User.objects.filter(
-                email=request.data.get("support_contact__email", ""))
-            if support_contact is None:
-                return Response("Error Support_contact email assigned",
-                                status=status.HTTP_400_BAD_REQUEST)
-            support_contact = User.objects.filter(
-                Q(email=request.data.get("support_contact__email", "")) | Q(
-                 profile_staff__id=3
-                )).first()
-            if support_contact is None:
-                return Response("Error Support_contact email assigned",
-                                status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response("Error Support_contact email assigned",
-                            status=status.HTTP_400_BAD_REQUEST)
-        sales_contact_email = (
-            contract_assigned.customer_assigned.sales_contact.email)
-        if request.user.profile_staff.event_CRUD_all or (
-            request.user.profile_staff.event_CRU_assigned and (
-                request.user.email == sales_contact_email
-            ) or (request.user.profile_staff.event_CRU_assigned and (
-                request.user.email == support_contact.email
-            ))
-        ):
-            if contract_assigned is not None:
-                serializer = srlz.EventSerializer(data=request.data)
-                if serializer.is_valid():
-                    save_ok = serializer.create(
-                        serializer.data, support_contact, contract_assigned)
-                    if save_ok:
-                        event = Event.objects.all().last()
-                        serializer = srlz.EventSerializer(event)
-                        return Response(
-                            serializer.data, status=status.HTTP_202_ACCEPTED)
-                else:
+            sales_contact_email = (
+                    contract_assigned.customer_assigned.sales_contact.email)
+            if request.data.get("support_contact__email", "") != "":
+                input_email = request.data.get("support_contact__email", "")
+                support_contact = User.objects.filter(
+                        email=input_email).first()
+                if support_contact is None:
                     return Response(
-                        serializer.errors,
-                        status=status.HTTP_406_NOT_ACCEPTABLE)
-        return Response({'ERROR profile to create event'},
-                        status=status.HTTP_401_UNAUTHORIZED)
+                        "Error Support_contact email assigned not existing",
+                        status=status.HTTP_400_BAD_REQUEST)
+                if support_contact.profile_staff.id != 3:
+                    return Response(
+                        "Error Support_contact email havn't a profile SUPPORT",
+                        status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response("Error input Support_contact email assigned",
+                                status=status.HTTP_400_BAD_REQUEST)
+            if request.user.profile_staff.event_CRUD_all or (
+                request.user.profile_staff.event_CRU_assigned and (
+                    request.user.email == sales_contact_email
+                )
+            ):
+                if contract_assigned is not None:
+                    serializer = srlz.EventSerializer(data=request.data)
+                    if serializer.is_valid():
+                        save_ok = serializer.create(
+                            serializer.data, support_contact,
+                            contract_assigned)
+                        if save_ok:
+                            event = Event.objects.all().last()
+                            serializer = srlz.EventSerializer(event)
+                            return Response(
+                                serializer.data,
+                                status=status.HTTP_202_ACCEPTED)
+                    else:
+                        return Response(
+                            serializer.errors,
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+            else:
+                return Response({'ERROR profile to create event'},
+                                status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response({'ERROR profile to create event'},
+                            status=status.HTTP_401_UNAUTHORIZED)
 
     def put_event(self, request, id_event):
         """
@@ -393,26 +399,30 @@ class EventViews(ViewSet):
         event = Event.objects.filter(id=id_event)
         if request.data.get("contract_assigned__id", "") != "":
             contract_assigned = Contract.objects.filter(
-                id=request.data.get("contract_assigned__id", "")).first()
+                    id=request.data.get("contract_assigned__id", "")).first()
             if contract_assigned is None:
                 return Response("Error ID Contract assigned",
                                 status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response("Error ID Contract assigned",
                             status=status.HTTP_400_BAD_REQUEST)
+        sales_contact_email = (
+                contract_assigned.customer_assigned.sales_contact.email)
         if request.data.get("support_contact__email", "") != "":
             support_contact = User.objects.filter(
-                Q(email=request.data.get("support_contact__email", "")) | Q(
-                 profile_staff__id=3
-                )).first()
-            if support_contact is None:    
-                return Response("Error Support_contact email assigned",
-                                status=status.HTTP_400_BAD_REQUEST)
+                    email=request.data.get(
+                        "support_contact__email", "")).first()
+            if support_contact is None:
+                return Response(
+                    "Error Support_contact email assigned not existing",
+                    status=status.HTTP_400_BAD_REQUEST)
+            if support_contact.profile_staff.id != 3:
+                return Response(
+                    "Error Support_contact email assigned not profile SUPPORT",
+                    status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response("Error Support_contact email assigned",
                             status=status.HTTP_400_BAD_REQUEST)
-        sales_contact_email = (
-            contract_assigned.customer_assigned.sales_contact.email)
         if request.user.profile_staff.event_CRUD_all or (
             request.user.profile_staff.event_CRU_assigned and (
                 request.user.email == sales_contact_email
@@ -435,6 +445,9 @@ class EventViews(ViewSet):
                     return Response(
                         serializer.errors,
                         status=status.HTTP_406_NOT_ACCEPTABLE)
+            else:
+                return Response("Error Support_contact email assigned",
+                                status=status.HTTP_400_BAD_REQUEST)
         return Response({'ERROR profile to create event'},
                         status=status.HTTP_401_UNAUTHORIZED)
 
@@ -529,7 +542,6 @@ class NeedViews(ViewSet):
         else:
             return Response("Error ID Event assigned",
                             status=status.HTTP_400_BAD_REQUEST)
-
         support_contact_email = (
             event_assigned.support_contact.email)
         if request.user.profile_staff.need_CRUD_all or (

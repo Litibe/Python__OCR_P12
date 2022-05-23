@@ -185,7 +185,7 @@ class TestUnitaireApiCustomer(TestCase):
             content_type='application/json')
         print(response.data)
         assert response.status_code == 202
-    
+
     def test_06_put_406_manage_error_Salescontact__customer(self):
         client = Client()
         response = client.post(reverse("login"),
@@ -641,8 +641,8 @@ class TestUnitaireApiEvent(TestCase):
                 "date_started": "2022-06-03 08:00",
                 "date_finished": "2022-07-16 19:00",
                 "signed": "True",
-                "support_contact__email": "support@epicevents.com",
-                "contract_assigned__id": "CT00001"
+                "support_contact__email": "support@epicevents.fr",
+                "contract_assigned__id": "CT00002"
                 },
             content_type='application/json')
         print(response.data)
@@ -666,10 +666,12 @@ class TestUnitaireApiEvent(TestCase):
                 "contract_assigned__id": "CT00001"
                 },
             content_type='application/json')
-        assert response.data == "Error Support_contact email assigned"
+        print(response.data)
+        assert response.data == (
+            "Error Support_contact email assigned not existing")
         assert response.status_code == 400
 
-    def test_03_post_406_contract__events(self):
+    def test_03_post_400_contract__events(self):
         client = Client()
         response = client.post(reverse("login"),
                                data={'email': 'sales@epicevents.fr',
@@ -683,7 +685,7 @@ class TestUnitaireApiEvent(TestCase):
                 "date_started": "2022-06-03 08:00",
                 "date_finished": "2022-07-16",
                 "signed": "True",
-                "support_contact__email": "support@epicevents.com",
+                "support_contact__email": "support@epicevents.fr",
                 "contract_assigned__id": "CT20001"
                 },
             content_type='application/json')
@@ -727,7 +729,7 @@ class TestUnitaireApiEvent(TestCase):
                 "date_started": "2022-06-03 08:00",
                 "date_finished": "2022-07-18 08:00",
                 "signed": "True",
-                "support_contact__email": "support@epicevents.com",
+                "support_contact__email": "support@epicevents.fr",
                 "contract_assigned__id": "CT00001"
                 },
             content_type='application/json')
@@ -747,11 +749,11 @@ class TestUnitaireApiEvent(TestCase):
                 "date_started": "2022-06-03 08:00",
                 "date_finished": "2022-07-18 08:00",
                 "signed": "True",
-                "support_contact__email": "support@epicevents.com",
+                "support_contact__email": "support@epicevents.fr",
                 "contract_assigned__id": "CT01001"
                 },
             content_type='application/json')
-        assert response.status_code == 202
+        assert response.status_code == 400
         assert response.data == "Error ID Contract assigned"
 
     def test_05_put_400_supportuser__events(self):
@@ -768,17 +770,19 @@ class TestUnitaireApiEvent(TestCase):
                 "date_started": "2022-06-03 08:00",
                 "date_finished": "2022-07-18 08:00",
                 "signed": "True",
-                "support_contact__email": "support33@epicevents.com",
-                "contract_assigned__id": "CT01001"
+                "support_contact__email": "support33@epicevents.fr",
+                "contract_assigned__id": "CT00001"
                 },
             content_type='application/json')
-        assert response.status_code == 202
-        assert response.data == "Error Support_contact email assigned"
+        print(response.data)
+        assert response.status_code == 400
+        assert response.data == (
+            "Error Support_contact email assigned not existing")
 
-    def test_05_put_401_contract__events(self):
+    def test_05_put_400_supportuserprofile__events(self):
         client = Client()
         response = client.post(reverse("login"),
-                               data={'email': 'sales@epicevents.fr',
+                               data={'email': 'support@epicevents.fr',
                                      'password': 'epicevents'})
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
@@ -789,7 +793,30 @@ class TestUnitaireApiEvent(TestCase):
                 "date_started": "2022-06-03 08:00",
                 "date_finished": "2022-07-18 08:00",
                 "signed": "True",
-                "support_contact__email": "support@epicevents.com",
+                "support_contact__email": "sales@epicevents.fr",
+                "contract_assigned__id": "CT00001"
+                },
+            content_type='application/json')
+        print(response.data)
+        assert response.status_code == 400
+        assert response.data == (
+            "Error Support_contact email assigned not profile SUPPORT")
+
+    def test_05_put_401_contract__events(self):
+        client = Client()
+        response = client.post(reverse("login"),
+                               data={'email': 'sales2@epicevents.fr',
+                                     'password': 'epicevents'})
+        access_token = 'Bearer ' + response.data.get('access')
+        client.defaults['HTTP_AUTHORIZATION'] = access_token
+        response = client.put(
+            reverse("event", kwargs={'id_event': "E00001"}),
+            data={
+                "title": "Contract Conges Beach Summer 22",
+                "date_started": "2022-06-03 08:00",
+                "date_finished": "2022-07-18 08:00",
+                "signed": "True",
+                "support_contact__email": "support@epicevents.fr",
                 "contract_assigned__id": "CT00001"
                 },
             content_type='application/json')
@@ -856,4 +883,107 @@ class TestUnitaireApiNeed(TestCase):
         response = client.get(
             reverse("need", kwargs={'id_need': "N00001"}))
         print(response.data)
+        assert response.status_code == 202
+
+    def test_02_get_401___need(self):
+        client = Client()
+        response = client.post(reverse("login"),
+                               data={'email': 'no_access@epicevents.fr',
+                                     'password': 'epicevents'})
+        access_token = 'Bearer ' + response.data.get('access')
+        client.defaults['HTTP_AUTHORIZATION'] = access_token
+        response = client.get(
+            reverse("need", kwargs={'id_need': "N00001"}))
+        print(response.data)
+        assert response.status_code == 401
+
+    def test_03_post_202__needs(self):
+        client = Client()
+        response = client.post(reverse("login"),
+                               data={'email': 'support@epicevents.fr',
+                                     'password': 'epicevents'})
+        access_token = 'Bearer ' + response.data.get('access')
+        client.defaults['HTTP_AUTHORIZATION'] = access_token
+        response = client.post(
+            reverse("needs"),
+            data={
+                "title": "Office with Computer and internet",
+                "success": "True",
+                "event_assigned__id": "E00001"
+                },
+            content_type='application/json')
+        print(response.data)
+        assert response.status_code == 202
+
+    def test_04_put_202__events(self):
+        client = Client()
+        response = client.post(reverse("login"),
+                               data={'email': 'support@epicevents.fr',
+                                     'password': 'epicevents'})
+        access_token = 'Bearer ' + response.data.get('access')
+        client.defaults['HTTP_AUTHORIZATION'] = access_token
+        response = client.put(
+            reverse("need", kwargs={'id_need': "N00002"}),
+            data={
+                "title": "Office with Computer and internet",
+                "success": "False",
+                "event_assigned__id": "E00001"
+                },
+            content_type='application/json')
+        assert response.status_code == 202
+
+    def test_04_put_401__events(self):
+        client = Client()
+        response = client.post(reverse("login"),
+                               data={'email': 'sales2@epicevents.fr',
+                                     'password': 'epicevents'})
+        access_token = 'Bearer ' + response.data.get('access')
+        client.defaults['HTTP_AUTHORIZATION'] = access_token
+        response = client.put(
+            reverse("need", kwargs={'id_need': "N00002"}),
+            data={
+                "title": "Office with Computer and internet",
+                "success": "False",
+                "event_assigned__id": "E00001"
+                },
+            content_type='application/json')
+        assert response.status_code == 401
+
+    def test_04_put_400__events(self):
+        client = Client()
+        response = client.post(reverse("login"),
+                               data={'email': 'support@epicevents.fr',
+                                     'password': 'epicevents'})
+        access_token = 'Bearer ' + response.data.get('access')
+        client.defaults['HTTP_AUTHORIZATION'] = access_token
+        response = client.put(
+            reverse("need", kwargs={'id_need': "N00002"}),
+            data={
+                "title": "Office with Computer and internet",
+                "success": "True",
+                "event_assigned__id": "E00202"
+                },
+            content_type='application/json')
+        assert response.status_code == 400
+
+    def test_05_delete_401__events(self):
+        client = Client()
+        response = client.post(reverse("login"),
+                               data={'email': 'sales@epicevents.fr',
+                                     'password': 'epicevents'})
+        access_token = 'Bearer ' + response.data.get('access')
+        client.defaults['HTTP_AUTHORIZATION'] = access_token
+        response = client.delete(
+            reverse("need", kwargs={'id_need': "N00002"}))
+        assert response.status_code == 401
+
+    def test_05_delete_202__events(self):
+        client = Client()
+        response = client.post(reverse("login"),
+                               data={'email': 'manage@epicevents.fr',
+                                     'password': 'epicevents'})
+        access_token = 'Bearer ' + response.data.get('access')
+        client.defaults['HTTP_AUTHORIZATION'] = access_token
+        response = client.delete(
+            reverse("need", kwargs={'id_need': "N00002"}))
         assert response.status_code == 202
