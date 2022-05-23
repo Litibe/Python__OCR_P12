@@ -135,7 +135,7 @@ DATETIME_INPUT_FORMAT = ['%Y-%m-%d %H:%M']
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 SITE_ID = 1
 
