@@ -584,8 +584,9 @@ class NeedViews(ViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         support_contact_email = (
             event_assigned.support_contact.email)
+        print(request.user.profile_staff.need_CRU)
         if request.user.profile_staff.need_CRUD_all or (
-            request.user.profile_staff.need_CRU and (
+            request.user.profile_staff.need_CRU_assigned and (
                 request.user.email == support_contact_email
             )
         ):
