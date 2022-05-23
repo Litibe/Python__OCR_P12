@@ -915,7 +915,7 @@ class TestUnitaireApiNeed(TestCase):
         print(response.data)
         assert response.status_code == 202
 
-    def test_04_put_202__events(self):
+    def test_04_put_202__need(self):
         client = Client()
         response = client.post(reverse("login"),
                                data={'email': 'support@epicevents.fr',
@@ -923,7 +923,7 @@ class TestUnitaireApiNeed(TestCase):
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
         response = client.put(
-            reverse("need", kwargs={'id_need': "N00002"}),
+            reverse("need", kwargs={'id_need': "N00001"}),
             data={
                 "title": "Office with Computer and internet",
                 "success": "False",
@@ -932,7 +932,7 @@ class TestUnitaireApiNeed(TestCase):
             content_type='application/json')
         assert response.status_code == 202
 
-    def test_04_put_401__events(self):
+    def test_04_put_401__need(self):
         client = Client()
         response = client.post(reverse("login"),
                                data={'email': 'sales2@epicevents.fr',
@@ -940,7 +940,7 @@ class TestUnitaireApiNeed(TestCase):
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
         response = client.put(
-            reverse("need", kwargs={'id_need': "N00002"}),
+            reverse("need", kwargs={'id_need': "N00001"}),
             data={
                 "title": "Office with Computer and internet",
                 "success": "False",
@@ -949,7 +949,7 @@ class TestUnitaireApiNeed(TestCase):
             content_type='application/json')
         assert response.status_code == 401
 
-    def test_04_put_400__events(self):
+    def test_04_put_400__need(self):
         client = Client()
         response = client.post(reverse("login"),
                                data={'email': 'support@epicevents.fr',
@@ -957,7 +957,7 @@ class TestUnitaireApiNeed(TestCase):
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
         response = client.put(
-            reverse("need", kwargs={'id_need': "N00002"}),
+            reverse("need", kwargs={'id_need': "N00001"}),
             data={
                 "title": "Office with Computer and internet",
                 "success": "True",
@@ -966,7 +966,7 @@ class TestUnitaireApiNeed(TestCase):
             content_type='application/json')
         assert response.status_code == 400
 
-    def test_05_delete_401__events(self):
+    def test_05_delete_401__need(self):
         client = Client()
         response = client.post(reverse("login"),
                                data={'email': 'sales@epicevents.fr',
@@ -974,10 +974,10 @@ class TestUnitaireApiNeed(TestCase):
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
         response = client.delete(
-            reverse("need", kwargs={'id_need': "N00002"}))
+            reverse("need", kwargs={'id_need': "N00001"}))
         assert response.status_code == 401
 
-    def test_05_delete_202__events(self):
+    def test_05_delete_202__need(self):
         client = Client()
         response = client.post(reverse("login"),
                                data={'email': 'manage@epicevents.fr',
@@ -985,5 +985,5 @@ class TestUnitaireApiNeed(TestCase):
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
         response = client.delete(
-            reverse("need", kwargs={'id_need': "N00002"}))
+            reverse("need", kwargs={'id_need': "N00001"}))
         assert response.status_code == 202

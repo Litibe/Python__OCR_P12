@@ -573,7 +573,6 @@ class NeedViews(ViewSet):
             - details need
         """
         get_object_or_404(Need, id=id_need)
-        need = Need.objects.filter(id=id_need)
         if request.data.get("event_assigned__id", "") != "":
             event_assigned = Event.objects.filter(
                 id=request.data.get("event_assigned__id", "")).first()
@@ -605,5 +604,8 @@ class NeedViews(ViewSet):
                     return Response(
                         serializer.errors,
                         status=status.HTTP_406_NOT_ACCEPTABLE)
+        else:
+            return Response({'ERROR profile to put need'},
+                            status=status.HTTP_401_UNAUTHORIZED)
         return Response({'ERROR profile to put need'},
                         status=status.HTTP_401_UNAUTHORIZED)
