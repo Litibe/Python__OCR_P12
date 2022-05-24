@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 from rest_framework import status
@@ -539,6 +540,9 @@ class NeedViews(ViewSet):
             if event_assigned is None:
                 return Response("Error ID Event assigned",
                                 status=status.HTTP_400_BAD_REQUEST)
+            if event_assigned.date_finished < datetime.now():
+                return Response("Error Event Finished",
+                                status=status.HTTP_408_REQUEST_TIMEOUT)
         else:
             return Response("Error ID Event assigned",
                             status=status.HTTP_400_BAD_REQUEST)
@@ -579,6 +583,9 @@ class NeedViews(ViewSet):
             if event_assigned is None:
                 return Response("Error ID Event assigned",
                                 status=status.HTTP_400_BAD_REQUEST)
+            if event_assigned.date_finished < datetime.now():
+                return Response("Error Event Finished",
+                                status=status.HTTP_408_REQUEST_TIMEOUT)
         else:
             return Response("Error ID Event assigned",
                             status=status.HTTP_400_BAD_REQUEST)
