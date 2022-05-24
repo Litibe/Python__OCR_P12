@@ -358,12 +358,13 @@ class NeedAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         form = super(NeedAdmin, self).get_form(request, obj, **kwargs)
         if request.user.profile_staff.need_CRU_assigned:
-            event_list = Event.objects.filter(
-                support_contact=request.user)
+            event_list = Event.objects.filter(Q(
+                support_contact=request.user) & Q(
+                    date_finished__gt=datetime.now()))
             if form.base_fields:
                 form.base_fields['event_assigned'].queryset = event_list
         if request.user.profile_staff.need_CRUD_all:
-            event_list = Event.objects.all()
+            event_list = Event.objects.filter(date_finished__gt=datetime.now())
             if form.base_fields:
                 form.base_fields['event_assigned'].queryset = event_list
         return form
