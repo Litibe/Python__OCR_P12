@@ -2,8 +2,8 @@
 
 1. Why
 
-   Elaborer un système CRM sécurisé interne à l'entreprise EpicEvents. Une partie Fronted gérée avec Django Admin et une partie Backend avec la gestion de points de terminaison API.
-   3 Profils utilisateurs ont été créé : MANAGE - SALES - SUPPORT avec les différents niveaux d'accréditation
+   Develop a secure CRM system internal to the company EpicEvents. A Fronted part managed with Django Admin and a Backend part with API endpoint management.
+   3 user profiles have been created: MANAGE - SALES - SUPPORT with different levels of accreditation
 
 2. Getting Started
 
