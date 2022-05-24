@@ -256,7 +256,8 @@ class EventAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         form = super(EventAdmin, self).get_form(request, obj, **kwargs)
         if request.user.profile_staff.event_CRUD_all:
-            contract_list = Contract.objects.filter(signed=True)
+            contract_list = Contract.objects.filter(Q(signed=True) & Q(
+                date_end_contract__gt=datetime.now()))
             if form.base_fields:
                 form.base_fields['contract_assigned'].queryset = contract_list
             return form
@@ -273,7 +274,8 @@ class EventAdmin(admin.ModelAdmin):
             customer_list = Customer.objects.filter(
                 sales_contact=request.user)
             contract_list = Contract.objects.filter(
-                Q(customer_assigned__in=customer_list) | Q(signed=True))
+                Q(customer_assigned__in=customer_list) & Q(signed=True) & Q(
+                    date_end_contract__gt=datetime.now()))
             if form.base_fields:
                 form.base_fields['contract_assigned'].queryset = contract_list
         return form
