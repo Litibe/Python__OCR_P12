@@ -342,6 +342,9 @@ class EventViews(ViewSet):
                 if contract_assigned is None:
                     return Response("Error ID Contract assigned",
                                     status=status.HTTP_400_BAD_REQUEST)
+                if contract_assigned.date_end_contract < datetime.now():
+                    return Response("Error Contract Finished !",
+                                    status=status.HTTP_408_REQUEST_TIMEOUT)
             else:
                 return Response("Error ID Contract assigned",
                                 status=status.HTTP_400_BAD_REQUEST)
@@ -404,6 +407,9 @@ class EventViews(ViewSet):
             if contract_assigned is None:
                 return Response("Error ID Contract assigned",
                                 status=status.HTTP_400_BAD_REQUEST)
+            if contract_assigned.date_end_contract < datetime.now():
+                return Response("Error Contract Finished !",
+                                status=status.HTTP_408_REQUEST_TIMEOUT)
         else:
             return Response("Error ID Contract assigned",
                             status=status.HTTP_400_BAD_REQUEST)
