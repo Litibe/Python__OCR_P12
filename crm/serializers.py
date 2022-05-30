@@ -4,7 +4,7 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework import fields
 
 from crm.models import Customer, Contract, Event, Need
-from authentication.serializers import UserSerializer, UserSerializerRead
+from authentication.serializers import UserSerializerRead
 
 
 class CustomerSerializer(ModelSerializer):

@@ -3,8 +3,9 @@ from django.urls import path
 from rest_framework_simplejwt import views as DRF_jwt_views
 
 from authentication.views import UserSignUpView
-from crm.views import ContractViews, EventViews
-from crm.views import NeedViews, main_page, CustomerViews
+from crm.views_API import ContractViews, EventViews
+from crm.views_API import NeedViews, CustomerViews
+from crm.views import main_page
 
 admin.site.site_header = "EpicEvents CRM"
 admin.site.site_title = "EpicEvents CRM Portal"

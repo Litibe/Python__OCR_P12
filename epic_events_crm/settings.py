@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from datetime import timedelta
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -150,3 +151,55 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "authentication.User"
+
+
+LOG_PATH = os.path.join(BASE_DIR, "log/")
+if not os.path.exists(LOG_PATH):
+    os.makedirs(LOG_PATH)
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'crm.views': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': LOG_PATH + "crm_views.log",
+            'formatter': 'verbose',
+        },
+        'crm.views_API': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': LOG_PATH + "crm_views_API.log",
+            'formatter': 'verbose',
+        },
+        'other': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': LOG_PATH + "django.log",
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'crm.views': {
+            'handlers': ['crm.views'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'crm.views_API': {
+            'handlers': ['crm.views_API'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        '': {
+            'handlers': ['other'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '{name} {levelname} {asctime} {message}',
+            'style': '{',
+        },
+    }
+}
