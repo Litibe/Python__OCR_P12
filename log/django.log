@@ -356,3 +356,75 @@ django.utils.autoreload INFO 2022-05-30 12:53:27,951 /Users/titi/Desktop/p12/crm
 django.utils.autoreload INFO 2022-05-30 12:53:28,514 Watching for file changes with StatReloader
 django.utils.autoreload INFO 2022-05-30 12:54:02,479 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
 django.utils.autoreload INFO 2022-05-30 12:54:03,053 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 13:50:22,650 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 13:50:23,445 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 13:51:14,080 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 13:51:14,658 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 13:51:18,037 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 13:51:18,580 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 13:51:22,984 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 13:51:23,583 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 13:51:28,014 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 13:51:28,555 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 13:52:11,781 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 13:52:12,336 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 13:53:51,383 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 13:53:51,995 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 13:53:57,510 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 13:53:58,125 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 13:54:02,579 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 13:54:03,155 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 13:55:57,052 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 13:55:57,625 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:01:19,860 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:01:20,487 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:01:23,919 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:01:24,570 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:01:26,924 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:01:27,549 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:01:33,055 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:01:33,660 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:01:36,010 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:01:36,621 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:01:38,958 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:01:39,547 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:02:40,850 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:02:41,439 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:03:19,614 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:03:20,217 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:03:52,050 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:03:52,664 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:04:21,338 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:04:21,953 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:04:26,396 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:04:26,923 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:05:02,866 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:05:03,486 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:05:04,785 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:05:05,410 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:06:51,962 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:06:52,547 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:07:37,026 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:07:37,631 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:07:41,040 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:07:41,646 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:07:46,096 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:07:46,715 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:08:27,019 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:08:27,622 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:09:02,653 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:09:03,225 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:09:05,566 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:09:06,183 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:09:11,689 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:09:12,289 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:10:00,953 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:10:01,584 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:10:07,003 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:10:07,609 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:10:40,615 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:10:41,205 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:11:17,238 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:11:17,816 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:11:28,541 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:11:29,134 Watching for file changes with StatReloader

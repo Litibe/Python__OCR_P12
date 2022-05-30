@@ -405,7 +405,7 @@ class EventViews(ViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = srlz.EventSerializer
 
-    def read_event(self, request, format=None):
+    def read_event(self, request):
         """
         GET Method - Get List of Events into db
         Return :
@@ -636,15 +636,25 @@ class EventViews(ViewSet):
                     if save_ok:
                         event = Event.objects.filter(id=id_event).first()
                         serializer = srlz.EventSerializer(event)
+                        logger.error("PUT_EVENT_ID_" + id_event +
+                                     "__202 : " + event.id)
                         return Response(
                             serializer.data, status=status.HTTP_202_ACCEPTED)
                 else:
+                    logger.error("PUT_EVENT_ID_" + id_event +
+                                 "__406 - " + serializer.errors)
                     return Response(
                         serializer.errors,
                         status=status.HTTP_406_NOT_ACCEPTABLE)
             else:
+                logger.error("PUT_EVENT_ID_" + id_event +
+                             "__400 - " +
+                             "Error Support_contact email assigned")
                 return Response("Error Support_contact email assigned",
                                 status=status.HTTP_400_BAD_REQUEST)
+        logger.error("PUT_EVENT_ID_" + id_event +
+                     "__401 - ERROR profile to create event" +
+                     request.user.profile_Staff.name)
         return Response({'ERROR profile to create event'},
                         status=status.HTTP_401_UNAUTHORIZED)
 
@@ -654,13 +664,18 @@ class EventViews(ViewSet):
         Return :
             - Successfully
         """
+        logger.info("TRY DELETE_EVENT_ID_" + id_event)
         get_object_or_404(Event, id=id_event)
         event = Event.objects.filter(id=id_event)
         if event.exists() and request.user.profile_staff.event_CRUD_all:
             serializer = srlz.EventSerializer(event)
             serializer.delete(pk=id_event)
+            logger.info("DELETE_EVENT_ID_" + id_event + "__202")
             return Response("Successfully", status=status.HTTP_202_ACCEPTED)
         else:
+            logger.info("DELETE_EVENT_ID_" + id_event +
+                        "__401 - UNAUTHORIZED Profile : "
+                        + request.user.profile_staff.name)
             return Response("UNAUTHORIZED for your Profile Staff",
                             status=status.HTTP_401_UNAUTHORIZED)
 
@@ -669,7 +684,7 @@ class NeedViews(ViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = srlz.NeedSerializer
 
-    def read_need(self, request, format=None):
+    def read_need(self, request):
         """
         GET Method - Get List of Need into db
         Return :
@@ -682,9 +697,12 @@ class NeedViews(ViewSet):
         ):
             needs = Need.objects.all()
             serializer = srlz.NeedSerializer(needs, many=True)
+            logger.info("GET_LIST_NEED__202")
             return Response(serializer.data,
                             status=status.HTTP_202_ACCEPTED)
         else:
+            logger.error("GET_LIST_NEED__401 - UNAUTHORIZED PROFILE : " +
+                         request.user.profile_staff.name)
             return Response({'ERROR profile read need list'},
                             status=status.HTTP_401_UNAUTHORIZED)
 
@@ -694,6 +712,7 @@ class NeedViews(ViewSet):
         Return :
             - details need ID
         """
+        logger.info("TRY GET_NEED_ID_" + id_need)
         get_object_or_404(Need, id=id_need)
         need = Need.objects.filter(id=id_need)
         if request.user.profile_staff.need_read or (
@@ -702,9 +721,13 @@ class NeedViews(ViewSet):
             if need.exists():
                 serializer = srlz.NeedSerializer(
                     need.first(), many=False)
+                logger.info("GET_NEED_ID_" + id_need + "__202")
                 return Response(
                     serializer.data, status=status.HTTP_202_ACCEPTED)
         else:
+            logger.error("GET_NEED_ID_" + id_need +
+                         "__401 : UNAUTHORIZED PROFILE : " +
+                         request.user.profile_staff.name)
             return Response({'ERROR profile read need'},
                             status=status.HTTP_401_UNAUTHORIZED)
 
@@ -714,13 +737,18 @@ class NeedViews(ViewSet):
         Return :
             - Successfully
         """
+        logger.info("TRY DELETE_NEED_ID_"+id_need)
         get_object_or_404(Need, id=id_need)
         need = Need.objects.filter(id=id_need)
         if need.exists() and request.user.profile_staff.need_CRUD_all:
             serializer = srlz.NeedSerializer(need)
             serializer.delete(pk=id_need)
+            logger.info("DELETE_NEED_ID_" + id_need + "__202")
             return Response("Successfully", status=status.HTTP_202_ACCEPTED)
         else:
+            logger.error("DELETE_NEED_ID_" + id_need + '__401 - ' +
+                         "UNAUTHORIZED PROFILE : " +
+                         request.user.profile_staff.name)
             return Response("UNAUTHORIZED for your Profile Staff",
                             status=status.HTTP_401_UNAUTHORIZED)
 
@@ -734,12 +762,20 @@ class NeedViews(ViewSet):
             event_assigned = Event.objects.filter(
                 id=request.data.get("event_assigned__id", "")).first()
             if event_assigned is None:
+                logger.error("POST_CREATE_NEED_400 - Error ID" +
+                             " Event assigned " +
+                             request.data.get("event_assigned__id", ""))
                 return Response("Error ID Event assigned",
                                 status=status.HTTP_400_BAD_REQUEST)
             if event_assigned.date_finished < datetime.now():
+                logger.error("POST_CREATE_NEED_408 - Error Event Finished : " +
+                             event_assigned.id + " - " +
+                             event_assigned.date_finished)
                 return Response("Error Event Finished",
                                 status=status.HTTP_408_REQUEST_TIMEOUT)
         else:
+            logger.error("POST_CREATE_NEED_400 - Error ID Event assigned : " +
+                         request.data.get("event_assigned__id", ""))
             return Response("Error ID Event assigned",
                             status=status.HTTP_400_BAD_REQUEST)
         support_contact_email = (
@@ -757,9 +793,12 @@ class NeedViews(ViewSet):
                     if save_ok:
                         need = Need.objects.all().last()
                         serializer = srlz.NeedSerializer(need)
+                        logger.info("POST_CREATE_NEED__202 - " + need.id)
                         return Response(
                             serializer.data, status=status.HTTP_202_ACCEPTED)
                 else:
+                    logger.error("POST_CREATE_NEED__406 - " +
+                                 serializer.errors)
                     return Response(
                         serializer.errors,
                         status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -772,17 +811,28 @@ class NeedViews(ViewSet):
         Return :
             - details need
         """
+        logger.info("TRY PUT_NEED_ID_" + id_need)
         get_object_or_404(Need, id=id_need)
         if request.data.get("event_assigned__id", "") != "":
             event_assigned = Event.objects.filter(
                 id=request.data.get("event_assigned__id", "")).first()
             if event_assigned is None:
+                logger.error("PUT_NEED_ID_" + id_need + "__400 - " +
+                             "Error ID Event assigned : " +
+                             request.data.get("event_assigned__id", ""))
                 return Response("Error ID Event assigned",
                                 status=status.HTTP_400_BAD_REQUEST)
             if event_assigned.date_finished < datetime.now():
+                logger.error("PUT_NEED_ID_" + id_need + "__400 - " +
+                             "Error Event Finished : " +
+                             event_assigned.id + " : " +
+                             event_assigned.date_finished)
                 return Response("Error Event Finished",
                                 status=status.HTTP_408_REQUEST_TIMEOUT)
         else:
+            logger.error("PUT_NEED_ID_" + id_need + "__400 - " +
+                         "Error ID Event assigned : " +
+                         request.data.get("event_assigned__id", ""))
             return Response("Error ID Event assigned",
                             status=status.HTTP_400_BAD_REQUEST)
         support_contact_email = (
@@ -801,14 +851,22 @@ class NeedViews(ViewSet):
                     if save_ok:
                         need = Need.objects.filter(id=id_need).first()
                         serializer = srlz.NeedSerializer(need)
+                        logger.info("PUT_NEED_ID_" + id_need + "__202")
                         return Response(
                             serializer.data, status=status.HTTP_202_ACCEPTED)
                 else:
+                    logger.error("PUT_NEED_ID_" + id_need + "__406 - " +
+                                 serializer.errors)
                     return Response(
                         serializer.errors,
                         status=status.HTTP_406_NOT_ACCEPTABLE)
         else:
+            logger.error("PUT_NEED_ID_" + id_need + "__406 - " +
+                         'ERROR profile to put need')
             return Response({'ERROR profile to put need'},
                             status=status.HTTP_401_UNAUTHORIZED)
+        logger.error("PUT_NEED_ID_" + id_need + "__401 - " +
+                     'UNAUTHORIED PROFILE : ' +
+                     request.user.profile_staff.name)
         return Response({'ERROR profile to put need'},
                         status=status.HTTP_401_UNAUTHORIZED)
