@@ -160,6 +160,12 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
+        'authentication.views': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': LOG_PATH + "authentication_views.log",
+            'formatter': 'verbose',
+        },
         'crm.views': {
             'level': 'INFO',
             'class': 'logging.FileHandler',

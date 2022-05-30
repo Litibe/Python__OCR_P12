@@ -428,3 +428,11 @@ django.utils.autoreload INFO 2022-05-30 14:11:17,238 /Users/titi/Desktop/p12/crm
 django.utils.autoreload INFO 2022-05-30 14:11:17,816 Watching for file changes with StatReloader
 django.utils.autoreload INFO 2022-05-30 14:11:28,541 /Users/titi/Desktop/p12/crm/views_API.py changed, reloading.
 django.utils.autoreload INFO 2022-05-30 14:11:29,134 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:13:45,219 /Users/titi/Desktop/p12/epic_events_crm/settings.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:13:45,900 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:15:38,922 /Users/titi/Desktop/p12/authentication/views.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:15:39,525 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:15:46,061 /Users/titi/Desktop/p12/authentication/views.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:15:46,725 Watching for file changes with StatReloader
+django.utils.autoreload INFO 2022-05-30 14:15:49,061 /Users/titi/Desktop/p12/authentication/views.py changed, reloading.
+django.utils.autoreload INFO 2022-05-30 14:15:49,661 Watching for file changes with StatReloader
