@@ -160,46 +160,61 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'authentication.views': {
+        'crm': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': LOG_PATH + "authentication_views.log",
+            'filename': LOG_PATH + "crm.log",
             'formatter': 'verbose',
         },
-        'crm.views': {
+        'crm_API': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': LOG_PATH + "crm_views.log",
+            'filename': LOG_PATH + "crm_api.log",
             'formatter': 'verbose',
         },
-        'crm.views_API': {
-            'level': 'INFO',
+        'db': {
+            'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': LOG_PATH + "crm_views_API.log",
+            'filename': LOG_PATH + "db.log",
             'formatter': 'verbose',
         },
         'other': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': LOG_PATH + "django.log",
             'formatter': 'verbose',
         },
     },
     'loggers': {
+        'authentication.views': {
+            'handlers': ['crm_API'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         'crm.views': {
-            'handlers': ['crm.views'],
+            'handlers': ['crm'],
             'level': 'INFO',
             'propagate': False,
         },
         'crm.views_API': {
-            'handlers': ['crm.views_API'],
+            'handlers': ['crm_API'],
             'level': 'INFO',
             'propagate': False,
         },
         '': {
             'handlers': ['other'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'django.server': {
+            'handlers': ['other'],
             'level': 'INFO',
             'propagate': True,
+        },
+        'django.db.backends': {
+            'handlers': ['db'],
+            'level': 'DEBUG',
+            'propagate': False,
         },
     },
     'formatters': {

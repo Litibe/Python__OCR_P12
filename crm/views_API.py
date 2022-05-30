@@ -61,22 +61,22 @@ class CustomerViews(ViewSet):
                         customer = Customer.objects.all().last()
                         serializer = srlz.CustomerSerializer(customer)
                         logger.info(
-                            "POST_CREATE_CUSTOMER__202 - Customer ID" +
-                            str(customer.id) + "with profile : " +
+                            "POST_CREATE_CUSTOMER__202 - Customer ID_" +
+                            str(customer.id) + " with profile : " +
                             request.user.profile_staff.name)
                         return Response(
                             serializer.data, status=status.HTTP_202_ACCEPTED)
                 else:
                     logger.error(
                         "POST_CREATE_CUSTOMER__406 - " +
-                        serializer.errors + "with profile : " +
+                        serializer.errors + " with profile : " +
                         request.user.profile_staff.name)
                     return Response(
                         serializer.errors,
                         status=status.HTTP_406_NOT_ACCEPTABLE)
             logger.error(
                         "POST_CREATE_CUSTOMER__406 - " +
-                        "Error Sales_contact Data" +
+                        "Error Sales_contact Data " +
                         "with profile : " +
                         request.user.profile_staff.name)
             return Response("Error Sales_contact Data",

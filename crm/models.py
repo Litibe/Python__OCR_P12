@@ -2,6 +2,9 @@ from django.utils import timezone
 from django.conf import settings
 from django.db import models
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Customer(models.Model):
     """
