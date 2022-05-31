@@ -1,9 +1,9 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from rest_framework_simplejwt import views as DRF_jwt_views
 
 from authentication.views import UserSignUpView
-from crm.views_API import ContractViews, EventViews
+from crm.views_API import ContractViews, EventViews, SearchViews
 from crm.views_API import NeedViews, CustomerViews
 from crm.views import main_page
 
@@ -68,4 +68,11 @@ urlpatterns = [
                'delete': "delete_need",
                }), name='need'
           ),
+
+     re_path('api/crm/search?P<mail>\w+|[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}',
+             SearchViews.as_view(
+               {'get': "mail_search"}), name='mail_search'),
+     re_path('api/crm/search/(?P<id_object>\w+|[A-Za-z0-9.-]{6,7})',
+             SearchViews.as_view(
+               {'get': "id_search"}), name='id_search'),
 ]

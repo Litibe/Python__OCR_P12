@@ -821,3 +821,28 @@ class NeedViews(ViewSet):
                      request.user.profile_staff.name)
         return Response({'ERROR profile to put need'},
                         status=status.HTTP_401_UNAUTHORIZED)
+
+
+class SearchViews(ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def mail_search(self, request, mail):
+        """
+        GET Method - Get infos by ID into db
+        Return :
+            - Object
+        """
+        print(request.GET)
+        print(request.GET.get("", ""))
+        print(mail)
+        return Response(status=status.HTTP_202_ACCEPTED)
+
+    def id_search(self, request, id_object):
+        """
+        GET Method - Get infos by ID into db
+        Return :
+            - Object
+        """
+        print(request.GET)
+        print(request.GET.get("", ""))
+        return Response(status=status.HTTP_202_ACCEPTED)
