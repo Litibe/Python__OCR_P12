@@ -438,11 +438,12 @@ class TestCrmAdmin(TestCase):
         my_request = OurRequests(user_profil)
         obj_event = Event.objects.all().first()
         form = user_model_admin.get_form(my_request, obj_event)
-        assert len(form.base_fields['contract_assigned'].queryset) == 1
+        assert len(form.base_fields['contract_assigned'].queryset) == 2
         user_profil = User.objects.filter(
-                profile_staff__name="SALES").first()
+                email="sales2@epicevents.fr").first()
         my_request = OurRequests(user_profil)
         obj_event = Event.objects.all().first()
+        print(obj_event)
         form = user_model_admin.get_form(my_request, obj_event)
         assert len(form.base_fields['contract_assigned'].queryset) == 0
 
@@ -451,12 +452,6 @@ class TestCrmAdmin(TestCase):
                 model=Need, admin_site=AdminSite())
         user_profil = User.objects.filter(
                     profile_staff__name="MANAGE").first()
-        my_request = OurRequests(user_profil)
-        obj_need = Need.objects.all().first()
-        form = user_model_admin.get_form(my_request, obj_need)
-        assert len(form.base_fields['event_assigned'].queryset) == 2
-        user_profil = User.objects.filter(
-                profile_staff__name="SALES").first()
         my_request = OurRequests(user_profil)
         obj_need = Need.objects.all().first()
         form = user_model_admin.get_form(my_request, obj_need)
