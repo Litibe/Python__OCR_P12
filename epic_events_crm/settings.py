@@ -201,6 +201,11 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
+        'django.request': {
+            'handlers': ['crm_API'],
+            'level': 'INFO',
+            'propagate': True,
+        },
         '': {
             'handlers': ['other'],
             'level': 'DEBUG',

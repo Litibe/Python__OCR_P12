@@ -128,7 +128,7 @@ class ProfileAdmin(admin.ModelAdmin):
         if request.user.profile_staff.manage_staff_user_crud:
             return True
         else:
-            False
+            return False
 
     def has_module_permission(self, request):
         try:
@@ -143,13 +143,13 @@ class ProfileAdmin(admin.ModelAdmin):
         if request.user.profile_staff.manage_staff_user_crud:
             return True
         else:
-            False
+            return False
 
     def has_delete_permission(self, request, obj=None):
         if request.user.profile_staff.manage_staff_user_crud:
             return True
         else:
-            False
+            return False
 
     def get_actions(self, request):
         actions = super().get_actions(request)

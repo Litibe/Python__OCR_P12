@@ -68,8 +68,8 @@ class CustomerViews(ViewSet):
                             serializer.data, status=status.HTTP_202_ACCEPTED)
                 else:
                     logger.error(
-                        "POST_CREATE_CUSTOMER__406 - " +
-                        serializer.errors + " with profile : " +
+                        "POST_CREATE_CUSTOMER__406_NOT_ACCEPTABLE " +
+                        " with profile : " +
                         request.user.profile_staff.name)
                     return Response(
                         serializer.errors,
@@ -122,8 +122,7 @@ class CustomerViews(ViewSet):
         Return :
             - details customer
         """
-        logger.info(
-                "TRY PUT_CUSTOMER_ID_"+str(id_customer))
+        logger.info("TRY PUT_CUSTOMER_ID_"+str(id_customer))
         get_object_or_404(Customer, id=id_customer)
         customer = Customer.objects.filter(id=id_customer).first()
         sales_contact_cru = False
@@ -154,13 +153,13 @@ class CustomerViews(ViewSet):
                             id=id_customer).first()
                         serializer = srlz.CustomerSerializer(customer)
                         logger.error(
-                            "PUT_CUSTOMER_ID_"+str(id_customer)+"__202 : ")
+                            "PUT_CUSTOMER_ID_"+str(id_customer)+"__202")
                         return Response(
                             serializer.data, status=status.HTTP_202_ACCEPTED)
                 else:
                     logger.error(
-                        "PUT_CUSTOMER_ID_"+str(id_customer)+"__406 : " +
-                        serializer.errors)
+                        "PUT_CUSTOMER_ID_"+str(id_customer) +
+                        "__406_NOT_ACCEPTABLE")
                     return Response(
                         serializer.errors,
                         status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -235,8 +234,7 @@ class ContractViews(ViewSet):
             - details contract
         """
         logger.info("TRY POST_CREATE_CONTRACT")
-        if request.data.get("customer_assigned__id", "") != "":
-            customer = Customer.objects.filter(
+        customer = Customer.objects.filter(
                 id=request.data.get("customer_assigned__id", "")).first()
         if customer is None:
             logger.error("POST_CREATE_CONTRACT__400 -" +
@@ -250,36 +248,24 @@ class ContractViews(ViewSet):
                 request.user.email == sales_contact_email
             )
         ):
-            if customer is not None:
-                serializer = srlz.ContractSerializer(data=request.data)
-                if serializer.is_valid():
-                    save_ok = serializer.create(
-                        serializer.data, customer)
-                    if save_ok:
-                        contract = Contract.objects.all().last()
-                        serializer = srlz.ContractSerializer(contract)
-                        logger.error("POST_CREATE_CONTRACT_ID_" +
-                                     str(contract.id) + "__202" +
-                                     "PROFILE : " +
-                                     request.user.profile_staff.name)
-                        return Response(
-                            serializer.data, status=status.HTTP_202_ACCEPTED)
-                else:
-                    logger.error("POST_CREATE_CONTRACT__206" +
-                                 serializer.errors +
+            serializer = srlz.ContractSerializer(data=request.data)
+            if serializer.is_valid():
+                save_ok = serializer.create(
+                    serializer.data, customer)
+                if save_ok:
+                    contract = Contract.objects.all().last()
+                    serializer = srlz.ContractSerializer(contract)
+                    logger.error("POST_CREATE_CONTRACT_ID_" +
+                                 str(contract.id) + "__202" +
                                  "PROFILE : " +
                                  request.user.profile_staff.name)
                     return Response(
-                        serializer.errors,
-                        status=status.HTTP_406_NOT_ACCEPTABLE)
-            logger.error("POST_CREATE_CONTRACT__401" +
-                         "Error Sales_contact_assigned" +
-                         "to create new contract - " +
-                         "PROFILE : " +
-                         request.user.profile_staff.name)
-            return Response(
-                "Error Sales_contact_assigned to create new contract",
-                status=status.HTTP_401_UNAUTHORIZED)
+                        serializer.data, status=status.HTTP_202_ACCEPTED)
+            else:
+                logger.error("POST_CREATE_CONTRACT__406 - NOT ACCEPTABLE")
+                return Response(
+                    serializer.errors,
+                    status=status.HTTP_406_NOT_ACCEPTABLE)
         logger.error("POST_CREATE_CONTRACT__401" +
                      "ERROR profile to create contract" +
                      "PROFILE : " +
@@ -293,14 +279,14 @@ class ContractViews(ViewSet):
         Return :
             - details customer ID
         """
-        logger.INFO("TRY GET_CONTRACT_ID" + id_contract)
+        logger.info("TRY GET_CONTRACT_ID" + id_contract)
         get_object_or_404(Contract, id=id_contract)
         contract = Contract.objects.filter(id=id_contract)
         if request.user.profile_staff.contract_read:
             if contract.exists():
                 serializer = srlz.ContractSerializer(
                     contract.first(), many=False)
-                logger.info("GET_CONTRACT_ID" + id_contract + "__202 -"
+                logger.info("GET_CONTRACT_ID" + id_contract + "__202 - "
                             "PROFILE : " +
                             request.user.profile_staff.name)
                 return Response(
@@ -323,14 +309,8 @@ class ContractViews(ViewSet):
         logger.info("TRY PUT_CONTRACT_ID_" + id_contract)
         get_object_or_404(Contract, id=id_contract)
         contract = Contract.objects.filter(id=id_contract).first()
-        if request.data.get("customer_assigned__id", "") != "":
-            customer = Customer.objects.filter(
-                id=request.data.get("customer_assigned__id", "")).first()
-        else:
-            logger.error("PUT_CONTRACT_ID_" + id_contract + "__406 : " +
-                         "Error ID Customer assigned")
-            return Response("Error ID Customer assigned",
-                            status=status.HTTP_406_NOT_ACCEPTABLE)
+        customer = Customer.objects.filter(
+            id=request.data.get("customer_assigned__id", "0")).first()
         if customer is None:
             logger.error("PUT_CONTRACT_ID_" + id_contract + "__406 : " +
                          "Error ID Customer assigned")
@@ -343,34 +323,26 @@ class ContractViews(ViewSet):
                 request.user.email == sales_contact_email
             )
         ):
-            if customer is not None:
-                serializer = srlz.ContractSerializer(data=request.data)
-                if serializer.is_valid():
-                    save_ok = serializer.put(
-                        serializer.data, pk=id_contract, customer=customer)
-                    if save_ok:
-                        contract = Contract.objects.filter(
-                            id=id_contract).first()
-                        serializer = srlz.ContractSerializer(contract)
-                        logger.info("PUT_CONTRACT_ID_" + id_contract +
-                                    "__202 : " +
-                                    "with PROFILE : " +
-                                    request.user.profile_staff.name)
-                        return Response(
-                            serializer.data, status=status.HTTP_202_ACCEPTED)
-                else:
-                    logger.error("PUT_CONTRACT_ID_" + id_contract +
-                                 "__406 : " +
-                                 serializer.errors)
+            serializer = srlz.ContractSerializer(data=request.data)
+            if serializer.is_valid():
+                save_ok = serializer.put(
+                    serializer.data, pk=id_contract, customer=customer)
+                if save_ok:
+                    contract = Contract.objects.filter(
+                        id=id_contract).first()
+                    serializer = srlz.ContractSerializer(contract)
+                    logger.info("PUT_CONTRACT_ID_" + id_contract +
+                                "__202 : " +
+                                "with PROFILE : " +
+                                request.user.profile_staff.name)
                     return Response(
-                        serializer.errors,
-                        status=status.HTTP_406_NOT_ACCEPTABLE)
-            logger.error("PUT_CONTRACT_ID_" + id_contract +
-                         "__406 : " +
-                         "Error sales_contact access into customer to modify")
-            return Response(
-                "Error sales_contact access into customer to modify contract",
-                status=status.HTTP_406_NOT_ACCEPTABLE)
+                        serializer.data, status=status.HTTP_202_ACCEPTED)
+            else:
+                logger.error("PUT_CONTRACT_ID_" + id_contract +
+                             "__406_NOT_ACCEPTABLE")
+                return Response(
+                    serializer.errors,
+                    status=status.HTTP_406_NOT_ACCEPTABLE)
         else:
             logger.info("PUT_CONTRACT_ID_" + id_contract +
                         "__401 : " +
@@ -457,100 +429,79 @@ class EventViews(ViewSet):
         Return :
             - details event
         """
+        contract_assigned = Contract.objects.filter(
+            id=request.data.get(
+                "contract_assigned__id", "0")).first()
+        if contract_assigned is None:
+            logger.error("POST_CREATE_EVENT"
+                         "__400 - " +
+                         "Error ID Contract assigned")
+            return Response("Error ID Contract assigned",
+                            status=status.HTTP_400_BAD_REQUEST)
+        if contract_assigned.date_end_contract < datetime.now():
+            logger.error("POST_CREATE_EVENT"
+                         "__400 - " +
+                         "Error Contract Finished !" +
+                         contract_assigned.id)
+            return Response("Error Contract Finished !",
+                            status=status.HTTP_408_REQUEST_TIMEOUT)
+        if not contract_assigned.signed:
+            logger.error("POST_CREATE_EVENT"
+                         "__400 - " +
+                         "Error Contract not signed !" +
+                         contract_assigned.id)
+            return Response("Error Contract not signed !",
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        sales_contact_email = (
+            contract_assigned.customer_assigned.sales_contact.email)
+        input_email = request.data.get("support_contact__email", "")
+        support_contact = User.objects.filter(
+                email=input_email).first()
+        if support_contact is None:
+            logger.error("POST_CREATE_EVENT"
+                         "__400 - Error Support_contact" +
+                         " email assigned not existing")
+            return Response(
+                "Error Support_contact email assigned not existing",
+                status=status.HTTP_400_BAD_REQUEST)
+        if support_contact.profile_staff.id != 3:
+            logger.error("POST_CREATE_EVENT"
+                         "__400 - Error Support_contact" +
+                         " email havn't a profile SUPPORT")
+            return Response(
+                "Error Support_contact email havn't a profile SUPPORT",
+                status=status.HTTP_400_BAD_REQUEST)
+
         if request.user.profile_staff.event_CRUD_all or (
-           request.user.profile_staff.event_CRU_assigned):
-            if request.data.get("contract_assigned__id", "") != "":
-                contract_assigned = Contract.objects.filter(
-                        id=request.data.get(
-                            "contract_assigned__id", "")).first()
-                if contract_assigned is None:
-                    logger.error("POST_CREATE_EVENT"
-                                 "__400 - " +
-                                 "Error ID Contract assigned")
-                    return Response("Error ID Contract assigned",
-                                    status=status.HTTP_400_BAD_REQUEST)
-                if contract_assigned.date_end_contract < datetime.now():
-                    logger.error("POST_CREATE_EVENT"
-                                 "__400 - " +
-                                 "Error Contract Finished !" +
-                                 contract_assigned.id)
-                    return Response("Error Contract Finished !",
-                                    status=status.HTTP_408_REQUEST_TIMEOUT)
-                if not contract_assigned.signed:
-                    logger.error("POST_CREATE_EVENT"
-                                 "__400 - " +
-                                 "Error Contract not signed !" +
-                                 contract_assigned.id)
-                    return Response("Error Contract not signed !",
-                                    status=status.HTTP_400_BAD_REQUEST)
-            else:
-                logger.error("POST_CREATE_EVENT"
-                             "__400 - " +
-                             "Error ID Contract assigned" +
-                             contract_assigned.id)
-                return Response("Error ID Contract assigned",
-                                status=status.HTTP_400_BAD_REQUEST)
-            sales_contact_email = (
-                    contract_assigned.customer_assigned.sales_contact.email)
-            if request.data.get("support_contact__email", "") != "":
-                input_email = request.data.get("support_contact__email", "")
-                support_contact = User.objects.filter(
-                        email=input_email).first()
-                if support_contact is None:
-                    logger.error("POST_CREATE_EVENT"
-                                 "__400 - Error Support_contact" +
-                                 " email assigned not existing")
-                    return Response(
-                        "Error Support_contact email assigned not existing",
-                        status=status.HTTP_400_BAD_REQUEST)
-                if support_contact.profile_staff.id != 3:
-                    logger.error("POST_CREATE_EVENT"
-                                 "__400 - Error Support_contact" +
-                                 " email havn't a profile SUPPORT")
-                    return Response(
-                        "Error Support_contact email havn't a profile SUPPORT",
-                        status=status.HTTP_400_BAD_REQUEST)
-            else:
-                logger.error("POST_CREATE_EVENT"
-                             "__400 - " +
-                             "Error input Support_contact email assigned")
-                return Response("Error input Support_contact email assigned",
-                                status=status.HTTP_400_BAD_REQUEST)
-            if request.user.profile_staff.event_CRUD_all or (
-                request.user.profile_staff.event_CRU_assigned and (
-                    request.user.email == sales_contact_email
-                )
-            ):
-                if contract_assigned is not None:
-                    serializer = srlz.EventSerializer(data=request.data)
-                    if serializer.is_valid():
-                        save_ok = serializer.create(
-                            serializer.data, support_contact,
-                            contract_assigned)
-                        if save_ok:
-                            event = Event.objects.all().last()
-                            serializer = srlz.EventSerializer(event)
-                            logger.info("POST_CREATE_EVENT"
-                                        "__202 - " + event.id)
-                            return Response(
-                                serializer.data,
-                                status=status.HTTP_202_ACCEPTED)
-                    else:
-                        logger.error("POST_CREATE_EVENT"
-                                     "__406 - " + serializer.errors)
+            request.user.profile_staff.event_CRU_assigned and (
+                request.user.email == sales_contact_email
+            )
+        ):
+            if contract_assigned is not None:
+                serializer = srlz.EventSerializer(data=request.data)
+                if serializer.is_valid():
+                    save_ok = serializer.create(
+                        serializer.data, support_contact,
+                        contract_assigned)
+                    if save_ok:
+                        event = Event.objects.all().last()
+                        serializer = srlz.EventSerializer(event)
+                        logger.info("POST_CREATE_EVENT"
+                                    "__202 - " + event.id)
                         return Response(
-                            serializer.errors,
-                            status=status.HTTP_406_NOT_ACCEPTABLE)
-            else:
-                logger.error("POST_CREATE_EVENT"
-                             "__401 - " +
-                             "ERROR profile to create event : " +
-                             request.user.profile_staff.name)
-                return Response({'ERROR profile to create event'},
-                                status=status.HTTP_401_UNAUTHORIZED)
+                            serializer.data,
+                            status=status.HTTP_202_ACCEPTED)
+                else:
+                    logger.error("POST_CREATE_EVENT"
+                                 "__406 - ", serializer.errors)
+                    return Response(
+                        serializer.errors,
+                        status=status.HTTP_406_NOT_ACCEPTABLE)
         else:
             logger.error("POST_CREATE_EVENT"
-                         "__401 - " + "ERROR profile to create event : " +
+                         "__401 - " +
+                         "ERROR profile to create event : " +
                          request.user.profile_staff.name)
             return Response({'ERROR profile to create event'},
                             status=status.HTTP_401_UNAUTHORIZED)
@@ -642,7 +593,7 @@ class EventViews(ViewSet):
                             serializer.data, status=status.HTTP_202_ACCEPTED)
                 else:
                     logger.error("PUT_EVENT_ID_" + id_event +
-                                 "__406 - " + serializer.errors)
+                                 "__406 - ", serializer.errors)
                     return Response(
                         serializer.errors,
                         status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -654,7 +605,7 @@ class EventViews(ViewSet):
                                 status=status.HTTP_400_BAD_REQUEST)
         logger.error("PUT_EVENT_ID_" + id_event +
                      "__401 - ERROR profile to create event" +
-                     request.user.profile_Staff.name)
+                     request.user.profile_staff.name)
         return Response({'ERROR profile to create event'},
                         status=status.HTTP_401_UNAUTHORIZED)
 
@@ -797,7 +748,7 @@ class NeedViews(ViewSet):
                         return Response(
                             serializer.data, status=status.HTTP_202_ACCEPTED)
                 else:
-                    logger.error("POST_CREATE_NEED__406 - " +
+                    logger.error("POST_CREATE_NEED__406 - ",
                                  serializer.errors)
                     return Response(
                         serializer.errors,
@@ -855,7 +806,7 @@ class NeedViews(ViewSet):
                         return Response(
                             serializer.data, status=status.HTTP_202_ACCEPTED)
                 else:
-                    logger.error("PUT_NEED_ID_" + id_need + "__406 - " +
+                    logger.error("PUT_NEED_ID_" + id_need + "__406 - ",
                                  serializer.errors)
                     return Response(
                         serializer.errors,

@@ -75,6 +75,16 @@ def create_new_contract(search_customer):
     new_contract.save()
     search_contract = Contract.objects.filter(
                         title="Spring 2022 - Paris").first()
+    d_start = "2022-05-03T08:00:00+02:00"
+    d_end = "2022-05-05T20:00:00+02:00"
+    new_contract2 = Contract.objects.create(
+        title="Spring 2022 - Paris",
+        date_start_contract=d_start,
+        date_end_contract=d_end,
+        signed=False,
+        customer_assigned=search_customer
+    )
+    new_contract2.save()
     return search_contract
 
 
@@ -388,7 +398,66 @@ class TestCrmAdmin(TestCase):
         assert response.status_code == 200
 
     def test_model_admin_customer(self):
+        user_model_admin = CustomerAdmin(
+            model=Customer, admin_site=AdminSite())
+        user_profil = User.objects.filter(
+                profile_staff__name="MANAGE").first()
+        my_request = OurRequests(user_profil)
         obj_customer = Customer.objects.all().first()
-        mod_customer = ModelAdmin(Customer, self.admin_site)
-        form = mod_customer.get_form(obj_customer)
-        print(form.base_fields['sales_contact'].queryset)
+        form = user_model_admin.get_form(my_request, obj_customer)
+        assert len(form.base_fields['sales_contact'].queryset) == 2
+
+        user_profil = User.objects.filter(
+            profile_staff__name="SALES").first()
+        my_request = OurRequests(user_profil)
+        obj_customer = Customer.objects.all().first()
+        form = user_model_admin.get_form(my_request, obj_customer)
+        assert len(form.base_fields['sales_contact'].queryset) == 1
+
+    def test_model_admin_contract(self):
+        user_model_admin = ContractAdmin(
+            model=Contract, admin_site=AdminSite())
+        user_profil = User.objects.filter(
+                profile_staff__name="MANAGE").first()
+        my_request = OurRequests(user_profil)
+        obj_contract = Contract.objects.all().first()
+        form = user_model_admin.get_form(my_request, obj_contract)
+        assert len(form.base_fields['customer_assigned'].queryset) == 2
+        user_profil = User.objects.filter(
+                profile_staff__name="SALES").first()
+        my_request = OurRequests(user_profil)
+        obj_contract = Contract.objects.all().first()
+        form = user_model_admin.get_form(my_request, obj_contract)
+        assert len(form.base_fields['customer_assigned'].queryset) == 1
+
+    def test_model_admin_event(self):
+        user_model_admin = EventAdmin(
+                model=Event, admin_site=AdminSite())
+        user_profil = User.objects.filter(
+                    profile_staff__name="MANAGE").first()
+        my_request = OurRequests(user_profil)
+        obj_event = Event.objects.all().first()
+        form = user_model_admin.get_form(my_request, obj_event)
+        assert len(form.base_fields['contract_assigned'].queryset) == 1
+        user_profil = User.objects.filter(
+                profile_staff__name="SALES").first()
+        my_request = OurRequests(user_profil)
+        obj_event = Event.objects.all().first()
+        form = user_model_admin.get_form(my_request, obj_event)
+        assert len(form.base_fields['contract_assigned'].queryset) == 0
+
+    def test_model_admin_need(self):
+        user_model_admin = NeedAdmin(
+                model=Need, admin_site=AdminSite())
+        user_profil = User.objects.filter(
+                    profile_staff__name="MANAGE").first()
+        my_request = OurRequests(user_profil)
+        obj_need = Need.objects.all().first()
+        form = user_model_admin.get_form(my_request, obj_need)
+        assert len(form.base_fields['event_assigned'].queryset) == 2
+        user_profil = User.objects.filter(
+                profile_staff__name="SALES").first()
+        my_request = OurRequests(user_profil)
+        obj_need = Need.objects.all().first()
+        form = user_model_admin.get_form(my_request, obj_need)
+        assert len(form.base_fields['event_assigned'].queryset) == 1
