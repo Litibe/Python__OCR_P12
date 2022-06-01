@@ -196,7 +196,7 @@ LOGGING = {
             'level': 'INFO',
             'propagate': False,
         },
-        'crm.views_API': {
+        'crm.API': {
             'handlers': ['crm_API'],
             'level': 'INFO',
             'propagate': False,

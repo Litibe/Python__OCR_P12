@@ -1,11 +1,13 @@
 from django.contrib import admin
-from django.urls import path, re_path
+from django.urls import path
 from rest_framework_simplejwt import views as DRF_jwt_views
 
 from authentication.views import UserSignUpView
-from crm.views_API import ContractViews, EventViews, SearchViews
-from crm.views_API import NeedViews, CustomerViews
-from crm.views import main_page
+from crm.API.API_customer import CustomerViews
+from crm.API.API_contract import ContractViews
+from crm.API.API_event import EventViews
+from crm.API.API_need import NeedViews
+from crm.views.homepage import main_page
 
 admin.site.site_header = "EpicEvents CRM"
 admin.site.site_title = "EpicEvents CRM Portal"
@@ -78,11 +80,4 @@ urlpatterns = [
                'delete': "delete_need",
                }), name='need'
           ),
-
-     re_path('api/crm/search?P<mail>\w+|[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}',
-             SearchViews.as_view(
-               {'get': "mail_search"}), name='mail2_search'),
-     re_path('api/crm/search/(?P<id_object>\w+|[A-Za-z0-9.-]{6,7})',
-             SearchViews.as_view(
-               {'get': "id_search"}), name='id_search'),
 ]
