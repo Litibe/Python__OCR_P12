@@ -50,11 +50,15 @@ urlpatterns = [
           ContractViews.as_view(
              {'get': "read_contract",
               'post': 'create_contract'}), name='contracts'),
-     path('api/crm/contract/<id_contract>/',
+     path('api/crm/contract/id/<id_contract>/',
           ContractViews.as_view(
               {'get': "details_contract",
                'put': "put_contract",
                'delete': 'delete_contract'}), name='contract'),
+     path('api/crm/contract/name/',
+          ContractViews.as_view(
+               {'get': "search_contract_by_name_customer"}),
+          name='contract_by_name_customer'),
 
      path('api/crm/event/',
           EventViews.as_view(

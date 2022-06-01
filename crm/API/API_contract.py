@@ -25,7 +25,9 @@ class ContractViews(ViewSet):
             - List of Contract
         """
         serializer = srlz.ContractSerializer(data=request.data)
-        if request.user.profile_staff.contract_read:
+        if request.user.profile_staff.contract_read or (
+            request.user.profile_staff.contract_CRU_assigned
+        ) or (request.user.profile_staff.contract_CRUD_all):
             contracts = Contract.objects.all()
             serializer = srlz.ContractSerializer(contracts, many=True)
             logger.info("GET_LIST_CONTRACT__202")
@@ -92,7 +94,9 @@ class ContractViews(ViewSet):
         logger.info("TRY GET_CONTRACT_ID" + id_contract)
         get_object_or_404(Contract, id=id_contract)
         contract = Contract.objects.filter(id=id_contract)
-        if request.user.profile_staff.contract_read:
+        if request.user.profile_staff.contract_read or (
+            request.user.profile_staff.contract_CRU_assigned
+        ) or (request.user.profile_staff.contract_CRUD_all):
             if contract.exists():
                 serializer = srlz.ContractSerializer(
                     contract.first(), many=False)
@@ -182,7 +186,7 @@ class ContractViews(ViewSet):
             return Response("UNAUTHORIZED for your Profile Staff",
                             status=status.HTTP_401_UNAUTHORIZED)
 
-    def search_name_customer(self, request):
+    def search_contract_by_name_customer(self, request):
         """
         GET Method - Get Contract by Customer_name into db
         Return :
@@ -200,26 +204,44 @@ class ContractViews(ViewSet):
                 )
                 if not customers.exists():
                     logger.info(
-                        "SEARCH_CUSTOMER_NAME__NOT_FOUND - L+F")
+                        "SEARCH_CONTRACT_NAME__NOT_FOUND - L+F")
                     customers = Customer.objects.filter(last_name=last_name)
                 if not customers.exists():
                     logger.info(
-                        "SEARCH_CUSTOMER_NAME__NOT_FOUND - Last")
+                        "SEARCH_CONTRACT_NAME__NOT_FOUND - Last")
                     customers = Customer.objects.filter(first_name=first_name)
                 if not customers.exists():
                     logger.info(
-                        "SEARCH_CUSTOMER_NAME__406_NOT_FOUND -" +
+                        "SEARCH_CONTRACT_NAME__406_NOT_FOUND -" +
                         "with profile : " +
                         request.user.profile_staff.name)
                     return Response(
-                        "Please verify last_name and/or first_name  input!",
+                        "Please verify last_name and/or first_name input!",
                         status=status.HTTP_406_NOT_ACCEPTABLE)
-                serializer = srlz.CustomerSerializer(
-                        customers, many=True)
+                if len(customers) > 1:
+                    logger.info(
+                        "SEARCH_CONTRACT_BY_CUSTOMER_NAME__409_CONFLICT -" +
+                        "More customerS")
+                    return Response(
+                            "CONFLIT, Found more 1 customer ! " +
+                            "Thanks to modify your search",
+                            status=status.HTTP_409_CONFLICT)
+                contract = Contract.objects.filter(
+                    customer_assigned=customers.first())
+                serializer = srlz.ContractSerializer(
+                        contract, many=True)
                 logger.info(
-                    "SEARCH_CUSTOMER_NAME__202 -" +
+                    "SEARCH_CONTRACT_BY_CUSTOMER_NAME__202 -" +
                     "with profile : " +
                     request.user.profile_staff.name)
+                if serializer.data == []:
+                    return Response(
+                        "Not Contract Found for this Customer: "+(
+                            customers.first().id + " " + (
+                                customers.first().last_name + " " +
+                                customers.first().first_name
+                                )),
+                        status=status.HTTP_404_NOT_FOUND)
                 return Response(
                         serializer.data,
                         status=status.HTTP_202_ACCEPTED)
