@@ -28,11 +28,21 @@ urlpatterns = [
              {'get': "read_customer",
               'post': 'create_customer'
               }), name='customers'),
-     path('api/crm/customer/<id_customer>/',
+     path('api/crm/customer/id/<id_customer>/',
           CustomerViews.as_view(
              {"get": "details_customer",
               "put": "put_customer",
               'delete': 'delete_customer'}), name='customer'),
+     path('api/crm/customer/mail/<mail>/',
+          CustomerViews.as_view(
+               {'get': "search_mail_customer"}), name='customer_search_mail'),
+     path('api/crm/customer/name/',
+          CustomerViews.as_view(
+               {'get': "search_name_customer"}), name='customer_search_name'),
+     path('api/crm/customer/salescontact/<mail>/',
+          CustomerViews.as_view(
+               {'get': "search_sales_contact_customer"}),
+          name='customer_search_sales'),
 
      path('api/crm/contract/',
           ContractViews.as_view(
@@ -71,7 +81,7 @@ urlpatterns = [
 
      re_path('api/crm/search?P<mail>\w+|[\w.%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}',
              SearchViews.as_view(
-               {'get': "mail_search"}), name='mail_search'),
+               {'get': "mail_search"}), name='mail2_search'),
      re_path('api/crm/search/(?P<id_object>\w+|[A-Za-z0-9.-]{6,7})',
              SearchViews.as_view(
                {'get': "id_search"}), name='id_search'),

@@ -1,9 +1,11 @@
 from datetime import datetime
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
+import re
 
 from authentication.models import User
 from crm.models import Contract, Customer, Event, Need
@@ -94,6 +96,8 @@ class CustomerViews(ViewSet):
         Return :
             - details customer ID
         """
+        if id_customer == "search":
+            id_customer = request.GET.get("id", "")
         logger.info(
                 "TRY GET_CUSTOMER_ID_"+str(id_customer))
         get_object_or_404(Customer, id=id_customer)
@@ -203,6 +207,141 @@ class CustomerViews(ViewSet):
             return Response("UNAUTHORIZED for your Profile Staff",
                             status=status.HTTP_401_UNAUTHORIZED)
 
+    def search_mail_customer(self, request, mail):
+        """
+        GET Method - Get Customer by this mail into db
+        Reminder : User into db with mail UNIQUE
+        Return :
+            - Object Customer
+        """
+        if request.user.profile_staff.customer_read or (
+            request.user.profile_staff.customer_CRU_assigned) or (
+                request.user.profile_staff.customer_CRUD_all
+        ):
+            regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,5}\b'
+            if re.fullmatch(regex, mail):
+                customers = Customer.objects.filter(email=mail)
+                if customers.exists():
+                    serializer = srlz.CustomerSerializer(
+                        customers.first(), many=False)
+                    logger.info(
+                        "SEARCH_CUSTOMER_MAIL__202 -" +
+                        "with profile : " +
+                        request.user.profile_staff.name)
+                    return Response(serializer.data,
+                                    status=status.HTTP_202_ACCEPTED)
+                logger.info(
+                        "SEARCH_CUSTOMER_MAIL__204_NO_CONTENT")
+                return Response("No Customer with this mail",
+                                status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response("Please, thank to write a correct mail format",
+                                status=status.HTTP_406_NOT_ACCEPTABLE)
+        else:
+            return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+    def search_sales_contact_customer(self, request, mail):
+        """
+        GET Method - Get Customer by this mail into db
+        Reminder : User into db with mail UNIQUE
+        Return :
+            - Object Customer
+        """
+        if request.user.profile_staff.customer_read or (
+            request.user.profile_staff.customer_CRU_assigned) or (
+                request.user.profile_staff.customer_CRUD_all
+        ):
+            regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,5}\b'
+            if re.fullmatch(regex, mail):
+                sales_contact = User.objects.filter(email=mail)
+                if sales_contact is not None:
+                    if sales_contact.first().profile_staff.name != "SALES":
+                        logger.info(
+                            "SEARCH_CUSTOMER_Mail_not_profile_SALES__" +
+                            "203_NON_AUTHORITATIVE_INFORMATION")
+                        return Response(
+                            "User Profile_staff is not 'SALES' with this mail",
+                            status=(
+                                status.HTTP_203_NON_AUTHORITATIVE_INFORMATION))
+                customers = Customer.objects.filter(sales_contact__email=mail)
+                if customers.exists():
+                    serializer = srlz.CustomerSerializer(
+                        customers, many=True)
+                    logger.info(
+                        "SEARCH_CUSTOMER_MAIL__202 -" +
+                        "with profile : " +
+                        request.user.profile_staff.name)
+                    return Response(serializer.data,
+                                    status=status.HTTP_202_ACCEPTED)
+                logger.info(
+                    "SEARCH_CUSTOMER_Sales_contact_with_MAIL__204_NO_CONTENT")
+                return Response(
+                    "No Sales_contact assigned for Customer with this mail",
+                    status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response("Please, thank to write a correct mail format",
+                                status=status.HTTP_406_NOT_ACCEPTABLE)
+        else:
+            return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
+    
+    def search_name_customer(self, request):
+        """
+        GET Method - Get Customer by this mail into db
+        Reminder : User into db with mail UNIQUE
+        Return :
+            - Object Customer
+        """
+        if request.user.profile_staff.customer_read or (
+            request.user.profile_staff.customer_CRU_assigned) or (
+                request.user.profile_staff.customer_CRUD_all
+        ):
+            last_name = request.GET.get("last_name", None)
+            first_name = request.GET.get("first_name", None)
+            if last_name is not None or first_name is not None:
+                customers = Customer.objects.filter(
+                    Q(last_name=last_name) & Q(first_name=first_name)
+                )
+                print(customers)
+                if not customers.exists():
+                    logger.info(
+                        "SEARCH_CUSTOMER_NAME__NOT_FOUND - L+F")
+                    customers = Customer.objects.filter(last_name=last_name)
+                if not customers.exists():
+                    logger.info(
+                        "SEARCH_CUSTOMER_NAME__NOT_FOUND - Last")
+                    customers = Customer.objects.filter(first_name=first_name)
+                if not customers.exists():
+                    logger.info(
+                        "SEARCH_CUSTOMER_NAME__406_NOT_FOUND -" +
+                        "with profile : " +
+                        request.user.profile_staff.name)
+                    return Response(
+                        "Please verify last_name and/or first_name  input!",
+                        status=status.HTTP_406_NOT_ACCEPTABLE)
+            
+                serializer = srlz.CustomerSerializer(
+                        customers, many=True)
+                logger.info(
+                    "SEARCH_CUSTOMER_NAME__202 -" +
+                    "with profile : " +
+                    request.user.profile_staff.name)
+                return Response(
+                        serializer.data,
+                        status=status.HTTP_202_ACCEPTED)
+
+            else:
+                logger.info(
+                        "SEARCH_CUSTOMER_NAME__406_NOT_FOUND -" +
+                        "with profile : " +
+                        request.user.profile_staff.name)
+                return Response(
+                        "Please verify last_name and/or first_name  input!",
+                        status=status.HTTP_406_NOT_ACCEPTABLE)
+        else:
+            return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
 
 class ContractViews(ViewSet):
     permission_classes = [IsAuthenticated]
