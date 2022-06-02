@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from rest_framework import status
@@ -28,7 +29,7 @@ class ContractViews(ViewSet):
         if request.user.profile_staff.contract_read or (
             request.user.profile_staff.contract_CRU_assigned
         ) or (request.user.profile_staff.contract_CRUD_all):
-            contracts = Contract.objects.all()
+            contracts = Contract.objects.all().order_by('id')
             serializer = srlz.ContractSerializer(contracts, many=True)
             logger.info("GET_LIST_CONTRACT__202")
             return Response(serializer.data,
@@ -206,28 +207,25 @@ class ContractViews(ViewSet):
                     logger.info(
                         "SEARCH_CONTRACT_NAME__NOT_FOUND - L+F")
                     customers = Customer.objects.filter(last_name=last_name)
-                if not customers.exists():
-                    logger.info(
-                        "SEARCH_CONTRACT_NAME__NOT_FOUND - Last")
-                    customers = Customer.objects.filter(first_name=first_name)
-                if not customers.exists():
-                    logger.info(
-                        "SEARCH_CONTRACT_NAME__406_NOT_FOUND -" +
-                        "with profile : " +
-                        request.user.profile_staff.name)
-                    return Response(
-                        "Please verify last_name and/or first_name input!",
-                        status=status.HTTP_406_NOT_ACCEPTABLE)
-                if len(customers) > 1:
-                    logger.info(
-                        "SEARCH_CONTRACT_BY_CUSTOMER_NAME__409_CONFLICT -" +
-                        "More customerS")
-                    return Response(
-                            "CONFLIT, Found more 1 customer ! " +
-                            "Thanks to modify your search",
-                            status=status.HTTP_409_CONFLICT)
-                contract = Contract.objects.filter(
-                    customer_assigned=customers.first())
+                    contract = Contract.objects.filter(
+                        customer_assigned__last_name=last_name).order_by('id')
+                    if not contract.exists():
+                        logger.info(
+                            "SEARCH_CONTRACT_NAME__NOT_FOUND - Last")
+                        contract = Contract.objects.filter(
+                            customer_assigned__first_name=first_name
+                            ).order_by('id')   
+                    if not contract.exists():
+                        logger.info(
+                            "SEARCH_CONTRACT_NAME__406_NOT_FOUND -" +
+                            "with profile : " +
+                            request.user.profile_staff.name)
+                        return Response(
+                            "Please verify last_name and/or first_name input!",
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+                else:
+                    contract = Contract.objects.filter(
+                        customer_assigned=customers.first()).order_by('id')
                 serializer = srlz.ContractSerializer(
                         contract, many=True)
                 logger.info(
@@ -253,6 +251,42 @@ class ContractViews(ViewSet):
                 return Response(
                         "Please verify last_name and/or first_name  input!",
                         status=status.HTTP_406_NOT_ACCEPTABLE)
+        else:
+            return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+    def search_contract_mail_customer(self, request, mail):
+        """
+        GET Method - Get Contract by email Customer
+        Reminder : User into db have a UNIQUE mail
+        Return :
+            - Object Contract
+        """
+        if request.user.profile_staff.customer_read or (
+            request.user.profile_staff.customer_CRU_assigned) or (
+                request.user.profile_staff.customer_CRUD_all
+        ):
+            regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,5}\b'
+            if re.fullmatch(regex, mail):
+                customers = Customer.objects.filter(email=mail)
+                if customers.exists():
+                    contracts = Contract.objects.filter(
+                        customer_assigned=customers.first())
+                    serializer = srlz.ContractSerializer(
+                        contracts, many=True)
+                    logger.info(
+                        "SEARCH_CONTRAC_CUSTOMER_MAIL__202 -" +
+                        "with profile : " +
+                        request.user.profile_staff.name)
+                    return Response(serializer.data,
+                                    status=status.HTTP_202_ACCEPTED)
+                logger.info(
+                        "SEARCH_CONTRACT_CUSTOMER_MAIL__204_NO_CONTENT")
+                return Response("No Customer with this mail",
+                                status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response("Please, thank to write a correct mail format",
+                                status=status.HTTP_406_NOT_ACCEPTABLE)
         else:
             return Response("UNAUTHORIZED for your Profile Staff",
                             status=status.HTTP_401_UNAUTHORIZED)

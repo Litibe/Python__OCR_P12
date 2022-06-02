@@ -6,6 +6,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class Customer(models.Model):
     """
     Class Object Customer
@@ -14,7 +15,7 @@ class Customer(models.Model):
     first_name = models.CharField(max_length=25, verbose_name="First Name")
     last_name = models.CharField(max_length=25, verbose_name="Last Name")
     email = models.EmailField(
-        max_length=100, verbose_name="email")
+        max_length=100, verbose_name="email", unique=True,)
     phone = models.CharField(max_length=20, verbose_name="Phone Number")
     mobile = models.CharField(max_length=20, verbose_name="Mobile Number")
     company_name = models.CharField(max_length=250,
@@ -59,6 +60,8 @@ class Contract(models.Model):
     date_end_contract = models.DateTimeField(
         verbose_name="Date End Contract")
     signed = models.BooleanField(verbose_name='signed', default=False)
+    amount = models.CharField(
+        max_length=10, verbose_name="Amount in $", default="$")
     customer_assigned = models.ForeignKey(
         to=Customer,
         on_delete=models.CASCADE)
@@ -76,6 +79,8 @@ class Contract(models.Model):
             else:
                 id = str(int(last_contract.id[2:])+1)
                 self.id = "CT" + id.zfill(5)
+        if "$" not in self.amount:
+            self.amount += "$"
         super().save(*args, **kwargs)
 
 

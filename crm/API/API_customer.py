@@ -30,7 +30,7 @@ class CustomerViews(ViewSet):
         if (
             request.user.profile_staff.customer_read
            ) or (request.user.profile_staff.customer_CRUD_all):
-            customers = Customer.objects.all()
+            customers = Customer.objects.all().order_by('id')
             serializer = srlz.CustomerSerializer(customers, many=True)
             logger.info("GET_LIST_CUSTOMERS__202 WITH PROFILE:" +
                         request.user.profile_staff.name)
@@ -49,6 +49,15 @@ class CustomerViews(ViewSet):
         Return :
             - details customer
         """
+        customer_mail_already_use = (
+            Customer.objects.filter(email=request.data.get("email", None))
+        ).first()
+        if customer_mail_already_use is not None:
+            msg = "POST_CREATE_CUSTOMER__406_NOT_ACCEPTABLE " + (
+                "Email Customer already Used !")
+            logger.error(msg)
+            return Response(msg,
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
         if request.user.profile_staff.customer_CRUD_all or (
             request.user.profile_staff.customer_CRU_assigned
         ):
@@ -210,7 +219,7 @@ class CustomerViews(ViewSet):
     def search_mail_customer(self, request, mail):
         """
         GET Method - Get Customer by this mail into db
-        Reminder : User into db with mail UNIQUE
+        Reminder : User into db have a UNIQUE mail
         Return :
             - Object Customer
         """
@@ -263,7 +272,8 @@ class CustomerViews(ViewSet):
                             "User Profile_staff is not 'SALES' with this mail",
                             status=(
                                 status.HTTP_203_NON_AUTHORITATIVE_INFORMATION))
-                customers = Customer.objects.filter(sales_contact__email=mail)
+                customers = Customer.objects.filter(
+                    sales_contact__email=mail).order_by('id')
                 if customers.exists():
                     serializer = srlz.CustomerSerializer(
                         customers, many=True)
@@ -301,7 +311,7 @@ class CustomerViews(ViewSet):
             if last_name is not None or first_name is not None:
                 customers = Customer.objects.filter(
                     Q(last_name=last_name) & Q(first_name=first_name)
-                )
+                ).order_by('id')
                 if not customers.exists():
                     logger.info(
                         "SEARCH_CUSTOMER_NAME__NOT_FOUND - L+F")
@@ -327,7 +337,6 @@ class CustomerViews(ViewSet):
                 return Response(
                         serializer.data,
                         status=status.HTTP_202_ACCEPTED)
-
             else:
                 logger.info(
                         "SEARCH_CUSTOMER_NAME__406_NOT_FOUND -" +

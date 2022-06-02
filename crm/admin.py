@@ -86,8 +86,7 @@ class CustomerAdmin(admin.ModelAdmin):
         ):
             list_sales_user = User.objects.filter(id=request.user.id)
             if form.base_fields:
-                form.base_fields['sales_contact'].queryset = list_sales_user
-                
+                form.base_fields['sales_contact'].queryset = list_sales_user      
         return form
 
 
@@ -97,12 +96,16 @@ class ContractAdmin(admin.ModelAdmin):
         field.name for field in Contract._meta.fields
         ]
     fieldsets = (
-        (None, {'fields': (
+        ("Contract détails : ", {'fields': (
             'title',
-            'date_start_contract',
-            'date_end_contract',
             'signed',
-            'customer_assigned',)}),
+            'amount'
+            )}),
+        ('Duration : ', {'fields': (
+            'date_start_contract',
+            'date_end_contract',)}),
+        ('Assignation : ', {'fields': (
+            'customer_assigned',)})
     )
 
     def has_add_permission(self, request):

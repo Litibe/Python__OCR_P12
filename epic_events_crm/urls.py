@@ -55,6 +55,10 @@ urlpatterns = [
               {'get': "details_contract",
                'put': "put_contract",
                'delete': 'delete_contract'}), name='contract'),
+     path('api/crm/contract/mail/<mail>/',
+          ContractViews.as_view(
+               {'get': "search_contract_mail_customer"}),
+          name='contract_by_email_customer'),
      path('api/crm/contract/name/',
           ContractViews.as_view(
                {'get': "search_contract_by_name_customer"}),
