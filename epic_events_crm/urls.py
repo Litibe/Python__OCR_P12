@@ -50,6 +50,10 @@ urlpatterns = [
           ContractViews.as_view(
              {'get': "read_contract",
               'post': 'create_contract'}), name='contracts'),
+     re_path(r'^api/crm/contract/amount/(?P<amount>\d{1,8}[$]?)/$',
+             ContractViews.as_view(
+               {'get': "search_contract_by_amount"}),
+             name='contract_by_amount'),
      path('api/crm/contract/id/<id_contract>/',
           ContractViews.as_view(
               {'get': "details_contract",

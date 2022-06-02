@@ -63,13 +63,15 @@ class ContractSerializer(ModelSerializer):
     date_end_contract = fields.DateTimeField(
         required=True, input_formats=['%Y-%m-%d %H:%M'])
     signed = fields.BooleanField(default=False)
+    amount = fields.CharField(required=True, max_length=10)
     customer_assigned = CustomerSerializer(many=False, read_only=True)
 
     class Meta:
         model = Contract
         fields = [
             'id', 'title', 'date_start_contract',
-            'date_end_contract', 'signed', 'customer_assigned']
+            'date_end_contract', 'signed','amount',
+            'customer_assigned']
         depth = 2
 
     def create(self, validated_data, customer):
@@ -78,6 +80,7 @@ class ContractSerializer(ModelSerializer):
             date_start_contract=validated_data["date_start_contract"],
             date_end_contract=validated_data["date_end_contract"],
             signed=validated_data["signed"],
+            amount=validated_data["amount"],
             customer_assigned=customer)
         contract.save()
         return True
@@ -88,6 +91,7 @@ class ContractSerializer(ModelSerializer):
         contract.date_start_contract = validated_data["date_start_contract"]
         contract.date_end_contract = validated_data["date_end_contract"]
         contract.signed = validated_data["signed"]
+        contract.amount = validated_data["amount"]
         contract.customer_assigned = customer
         contract.save()
         return True

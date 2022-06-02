@@ -346,3 +346,30 @@ class ContractViews(ViewSet):
         else:
             return Response("UNAUTHORIZED for your Profile Staff",
                             status=status.HTTP_401_UNAUTHORIZED)
+
+    def search_contract_by_amount(self, request, amount):
+        """
+        GET Method - Get Contract by Customer_name into db
+        Return :
+            - Object Contract
+        """
+        if request.user.profile_staff.customer_read or (
+            request.user.profile_staff.customer_CRU_assigned) or (
+                request.user.profile_staff.customer_CRUD_all
+        ):
+            if "$" not in amount:
+                amount += "$"
+            contracts = Contract.objects.filter(
+                amount=amount).order_by("id")
+            serializer = srlz.ContractSerializer(contracts, many=True)
+            if serializer.data == []:
+                return Response(
+                    "No Contract Found with this amount : " + (
+                        amount),
+                    status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response(serializer.data,
+                                status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
