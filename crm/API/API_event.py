@@ -1,4 +1,6 @@
 from datetime import datetime
+from django.db.models import Q
+import re
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -6,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
 from authentication.models import User
-from crm.models import Contract, Event
+from crm.models import Contract, Customer, Event
 from crm.API import serializers as srlz
 
 import logging
@@ -28,7 +30,7 @@ class EventViews(ViewSet):
         if request.user.profile_staff.event_read or (
             request.user.profile_staff.event_CRUD_all
         ):
-            events = Event.objects.all()
+            events = Event.objects.all().order_by("id")
             serializer = srlz.EventSerializer(events, many=True)
             logger.info("GET_LIST_EVENTS__202")
             return Response(serializer.data,
@@ -268,5 +270,173 @@ class EventViews(ViewSet):
             logger.info("DELETE_EVENT_ID_" + id_event +
                         "__401 - UNAUTHORIZED Profile : "
                         + request.user.profile_staff.name)
+            return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+    def search_event_by_name_customer(self, request):
+        """
+        GET Method - Get Event by Customer_name into db
+        Return :
+            - Object Event
+        """
+        if request.user.profile_staff.event_read or (
+            request.user.profile_staff.event_CRU_assigned) or (
+                request.user.profile_staff.event_CRUD_all
+        ):
+            last_name = request.GET.get("last_name", None)
+            first_name = request.GET.get("first_name", None)
+            if last_name is not None or first_name is not None:
+                customers = Customer.objects.filter(
+                    Q(last_name=last_name) & Q(first_name=first_name)
+                )
+                if not customers.exists():
+                    logger.info(
+                        "SEARCH_EVENT_CUSTOMER_NAME__NOT_FOUND - L+F")
+                    customers = Customer.objects.filter(last_name=last_name)
+                    event = Event.objects.filter(
+                        contract_assigned__customer_assigned__last_name=(
+                            last_name)).order_by('id')
+                    if not event.exists():
+                        logger.info(
+                            "SEARCH_EVENT_CUSTOMER_NAME__NOT_FOUND - Last")
+                        event = Event.objects.filter(
+                            contract_assigned__customer_assigned__first_name=(
+                                first_name)).order_by('id')
+                    if not event.exists():
+                        logger.info(
+                            "SEARCH_EVENT_CUSTOMER_NAME__406_NOT_FOUND -" +
+                            "with profile : " +
+                            request.user.profile_staff.name)
+                        return Response(
+                            "Please verify last_name and/or first_name input!",
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+                else:
+                    event = Event.objects.filter(
+                        contract_assigned__customer_assigned=(
+                            customers.first())).order_by('id')
+                serializer = srlz.EventSerializer(
+                        event, many=True)
+                logger.info(
+                    "SEARCH_EVENT_CUSTOMER_NAME__202 -" +
+                    "with profile : " +
+                    request.user.profile_staff.name)
+                if serializer.data == []:
+                    return Response(
+                        "Not Event Found for this Customer: "+(
+                            customers.first().id + " " + (
+                                customers.first().last_name + " " +
+                                customers.first().first_name
+                                )),
+                        status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                        serializer.data,
+                        status=status.HTTP_202_ACCEPTED)
+            else:
+                logger.info(
+                        "EVENT_CUSTOMER_NAME__406_NOT_FOUND -" +
+                        "with profile : " +
+                        request.user.profile_staff.name)
+                return Response(
+                        "Please verify last_name and/or first_name  input!",
+                        status=status.HTTP_406_NOT_ACCEPTABLE)
+        else:
+            return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+    def search_event_mail_customer(self, request, mail):
+        """
+        GET Method - Get Event by email Customer
+        Reminder : User into db have a UNIQUE mail
+        Return :
+            - Object Event
+        """
+        if request.user.profile_staff.event_read or (
+            request.user.profile_staff.event_CRU_assigned) or (
+                request.user.profile_staff.event_CRUD_all
+        ):
+            regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,5}\b'
+            if re.fullmatch(regex, mail):
+                customers = Customer.objects.filter(email=mail)
+                if customers.exists():
+                    events = Event.objects.filter(
+                        contract_assigned__customer_assigned=customers.first())
+                    serializer = srlz.EventSerializer(
+                        events, many=True)
+                    if serializer.data == []:
+                        return Response(
+                            "No Event Found with mail_customer : " + (
+                                mail),
+                            status=status.HTTP_404_NOT_FOUND)
+                    else:
+                        logger.info(
+                            "SEARCH_EVENT_CUSTOMER_MAIL__202 -" +
+                            "with profile : " +
+                            request.user.profile_staff.name)
+                        return Response(serializer.data,
+                                        status=status.HTTP_202_ACCEPTED)
+                logger.info(
+                        "SEARCH_EVENT_CUSTOMER_MAIL__204_NO_CONTENT")
+                return Response("No Customer with this mail",
+                                status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response("Please, thank to write a correct mail format",
+                                status=status.HTTP_406_NOT_ACCEPTABLE)
+        else:
+            return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+    def search_event_by_date_start(self, request, date):
+        """
+        GET Method - Get Event by Date_started into db
+        Return :
+            - Object Event
+        """
+        if request.user.profile_staff.event_read or (
+            request.user.profile_staff.event_CRU_assigned) or (
+                request.user.profile_staff.event_CRUD_all
+        ):
+            date_event = date.split("-")
+            events = Event.objects.filter(
+                date_started__year=date_event[0],
+                date_started__month=date_event[1],
+                date_started__day=date_event[2]).order_by("id")
+            serializer = srlz.EventSerializer(events, many=True)
+            if serializer.data == []:
+                return Response(
+                    "No Event Found with date_started : " + (
+                        date),
+                    status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response(serializer.data,
+                                status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+    def search_event_by_date_end(self, request, date):
+        """
+        GET Method - Get Event by date_finished into db
+        Return :
+            - Object Event
+        """
+        if request.user.profile_staff.event_read or (
+            request.user.profile_staff.event_CRU_assigned) or (
+                request.user.profile_staff.event_CRUD_all
+        ):
+            date_event = date.split("-")
+            events = Event.objects.filter(
+                date_finished__year=date_event[0],
+                date_finished__month=date_event[1],
+                date_finished__day=date_event[2]).order_by("id")
+            serializer = srlz.EventSerializer(events, many=True)
+            if serializer.data == []:
+                return Response(
+                    "No Event Found with date_finished : " + (
+                        date),
+                    status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response(serializer.data,
+                                status=status.HTTP_202_ACCEPTED)
+        else:
             return Response("UNAUTHORIZED for your Profile Staff",
                             status=status.HTTP_401_UNAUTHORIZED)

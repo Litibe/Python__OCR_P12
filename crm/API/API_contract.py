@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta
 import re
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
@@ -193,9 +192,9 @@ class ContractViews(ViewSet):
         Return :
             - Object Contract
         """
-        if request.user.profile_staff.customer_read or (
-            request.user.profile_staff.customer_CRU_assigned) or (
-                request.user.profile_staff.customer_CRUD_all
+        if request.user.profile_staff.contract_read or (
+            request.user.profile_staff.contract_CRU_assigned) or (
+                request.user.profile_staff.contract_CRUD_all
         ):
             last_name = request.GET.get("last_name", None)
             first_name = request.GET.get("first_name", None)
@@ -262,9 +261,9 @@ class ContractViews(ViewSet):
         Return :
             - Object Contract
         """
-        if request.user.profile_staff.customer_read or (
-            request.user.profile_staff.customer_CRU_assigned) or (
-                request.user.profile_staff.customer_CRUD_all
+        if request.user.profile_staff.contract_read or (
+            request.user.profile_staff.contract_CRU_assigned) or (
+                request.user.profile_staff.contract_CRUD_all
         ):
             regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,5}\b'
             if re.fullmatch(regex, mail):
@@ -274,12 +273,18 @@ class ContractViews(ViewSet):
                         customer_assigned=customers.first())
                     serializer = srlz.ContractSerializer(
                         contracts, many=True)
-                    logger.info(
-                        "SEARCH_CONTRAC_CUSTOMER_MAIL__202 -" +
-                        "with profile : " +
-                        request.user.profile_staff.name)
-                    return Response(serializer.data,
-                                    status=status.HTTP_202_ACCEPTED)
+                    if serializer.data == []:
+                        return Response(
+                            "No Contract Found with mail_customer : " + (
+                                mail),
+                            status=status.HTTP_404_NOT_FOUND)
+                    else:
+                        logger.info(
+                            "SEARCH_CONTRAC_CUSTOMER_MAIL__202 -" +
+                            "with profile : " +
+                            request.user.profile_staff.name)
+                        return Response(serializer.data,
+                                        status=status.HTTP_202_ACCEPTED)
                 logger.info(
                         "SEARCH_CONTRACT_CUSTOMER_MAIL__204_NO_CONTENT")
                 return Response("No Customer with this mail",
@@ -293,13 +298,13 @@ class ContractViews(ViewSet):
 
     def search_contract_by_date_start(self, request, date):
         """
-        GET Method - Get Contract by Customer_name into db
+        GET Method - Get Contract by date_start_contract into db
         Return :
             - Object Contract
         """
-        if request.user.profile_staff.customer_read or (
-            request.user.profile_staff.customer_CRU_assigned) or (
-                request.user.profile_staff.customer_CRUD_all
+        if request.user.profile_staff.contract_read or (
+            request.user.profile_staff.contract_CRU_assigned) or (
+                request.user.profile_staff.contract_CRUD_all
         ):
             date_contract = date.split("-")
             contracts = Contract.objects.filter(
@@ -321,13 +326,13 @@ class ContractViews(ViewSet):
 
     def search_contract_by_date_end(self, request, date):
         """
-        GET Method - Get Contract by Customer_name into db
+        GET Method - Get Contract by date_end_contract into db
         Return :
             - Object Contract
         """
-        if request.user.profile_staff.customer_read or (
-            request.user.profile_staff.customer_CRU_assigned) or (
-                request.user.profile_staff.customer_CRUD_all
+        if request.user.profile_staff.contract_read or (
+            request.user.profile_staff.contract_CRU_assigned) or (
+                request.user.profile_staff.contract_CRUD_all
         ):
             date_contract = date.split("-")
             contracts = Contract.objects.filter(
@@ -349,13 +354,13 @@ class ContractViews(ViewSet):
 
     def search_contract_by_amount(self, request, amount):
         """
-        GET Method - Get Contract by Customer_name into db
+        GET Method - Get Contract by amount into db
         Return :
             - Object Contract
         """
-        if request.user.profile_staff.customer_read or (
-            request.user.profile_staff.customer_CRU_assigned) or (
-                request.user.profile_staff.customer_CRUD_all
+        if request.user.profile_staff.contract_read or (
+            request.user.profile_staff.contract_CRU_assigned) or (
+                request.user.profile_staff.contract_CRUD_all
         ):
             if "$" not in amount:
                 amount += "$"

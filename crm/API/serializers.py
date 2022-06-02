@@ -70,7 +70,7 @@ class ContractSerializer(ModelSerializer):
         model = Contract
         fields = [
             'id', 'title', 'date_start_contract',
-            'date_end_contract', 'signed','amount',
+            'date_end_contract', 'signed', 'amount',
             'customer_assigned']
         depth = 2
 

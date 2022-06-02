@@ -62,11 +62,11 @@ urlpatterns = [
      re_path(r'^api/crm/contract/date/start/(?P<date>\d{4}-\d{2}-\d{2})/$',
              ContractViews.as_view(
                {'get': "search_contract_by_date_start"}),
-             name='contract_by_date_'),
+             name='contract_by_date_start'),
      re_path(r'^api/crm/contract/date/end/(?P<date>\d{4}-\d{2}-\d{2})/$',
              ContractViews.as_view(
                {'get': "search_contract_by_date_end"}),
-             name='contract_by_date_'),
+             name='contract_by_date_end'),
      path('api/crm/contract/mail/<mail>/',
           ContractViews.as_view(
                {'get': "search_contract_mail_customer"}),
@@ -81,13 +81,29 @@ urlpatterns = [
              {'get': "read_event",
               'post': 'create_event'
               }), name='events'),
-     path('api/crm/event/<id_event>/',
+     path('api/crm/event/id/<id_event>/',
           EventViews.as_view(
               {'get': "details_event",
                'put': 'put_event',
                'delete': 'delete_event'
                }), name='event'
           ),
+     re_path(r'^api/crm/event/date/start/(?P<date>\d{4}-\d{2}-\d{2})/$',
+             EventViews.as_view(
+               {'get': "search_event_by_date_start"}),
+             name='event_by_date_start'),
+     re_path(r'^api/crm/event/date/end/(?P<date>\d{4}-\d{2}-\d{2})/$',
+             EventViews.as_view(
+               {'get': "search_event_by_date_end"}),
+             name='event_by_date_end'),
+     path('api/crm/event/mail/<mail>/',
+          EventViews.as_view(
+               {'get': "search_event_mail_customer"}),
+          name='event_by_email_customer'),
+     path('api/crm/event/name/',
+          EventViews.as_view(
+               {'get': "search_event_by_name_customer"}),
+          name='event_by_name_customer'),
 
      path('api/crm/need/',
           NeedViews.as_view(
