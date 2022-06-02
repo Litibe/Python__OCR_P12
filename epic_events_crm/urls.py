@@ -109,7 +109,7 @@ urlpatterns = [
           NeedViews.as_view(
              {'get': "read_need",
               'post': 'create_need'}), name='needs'),
-     path('api/crm/need/<id_need>/',
+     path('api/crm/need/id/<id_need>/',
           NeedViews.as_view(
               {'get': "details_need",
                'put': 'put_need',

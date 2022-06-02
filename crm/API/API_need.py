@@ -101,10 +101,12 @@ class NeedViews(ViewSet):
                 return Response("Error ID Event assigned",
                                 status=status.HTTP_400_BAD_REQUEST)
             if event_assigned.date_finished < datetime.now():
-                logger.error("POST_CREATE_NEED_408 - Error Event Finished : " +
-                             event_assigned.id + " - " +
-                             event_assigned.date_finished)
-                return Response("Error Event Finished",
+                msg = "POST_CREATE_NEED_408 - Error Event Finished : " + (
+                       event_assigned.id) + " - " + (
+                       event_assigned.date_finished.strftime(
+                                 '%Y/%m/%d %H:%m'))
+                logger.error(msg)
+                return Response(msg,
                                 status=status.HTTP_408_REQUEST_TIMEOUT)
         else:
             logger.error("POST_CREATE_NEED_400 - Error ID Event assigned : " +
