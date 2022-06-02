@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
@@ -287,6 +287,62 @@ class ContractViews(ViewSet):
             else:
                 return Response("Please, thank to write a correct mail format",
                                 status=status.HTTP_406_NOT_ACCEPTABLE)
+        else:
+            return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+    def search_contract_by_date_start(self, request, date):
+        """
+        GET Method - Get Contract by Customer_name into db
+        Return :
+            - Object Contract
+        """
+        if request.user.profile_staff.customer_read or (
+            request.user.profile_staff.customer_CRU_assigned) or (
+                request.user.profile_staff.customer_CRUD_all
+        ):
+            date_contract = date.split("-")
+            contracts = Contract.objects.filter(
+                date_start_contract__year=date_contract[0],
+                date_start_contract__month=date_contract[1],
+                date_start_contract__day=date_contract[2]).order_by("id")
+            serializer = srlz.ContractSerializer(contracts, many=True)
+            if serializer.data == []:
+                return Response(
+                    "No Contract Found with date_start_contract : " + (
+                        date),
+                    status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response(serializer.data,
+                                status=status.HTTP_202_ACCEPTED)
+        else:
+            return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+    def search_contract_by_date_end(self, request, date):
+        """
+        GET Method - Get Contract by Customer_name into db
+        Return :
+            - Object Contract
+        """
+        if request.user.profile_staff.customer_read or (
+            request.user.profile_staff.customer_CRU_assigned) or (
+                request.user.profile_staff.customer_CRUD_all
+        ):
+            date_contract = date.split("-")
+            contracts = Contract.objects.filter(
+                date_end_contract__year=date_contract[0],
+                date_end_contract__month=date_contract[1],
+                date_end_contract__day=date_contract[2]).order_by("id")
+            serializer = srlz.ContractSerializer(contracts, many=True)
+            if serializer.data == []:
+                return Response(
+                    "No Contract Found with date_end_contract : " + (
+                        date),
+                    status=status.HTTP_404_NOT_FOUND)
+            else:
+                return Response(serializer.data,
+                                status=status.HTTP_202_ACCEPTED)
         else:
             return Response("UNAUTHORIZED for your Profile Staff",
                             status=status.HTTP_401_UNAUTHORIZED)

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from rest_framework_simplejwt import views as DRF_jwt_views
 
 from authentication.views import UserSignUpView
@@ -55,6 +55,14 @@ urlpatterns = [
               {'get': "details_contract",
                'put': "put_contract",
                'delete': 'delete_contract'}), name='contract'),
+     re_path(r'^api/crm/contract/date/start/(?P<date>\d{4}-\d{2}-\d{2})/$',
+             ContractViews.as_view(
+               {'get': "search_contract_by_date_start"}),
+             name='contract_by_date_'),
+     re_path(r'^api/crm/contract/date/end/(?P<date>\d{4}-\d{2}-\d{2})/$',
+             ContractViews.as_view(
+               {'get': "search_contract_by_date_end"}),
+             name='contract_by_date_'),
      path('api/crm/contract/mail/<mail>/',
           ContractViews.as_view(
                {'get': "search_contract_mail_customer"}),
