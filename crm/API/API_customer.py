@@ -105,8 +105,6 @@ class CustomerViews(ViewSet):
         Return :
             - details customer ID
         """
-        if id_customer == "search":
-            id_customer = request.GET.get("id", "")
         logger.info(
                 "TRY GET_CUSTOMER_ID_"+str(id_customer))
         get_object_or_404(Customer, id=id_customer)
@@ -262,16 +260,25 @@ class CustomerViews(ViewSet):
         ):
             regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,5}\b'
             if re.fullmatch(regex, mail):
-                sales_contact = User.objects.filter(email=mail)
+                sales_contact = User.objects.filter(email=mail).first()
+                print(sales_contact)
                 if sales_contact is not None:
-                    if sales_contact.first().profile_staff.name != "SALES":
+                    if sales_contact.profile_staff.name != "SALES":
                         logger.info(
-                            "SEARCH_CUSTOMER_Mail_not_profile_SALES__" +
-                            "203_NON_AUTHORITATIVE_INFORMATION")
+                            "SEARCH_CUSTOMER_Sales_contact_mail_not" +
+                            "_profile_SALES__400_BAD_REQUEST")
                         return Response(
                             "User Profile_staff is not 'SALES' with this mail",
                             status=(
-                                status.HTTP_203_NON_AUTHORITATIVE_INFORMATION))
+                                status.HTTP_400_BAD_REQUEST))
+                else:
+                    logger.info(
+                            "SEARCH_CUSTOMER_Sales_contact_mail_not _in DB__" +
+                            "400_BAD_REQUEST")
+                    return Response(
+                            "No User into Database with this mail !",
+                            status=(
+                                status.HTTP_400_BAD_REQUEST))
                 customers = Customer.objects.filter(
                     sales_contact__email=mail).order_by('id')
                 if customers.exists():

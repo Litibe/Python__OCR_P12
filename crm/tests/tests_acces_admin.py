@@ -70,6 +70,7 @@ def create_new_contract(search_customer):
         date_start_contract=d_start,
         date_end_contract=d_end,
         signed=True,
+        amount=2000,
         customer_assigned=search_customer
     )
     new_contract.save()
@@ -82,6 +83,7 @@ def create_new_contract(search_customer):
         date_start_contract=d_start,
         date_end_contract=d_end,
         signed=False,
+        amount='4000',
         customer_assigned=search_customer
     )
     new_contract2.save()

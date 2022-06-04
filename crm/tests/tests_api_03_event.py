@@ -102,7 +102,7 @@ class TestUnitaireApiEvent(TestCase):
             "Error Support_contact email assigned not existing")
         assert response.status_code == 400
 
-    def test_03_post_408_date__events(self):
+    def test_03_post_400_contract_not_signed__events(self):
         client = Client()
         response = client.post(reverse("login"),
                                data={'email': 'sales@epicevents.fr',
@@ -121,7 +121,7 @@ class TestUnitaireApiEvent(TestCase):
             content_type='application/json')
         print(response.data)
         assert response.data == ("Error Contract not signed !")
-        assert response.status_code == 408
+        assert response.status_code == 400
 
     def test_03_post_400_contract__events(self):
         client = Client()
