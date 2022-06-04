@@ -15,13 +15,15 @@ class CustomerSerializer(ModelSerializer):
     phone = fields.CharField(required=True, max_length=25)
     mobile = fields.CharField(required=True, max_length=25)
     company_name = fields.CharField(required=True, max_length=250)
+    date_updated = fields.DateTimeField(read_only=True)
     sales_contact = UserSerializerRead(many=False, read_only=True)
 
     class Meta:
         model = Customer
         fields = [
             "id", "first_name", "last_name", "email",
-            "phone", "mobile", "company_name", "sales_contact"]
+            "phone", "mobile", "company_name",
+            'date_updated', "sales_contact"]
 
     def create(self, validated_data, user_sales_contact):
         customer = Customer.objects.create(
@@ -44,6 +46,7 @@ class CustomerSerializer(ModelSerializer):
         customer.mobile = validated_data["mobile"]
         customer.company_name = validated_data["company_name"]
         customer.sales_contact = user_sales_contact
+        customer.date_updated = datetime.now()
         customer.save()
         return True
 

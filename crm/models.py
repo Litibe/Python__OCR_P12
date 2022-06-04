@@ -42,9 +42,8 @@ class Customer(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.id} - {self.first_name} \
-            {self.last_name} - {self.email} ## \
-            Sales_contact : {self.sales_contact}'
+        return f'{self.id} - {self.first_name} {self.last_name}' + (
+            f' {self.email} WITH {self.sales_contact}')
 
 
 class Contract(models.Model):
@@ -79,8 +78,8 @@ class Contract(models.Model):
             else:
                 id = str(int(last_contract.id[2:])+1)
                 self.id = "CT" + id.zfill(5)
-        if "$" not in self.amount:
-            self.amount += "$"
+        if "$" not in str(self.amount):
+            self.amount = str(self.amount) + "$"
         super().save(*args, **kwargs)
 
 
@@ -115,9 +114,9 @@ class Event(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.id} - {self.title} ##\
-         Support_contact : {self.support_contact} ##\
-          {self.contract_assigned.id} {self.contract_assigned.title}'
+        return f'{self.id} - {self.title} # ' + (
+         f'Support_contact : {self.support_contact} ## ') + (
+          f'{self.contract_assigned.id} {self.contract_assigned.title}')
 
 
 class Need(models.Model):

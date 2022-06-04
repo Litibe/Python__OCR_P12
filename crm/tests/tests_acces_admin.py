@@ -42,8 +42,8 @@ def create_new_customer(user_sales):
     """
     new_customer = Customer.objects.create(
             first_name="Tony",
-            last_name="DURAND",
-            email="tonydurant@entreprise.com",
+            last_name="Bornes",
+            email="tonybornes@entreprise.com",
             phone="0987654321",
             mobile="067899887",
             company_name="Entreprise SAS",
@@ -63,8 +63,8 @@ def create_new_contract(search_customer):
     Returns:
         Contract Object created after search into db
     """
-    d_start = "2022-06-03T08:00:00+02:00"
-    d_end = "2022-06-05T20:00:00+02:00"
+    d_start = "2022-05-03T08:00:00+02:00"
+    d_end = "2022-09-05T20:00:00+02:00"
     new_contract = Contract.objects.create(
         title="Spring 2022 - Paris",
         date_start_contract=d_start,
@@ -76,7 +76,7 @@ def create_new_contract(search_customer):
     search_contract = Contract.objects.filter(
                         title="Spring 2022 - Paris").first()
     d_start = "2022-05-03T08:00:00+02:00"
-    d_end = "2022-05-05T20:00:00+02:00"
+    d_end = "2022-09-05T20:00:00+02:00"
     new_contract2 = Contract.objects.create(
         title="Spring 2022 - Paris",
         date_start_contract=d_start,
@@ -98,8 +98,8 @@ def create_new_event(search_contract, user_contact):
     Returns:
         Event Object created after search into db
     """
-    d_start = "2022-06-03T08:00:00+02:00"
-    d_end = "2022-06-03T11:00:00+02:00"
+    d_start = "2022-08-03T08:00:00+02:00"
+    d_end = "2022-08-03T11:00:00+02:00"
     new_event = Event.objects.create(
         title="ROOM 21 into Faculty - Morning",
         date_started=d_start,
@@ -129,49 +129,6 @@ def create_new_need(search_event):
     new_need.save()
     search_need = Need.objects.all().first()
     return search_need
-
-
-class TestUnitaireModels(TestCase):
-    """ Class TEST Unitaire for Models CRM """
-    def test_01_create_new_customer(self):
-        """create new user_sales into db and new customer with sales_contact
-        """
-        profile_staff = ProfileStaff.objects.filter(name="SALES").first()
-        user_sales = User.objects.filter(
-            profile_staff=profile_staff).first()
-        db_customer = create_new_customer(user_sales)
-        assert db_customer.id == "CM00001"
-        assert db_customer.first_name == "Tony"
-        assert db_customer.sales_contact.profile_staff.name == "SALES"
-
-    def test_02_create_new_contract(self):
-        """create new contract for a customer
-        """
-        profile_staff = ProfileStaff.objects.filter(name="SALES").first()
-        user_sales = User.objects.filter(
-            profile_staff=profile_staff).first()
-        db_customer = create_new_customer(user_sales)
-        db_contract = create_new_contract(db_customer)
-        assert db_contract.customer_assigned == db_customer
-        assert db_contract.id == "CT00001"
-
-    def test_03_create_new_event(self):
-        """create new event for a contract
-        """
-        profile_staff = ProfileStaff.objects.filter(name="SALES").first()
-        user_sales = User.objects.filter(
-            profile_staff=profile_staff).first()
-        profile_staff = ProfileStaff.objects.filter(name="SUPPORT").first()
-        user_support = User.objects.filter(
-            profile_staff=profile_staff).first()
-        db_customer = create_new_customer(user_sales)
-        db_contract = create_new_contract(db_customer)
-        db_event = create_new_event(db_contract, user_support)
-
-    def test_04_create_new_need(self):
-        """create new need for a event
-        """
-        create_C_C_E_N()
 
 
 class OurRequests(object):
@@ -227,9 +184,8 @@ class TestUnitaireModelsAdminAccess(TestCase):
         profile_staff = ProfileStaff.objects.filter(name="SALES").first()
         user_sales = User.objects.filter(
             profile_staff=profile_staff)[1]
-        db_customer = create_new_customer(user_sales)
+        db_customer = Customer.objects.all().last()
         db_contract = create_new_contract(db_customer)
-        print("--> Setup C.C.E.N")
 
     @parameterized.expand([
             ["MANAGE", 0, True, True, True, True, True],
@@ -422,7 +378,7 @@ class TestCrmAdmin(TestCase):
         my_request = OurRequests(user_profil)
         obj_contract = Contract.objects.all().first()
         form = user_model_admin.get_form(my_request, obj_contract)
-        assert len(form.base_fields['customer_assigned'].queryset) == 2
+        assert len(form.base_fields['customer_assigned'].queryset) == 1
         user_profil = User.objects.filter(
                 profile_staff__name="SALES").first()
         my_request = OurRequests(user_profil)

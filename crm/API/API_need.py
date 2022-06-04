@@ -160,8 +160,9 @@ class NeedViews(ViewSet):
             if event_assigned.date_finished < datetime.now():
                 logger.error("PUT_NEED_ID_" + id_need + "__400 - " +
                              "Error Event Finished : " +
-                             event_assigned.id + " : " +
-                             event_assigned.date_finished)
+                             event_assigned.id + " : " + (
+                                event_assigned.date_finished.strftime(
+                                 '%Y/%m/%d %H:%m')))
                 return Response("Error Event Finished",
                                 status=status.HTTP_408_REQUEST_TIMEOUT)
         else:
