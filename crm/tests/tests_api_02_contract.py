@@ -469,8 +469,9 @@ class TestUnitaireApiContract(TestCase):
                                      'password': 'epicevents'})
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
-        response = client.get('%s?date=%s' % (
-            reverse("contract_by_date_start"), 2022-06-03))
+        response = client.get(
+            reverse("contract_by_date_start",
+                    kwargs={'date': "2022-06-03"}))
         print(response.data)
         assert response.status_code == 401
 
@@ -481,8 +482,9 @@ class TestUnitaireApiContract(TestCase):
                                      'password': 'epicevents'})
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
-        response = client.get('%s?date=%d-%d-%d' % (
-            reverse("contract_by_date_start"), 2022, 06, 03))
+        response = client.get(
+            reverse("contract_by_date_start",
+                    kwargs={'date': "2022-06-03"}))
         print(response.data)
         assert response.status_code == 202
 
@@ -494,22 +496,23 @@ class TestUnitaireApiContract(TestCase):
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
         response = client.get(
-            reverse("contract_by_date_start"),
-            kwargs={"date": 2022-06-09})
+            reverse("contract_by_date_start",
+                    kwargs={'date': "2022-06-09"}))
         print(response.data)
         assert response.status_code == 404
 
-    def test_07__search_by_date_start_406__contract(self):
+    def test_07__search_by_date_start_404__contract(self):
         client = Client()
         response = client.post(reverse("login"),
                                data={'email': 'support@epicevents.fr',
                                      'password': 'epicevents'})
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
-        response = client.get('%s?date=%s' % (
-            reverse("contract_by_date_start"), "2022-0603"))
+        response = client.get(
+            reverse("contract_by_date_start",
+                    kwargs={'date': "2022-0603"}))
         print(response.data)
-        assert response.status_code == 406
+        assert response.status_code == 404
 
     def test_08__search_by_date_end_401__contract(self):
         client = Client()
@@ -518,8 +521,9 @@ class TestUnitaireApiContract(TestCase):
                                      'password': 'epicevents'})
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
-        response = client.get('%s?date=%s' % (
-            reverse("contract_by_date_end"), "2022-06-03"))
+        response = client.get(
+            reverse("contract_by_date_end",
+                    kwargs={'date': "2022-06*03"}))
         print(response.data)
         assert response.status_code == 401
 
@@ -530,8 +534,9 @@ class TestUnitaireApiContract(TestCase):
                                      'password': 'epicevents'})
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
-        response = client.get('%s?date=%s' % (
-            reverse("contract_by_date_end"), "2022-09-05"))
+        response = client.get(
+            reverse("contract_by_date_end",
+                    kwargs={'date': "2022-09-05"}))
         print(response.data)
         assert response.status_code == 202
 
@@ -542,8 +547,9 @@ class TestUnitaireApiContract(TestCase):
                                      'password': 'epicevents'})
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
-        response = client.get('%s?date=%s' % (
-            reverse("contract_by_date_end"), "2022-09-06"))
+        response = client.get(
+            reverse("contract_by_date_end",
+                    kwargs={'date': "2022-09-06"}))
         print(response.data)
         assert response.status_code == 404
 
@@ -554,8 +560,9 @@ class TestUnitaireApiContract(TestCase):
                                      'password': 'epicevents'})
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
-        response = client.get('%s?date=%s' % (
-            reverse("contract_by_date_end"), "2022-0905"))
+        response = client.get(
+            reverse("contract_by_date_end",
+                    kwargs={'date': "2022-0905"}))
         print(response.data)
         assert response.status_code == 406
 
@@ -566,7 +573,7 @@ class TestUnitaireApiContract(TestCase):
                                      'password': 'epicevents'})
         access_token = 'Bearer ' + response.data.get('access')
         client.defaults['HTTP_AUTHORIZATION'] = access_token
-        response = client.get('%s?date=%s' % (
+        response = client.get('%s/amount/%s/' % (
             reverse("contract_by_amount"), "4000"))
         print(response.data)
         assert response.status_code == 202

@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-joi$_g%^3zhc$10_x_&fvp0@a3+j&^manxa)t--5--c+))od17'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -101,7 +101,7 @@ DATABASES = {
         'HOST': 'node91402-env-ocr12-litibe.jcloud-ver-jpe.ik-server.com', 
         'PORT': '5432',
     }
-}  
+}
 
 
 # Password validation
