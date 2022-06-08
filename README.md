@@ -96,3 +96,29 @@
       A report in HTML format will be generated in the "flake_rapport" folder, with the argument "max-line-length" set by default to 79 characters per line if not specified.
        In the "flake8.ini" configuration file, the env/ folder is excluded.
 
+7. API : 
+
+| URL                                                                       | METHOD ACCEPTED  | Action                                                                                |   |   |
+|---------------------------------------------------------------------------|------------------|---------------------------------------------------------------------------------------|---|---|
+| http://127.0.0.1:8000/api/authenticate/login/                             | POST             | Get login token                                                                       |   |   |
+| http://127.0.0.1:8000/api/authenticate/signup/                            | POST             | Creation of a new user, if profile manage                                             |   |   |
+| http://127.0.0.1:8000/api/crm/customer/                                   | GET,POST         | Get list of all customers into DB or create it                                        |   |   |
+| http://127.0.0.1:8000/api/crm/customer/id/<id_customer>/                  | GET, PUT, DELETE | Get a customer by this ID, update informations or delete.                             |   |   |
+| http://127.0.0.1:8000/api/crm/customer/name/                              | GET              | Search a customer by last_name, first_name or last+first_name                         |   |   |
+| http://127.0.0.1:8000/api/crm/customer/mail/<mail_customer>/              | GET              | Search a customer by this mail                                                        |   |   |
+| http://127.0.0.1:8000/api/crm/customer/salescontact/<mail_sales_contact>/ | GET              | Search all Customer assigned for a Sale Contact by this mail (profile_staff=="Sales") |   |   |
+| http://127.0.0.1:8000/api/crm/contract/                                   | GET, POST        | Get all contracts into DB or create it                                                |   |   |
+| http://127.0.0.1:8000/api/crm/contract/amount/<amount_contract>/                   | GET              | Get contract by amount (with or without $)                                            |   |   |
+| http://127.0.0.1:8000/api/crm/contract/id/<id_contract>/                  | GET,PUT, DELETE  | Get a contract by this ID, update informations or delete.                             |   |   |
+| http://127.0.0.1:8000/api/crm/contract/date/start/<date_start>/                 | GET              | Search a contract by date_start                                                            |   |   |
+| http://127.0.0.1:8000/api/crm/contract/date/end/<date_end>/                 | GET              | Search a contract by date_end                                                              |   |   |
+| http://127.0.0.1:8000/api/crm/contract/mail/<mail_customer>/                 | GET              | Search contract by mail customer                                                              |   |   |
+| http://127.0.0.1:8000/api/crm/contract/name/                 | GET              | Search a contract by last_name, first_name or last+first_name customer                                                           |   |   |
+| http://127.0.0.1:8000/api/crm/event/                 | GET,  POST              | Get all events into DB or create it                                                       |   |   |
+| http://127.0.0.1:8000/api/crm/event/id/<id_event>/                 | GET, PUT, DELETE             | Get a event by this ID, update informations or delete.                                                       |   |   |
+| http://127.0.0.1:8000/api/crm/event/date/start/<date_start>/                 | GET              | Search a event by date_start                                                            |   |   |
+| http://127.0.0.1:8000/api/crm/event/date/end/<date_end>/                 | GET              | Search a event by date_end                                                              |   |   |
+| http://127.0.0.1:8000/api/crm/event/mail/<mail_customer>/                 | GET              | Search event by mail customer                                                              |   |   |
+| http://127.0.0.1:8000/api/crm/event/name/                 | GET              | Search a event by last_name, first_name or last+first_name customer                                                         |   |   |
+| http://127.0.0.1:8000/api/crm/need/                 | GET,  POST              | Get all needs into DB or create it                                                       |   |   |
+| http://127.0.0.1:8000/api/crm/need/id/<id_need>/                 | GET, PUT, DELETE             | Get a need by this ID, update informations or delete.                                                       |   |   |
