@@ -213,7 +213,7 @@ class ContractViews(ViewSet):
                             "SEARCH_CONTRACT_NAME__NOT_FOUND - Last")
                         contract = Contract.objects.filter(
                             customer_assigned__first_name=first_name
-                            ).order_by('id')   
+                            ).order_by('id')
                     if not contract.exists():
                         logger.info(
                             "SEARCH_CONTRACT_NAME__406_NOT_FOUND -" +
@@ -238,7 +238,7 @@ class ContractViews(ViewSet):
                                 customers.first().last_name + " " +
                                 customers.first().first_name
                                 )),
-                        status=status.HTTP_404_NOT_FOUND)
+                        status=status.HTTP_204_NO_CONTENT)
                 return Response(
                         serializer.data,
                         status=status.HTTP_202_ACCEPTED)
@@ -316,7 +316,7 @@ class ContractViews(ViewSet):
                 return Response(
                     "No Contract Found with date_start_contract : " + (
                         date),
-                    status=status.HTTP_404_NOT_FOUND)
+                    status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response(serializer.data,
                                 status=status.HTTP_202_ACCEPTED)
@@ -344,7 +344,7 @@ class ContractViews(ViewSet):
                 return Response(
                     "No Contract Found with date_end_contract : " + (
                         date),
-                    status=status.HTTP_404_NOT_FOUND)
+                    status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response(serializer.data,
                                 status=status.HTTP_202_ACCEPTED)
@@ -371,7 +371,7 @@ class ContractViews(ViewSet):
                 return Response(
                     "No Contract Found with this amount : " + (
                         amount),
-                    status=status.HTTP_404_NOT_FOUND)
+                    status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response(serializer.data,
                                 status=status.HTTP_202_ACCEPTED)
