@@ -21,20 +21,23 @@ class UserSignUpView(ViewSet):
         Return :
             - user created informations
         """
-        serializer = UserSerializer(data=request.data)
-        profile = ProfileStaff.objects.filter(
-            name=request.data.get('profile_staff', '')).first()
-        if serializer.is_valid() and profile:
-            serializer.create(request.data)
-            logger.info("POST_CREATE_USER__202")
-            return Response(
-                serializer.data, status=status.HTTP_201_CREATED)
-        if not profile:
-            logger.error("POST_CREATE_USER__406 - " +
-                         "Merci de saisir le Nom de Profil Staff a attribué")
-            return Response(
-                {'Profile_staff':
-                 "Merci de saisir le Nom de Profil Staff a attribué"},
-                status=status.HTTP_406_NOT_ACCEPTABLE)
-        return Response(serializer.errors,
-                        status=status.HTTP_406_NOT_ACCEPTABLE)
+        if request.user.profile_staff.manage_staff_user_crud:
+            profile = ProfileStaff.objects.filter(
+                name=request.data.get('profile_staff', None)).first()
+            if profile is None:
+                logger.error("POST_CREATE_USER__406 - " +
+                             "Please input Profile_name")
+                return Response(
+                    {'Profile_staff':
+                     "Merci de saisir le Nom de Profil Staff a attribué"},
+                    status=status.HTTP_406_NOT_ACCEPTABLE)
+            serializer = UserSerializer(data=request.data)
+            if serializer.is_valid() and profile is not None:
+                serializer.create(request.data)
+                logger.info("POST_CREATE_USER__202")
+                return Response(
+                    serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors,
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response({'ERROR profile Manage Staff'},
+                        status=status.HTTP_401_UNAUTHORIZED)

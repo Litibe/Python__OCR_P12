@@ -137,7 +137,7 @@ class EventViews(ViewSet):
                             status=status.HTTP_202_ACCEPTED)
                 else:
                     logger.error("POST_CREATE_EVENT"
-                                 "__406 - ", serializer.errors)
+                                 "__406 - Serializer no valid ")
                     return Response(
                         serializer.errors,
                         status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -236,7 +236,7 @@ class EventViews(ViewSet):
                             serializer.data, status=status.HTTP_202_ACCEPTED)
                 else:
                     logger.error("PUT_EVENT_ID_" + id_event +
-                                 "__406 - ", serializer.errors)
+                                 "__406 - serializer not valid")
                     return Response(
                         serializer.errors,
                         status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -327,7 +327,7 @@ class EventViews(ViewSet):
                                 customers.first().last_name + " " +
                                 customers.first().first_name
                                 )),
-                        status=status.HTTP_404_NOT_FOUND)
+                        status=status.HTTP_204_NO_CONTENT)
                 return Response(
                         serializer.data,
                         status=status.HTTP_202_ACCEPTED)
@@ -366,7 +366,7 @@ class EventViews(ViewSet):
                         return Response(
                             "No Event Found with mail_customer : " + (
                                 mail),
-                            status=status.HTTP_404_NOT_FOUND)
+                            status=status.HTTP_204_NO_CONTENT)
                     else:
                         logger.info(
                             "SEARCH_EVENT_CUSTOMER_MAIL__202 -" +
@@ -405,7 +405,7 @@ class EventViews(ViewSet):
                 return Response(
                     "No Event Found with date_started : " + (
                         date),
-                    status=status.HTTP_404_NOT_FOUND)
+                    status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response(serializer.data,
                                 status=status.HTTP_202_ACCEPTED)
@@ -433,7 +433,7 @@ class EventViews(ViewSet):
                 return Response(
                     "No Event Found with date_finished : " + (
                         date),
-                    status=status.HTTP_404_NOT_FOUND)
+                    status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response(serializer.data,
                                 status=status.HTTP_202_ACCEPTED)
