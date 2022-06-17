@@ -86,7 +86,7 @@ class CustomerAdmin(admin.ModelAdmin):
         ):
             list_sales_user = User.objects.filter(id=request.user.id)
             if form.base_fields:
-                form.base_fields['sales_contact'].queryset = list_sales_user      
+                form.base_fields['sales_contact'].queryset = list_sales_user
         return form
 
 

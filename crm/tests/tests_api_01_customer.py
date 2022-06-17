@@ -74,7 +74,7 @@ class TestUnitaireApiCustomer(TestCase):
             })
         print(response)
         assert response.status_code == 202
-    
+
     def test_02_post_401_profile__customers(self):
         client = Client()
         response = client.post(reverse("login"),
@@ -119,11 +119,6 @@ class TestUnitaireApiCustomer(TestCase):
 
     def test_02_post_401__customers(self):
         client = Client()
-        response = client.post(reverse("login"),
-                               data={'email': 'support@epicevents.fr',
-                                     'password': 'epicevents'})
-        access_token = 'Bearer ' + response.data.get('access')
-        client.defaults['HTTP_AUTHORIZATION'] = access_token
         response = client.post(
             reverse("customers"),
             data={
@@ -174,21 +169,6 @@ class TestUnitaireApiCustomer(TestCase):
                 "sales_contact__email": "sales@epicevents.fr"
             })
         assert response.status_code == 406
-        print(response.data)
-
-    def test_02_post_401__customers(self):
-        client = Client()
-        response = client.post(
-            reverse("customers"),
-            data={
-                "first_name": "Brian",
-                "last_name": "Werndow",
-                "email": "brian.w@musicevents.com",
-                "phone": "0123456789",
-                "company_name": "Music Events",
-                "sales_contact__email": "sales1@epicevents.fr"
-            })
-        assert response.status_code == 401
         print(response.data)
 
     def test_03_get_202__customer(self):

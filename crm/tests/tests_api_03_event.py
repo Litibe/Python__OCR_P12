@@ -142,7 +142,7 @@ class TestUnitaireApiEvent(TestCase):
             content_type='application/json')
         assert response.status_code == 400
 
-    def test_03_post_400_not_support__events(self):
+    def test_03_post_400_not_contractId__events(self):
         client = Client()
         response = client.post(reverse("login"),
                                data={'email': 'sales@epicevents.fr',

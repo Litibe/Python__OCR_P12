@@ -25,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-joi$_g%^3zhc$10_x_&fvp0@a3+j&^manxa)t--5--c+))od17'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["127.0.0.1"]
 
 
 # Application definition
@@ -95,10 +95,10 @@ WSGI_APPLICATION = 'epic_events_crm.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ocr_12', 
-        'USER': 'epic_events_django', 
+        'NAME': 'ocr_12',
+        'USER': 'epic_events_django',
         'PASSWORD': 'DNRnnb61695',
-        'HOST': 'node91402-env-ocr12-litibe.jcloud-ver-jpe.ik-server.com', 
+        'HOST': 'node91402-env-ocr12-litibe.jcloud-ver-jpe.ik-server.com',
         'PORT': '5432',
     }
 }
@@ -144,7 +144,10 @@ SITE_ID = 1
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR.joinpath('static/')
+STATIC_URL = '/static/'
+MEDIA_ROOT = BASE_DIR.joinpath('media/')
+MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
@@ -152,80 +155,80 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "authentication.User"
 
-
-LOG_PATH = os.path.join(BASE_DIR, "log/")
-if not os.path.exists(LOG_PATH):
-    os.makedirs(LOG_PATH)
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'crm': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': LOG_PATH + "crm.log",
-            'formatter': 'verbose',
+if DEBUG:
+    LOG_PATH = os.path.join(BASE_DIR, "log/")
+    if not os.path.exists(LOG_PATH):
+        os.makedirs(LOG_PATH)
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'crm': {
+                'level': 'INFO',
+                'class': 'logging.FileHandler',
+                'filename': LOG_PATH + "crm.log",
+                'formatter': 'verbose',
+            },
+            'crm_API': {
+                'level': 'INFO',
+                'class': 'logging.FileHandler',
+                'filename': LOG_PATH + "crm_api.log",
+                'formatter': 'verbose',
+            },
+            'db': {
+                'level': 'DEBUG',
+                'class': 'logging.FileHandler',
+                'filename': LOG_PATH + "db.log",
+                'formatter': 'verbose',
+            },
+            'other': {
+                'level': 'DEBUG',
+                'class': 'logging.FileHandler',
+                'filename': LOG_PATH + "django.log",
+                'formatter': 'verbose',
+            },
         },
-        'crm_API': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': LOG_PATH + "crm_api.log",
-            'formatter': 'verbose',
+        'loggers': {
+            'authentication.views': {
+                'handlers': ['crm_API'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'crm.views': {
+                'handlers': ['crm'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'crm.API': {
+                'handlers': ['crm_API'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'django.request': {
+                'handlers': ['crm_API'],
+                'level': 'INFO',
+                'propagate': True,
+            },
+            '': {
+                'handlers': ['other'],
+                'level': 'DEBUG',
+                'propagate': True,
+            },
+            'django.server': {
+                'handlers': ['other'],
+                'level': 'INFO',
+                'propagate': True,
+            },
+            'django.db.backends': {
+                'handlers': ['db'],
+                'level': 'DEBUG',
+                'propagate': False,
+            },
         },
-        'db': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': LOG_PATH + "db.log",
-            'formatter': 'verbose',
-        },
-        'other': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': LOG_PATH + "django.log",
-            'formatter': 'verbose',
-        },
-    },
-    'loggers': {
-        'authentication.views': {
-            'handlers': ['crm_API'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'crm.views': {
-            'handlers': ['crm'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'crm.API': {
-            'handlers': ['crm_API'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'django.request': {
-            'handlers': ['crm_API'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        '': {
-            'handlers': ['other'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'django.server': {
-            'handlers': ['other'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        'django.db.backends': {
-            'handlers': ['db'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
-    },
-    'formatters': {
-        'verbose': {
-            'format': '{name} {levelname} {asctime} {message}',
-            'style': '{',
-        },
+        'formatters': {
+            'verbose': {
+                'format': '{name} {levelname} {asctime} {message}',
+                'style': '{',
+            },
+        }
     }
-}

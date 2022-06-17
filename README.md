@@ -10,7 +10,7 @@
    This project uses the following technologies:
 
    - [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
-   [![Python badge](https://img.shields.io/badge/Python->=3.9-blue.svg)](https://www.python.org/)
+   [![Python badge](https://img.shields.io/badge/Python->=3.10-blue.svg)](https://www.python.org/)
 
 
    - [Django](https://www.djangoproject.com)
@@ -36,7 +36,7 @@
 
    - After cloning, change into the directory and type 
    ```shell
-   python3 -m venv env
+   python3.10 -m venv env
    ```
    <code>virtualenv .</code>. This will then set up a a virtual python environment within that directory.
 
@@ -59,11 +59,12 @@
       ```
       python manage.py runserver
       ```
-      The app should respond with an address you should be able to go to using your browser. defaut: [http://127.0.0.1:8000](http://127.0.0.1:8000])
+      The app should respond with an address you should be able to go to using your browser.  [http://127.0.0.1:8000](http://127.0.0.1:8000])
 
 4. Current Setup SQL database
 
    You have thus installed the local server on your machine. For the proper functioning of the CRM, the Django server uses a PostGreSQL Database hosted in the "Cloud" for data centralization. No settings for you, just to launch the server with an internet connection on your machine required.
+   Warning, an IPV6 internet connection is required for the remote connection to the PostGreSQL database. You can test your internet connection with [Ipleak](https://ipleak.net).
 
 
 5. Testing
@@ -71,12 +72,12 @@
    The test framework used is pytest for tests.
    The [coverage](https://coverage.readthedocs.io/en/6.3.2/) framework is installed to know the coverage of the code under test with settings_file "setup.cfg".
 
-   To run Pytest with tested code coverage with verbose mode and details: 
+   To run Pytest with tested code coverage: 
    ```
-   pytest --cov -v -s
+   pytestpytest
    ```
 
-   To run Pytest with export report coverage HTML :
+   To run Pytest with export report coverage HTML with verbose mode and details:
 
    ```
    pytest --cov --cov-report html -v -s
@@ -86,7 +87,12 @@
          - Convention Name
             For Python => snake_case
          - Convention Language Python : PEP8
-         
+      
+      For Flake8 and to have an html report without Python generation error, Open the file env/lib/ptyhon3.10/site_packages/flake8-html/plugin.py, on line 25 remove Markup and insert below : 
+       ```
+         from markupsafe import Markup
+       ```
+      
       After activating the virtual environment, you can enter the following command:
 
       ```
@@ -96,12 +102,12 @@
       A report in HTML format will be generated in the "flake_rapport" folder, with the argument "max-line-length" set by default to 79 characters per line if not specified.
        In the "flake8.ini" configuration file, the env/ folder is excluded.
 
-7. API : 
+7. API Access point : [Documentation PostMan](https://documenter.getpostman.com/view/16769688/Uyr7HyL3) 
 
 | URL                                                                       | METHOD ACCEPTED  | Action                                                                                |   |   |
 |---------------------------------------------------------------------------|------------------|---------------------------------------------------------------------------------------|---|---|
-| http://127.0.0.1:8000/api/authenticate/login/                             | POST             | Get login token                                                                       |   |   |
-| http://127.0.0.1:8000/api/authenticate/signup/                            | POST             | Creation of a new user, if profile manage                                             |   |   |
+| http://127.0.0.1:8000/api/authenticate/login/                             | POST             | Get login token                                                                       
+| http://127.0.0.1:8000/api/authenticate/signup/                            | POST             | Creation of a new user, if profile manage                                            
 | http://127.0.0.1:8000/api/crm/customer/                                   | GET,POST         | Get list of all customers into DB or create it                                        |   |   |
 | http://127.0.0.1:8000/api/crm/customer/id/<id_customer>/                  | GET, PUT, DELETE | Get a customer by this ID, update informations or delete.                             |   |   |
 | http://127.0.0.1:8000/api/crm/customer/name/                              | GET              | Search a customer by last_name, first_name or last+first_name                         |   |   |

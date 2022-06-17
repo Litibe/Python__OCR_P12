@@ -2,12 +2,10 @@ from parameterized import parameterized
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.contrib.admin.sites import AdminSite
-from django.contrib.admin.options import ModelAdmin
 from datetime import datetime
 
 
 from authentication.models import ProfileStaff, User
-from authentication.tests import create_new_users
 from crm.admin import CustomerAdmin, ContractAdmin, EventAdmin, NeedAdmin
 from crm.models import Contract, Customer, Event, Need
 
@@ -184,10 +182,8 @@ class TestUnitaireModelsAdminAccess(TestCase):
         new_user.save()
         """Create Another Contract"""
         profile_staff = ProfileStaff.objects.filter(name="SALES").first()
-        user_sales = User.objects.filter(
-            profile_staff=profile_staff)[1]
         db_customer = Customer.objects.all().last()
-        db_contract = create_new_contract(db_customer)
+        create_new_contract(db_customer)
 
     @parameterized.expand([
             ["MANAGE", 0, True, True, True, True, True],
