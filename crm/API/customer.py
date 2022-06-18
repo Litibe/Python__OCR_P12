@@ -7,6 +7,7 @@ from rest_framework.viewsets import ViewSet
 import re
 
 from authentication.models import User
+from crm.models import Event
 from crm.API import serializers as srlz
 
 import logging
@@ -261,7 +262,6 @@ class CustomerViews(ViewSet):
             regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,5}\b'
             if re.fullmatch(regex, mail):
                 sales_contact = User.objects.filter(email=mail).first()
-                print(sales_contact)
                 if sales_contact is not None:
                     if sales_contact.profile_staff.name != "SALES":
                         logger.info(
@@ -352,6 +352,63 @@ class CustomerViews(ViewSet):
                 return Response(
                         "Please verify last_name and/or first_name  input!",
                         status=status.HTTP_406_NOT_ACCEPTABLE)
+        else:
+            return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+    def search_support_contact_customer(self, request, mail):
+        """
+        GET Method - Get Customer by support_contact assigned into db
+        Return :
+            - Object Customer
+        """
+        if request.user.profile_staff.customer_read or (
+            request.user.profile_staff.customer_CRU_assigned) or (
+                request.user.profile_staff.customer_CRUD_all
+        ):
+            regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,5}\b'
+            if re.fullmatch(regex, mail):
+                support_contact = User.objects.filter(email=mail).first()
+                if support_contact is not None:
+                    if support_contact.profile_staff.name != "SUPPORT":
+                        logger.info(
+                            "SEARCH_CUSTOMER_Support_contact_mail_not" +
+                            "_profile_SUPPORT__400_BAD_REQUEST")
+                        return Response(
+                            "User Profile_staff not 'SUPPORT' with this mail",
+                            status=(
+                                status.HTTP_400_BAD_REQUEST))
+                else:
+                    logger.info(
+                            "SEARCH_CUSTOMER_Support_contact_mail_not_in DB_" +
+                            "400_BAD_REQUEST")
+                    return Response(
+                            "No User into Database with this mail !",
+                            status=(
+                                status.HTTP_400_BAD_REQUEST))
+                events = Event.objects.filter(support_contact__email=mail)
+                customers_assigned = [
+                    event.contract_assigned.customer_assigned.id
+                    for event in events]
+                customers = Customer.objects.filter(
+                    id__in=customers_assigned).order_by('id')
+                if customers.exists():
+                    serializer = srlz.CustomerSerializer(
+                        customers, many=True)
+                    logger.info(
+                        "SEARCH_CUSTOMER_SUPPORTMAIL__202 -" +
+                        "with profile : " +
+                        request.user.profile_staff.name)
+                    return Response(serializer.data,
+                                    status=status.HTTP_202_ACCEPTED)
+                logger.info(
+                    "SEARCH_CUSTOMER_Support_contact_MAIL__204_NO_CONTENT")
+                return Response(
+                    "No Support_contact assigned for Customer with this mail",
+                    status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response("Please, thank to write a correct mail format",
+                                status=status.HTTP_406_NOT_ACCEPTABLE)
         else:
             return Response("UNAUTHORIZED for your Profile Staff",
                             status=status.HTTP_401_UNAUTHORIZED)

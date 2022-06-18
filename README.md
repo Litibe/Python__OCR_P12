@@ -113,6 +113,7 @@
 | http://127.0.0.1:8000/api/crm/customer/name/                              | GET              | Search a customer by last_name, first_name or last+first_name                         |   |   |
 | http://127.0.0.1:8000/api/crm/customer/mail/<mail_customer>/              | GET              | Search a customer by this mail                                                        |   |   |
 | http://127.0.0.1:8000/api/crm/customer/salescontact/<mail_sales_contact>/ | GET              | Search all Customer assigned for a Sale Contact by this mail (profile_staff=="Sales") |   |   |
+| http://127.0.0.1:8000/api/crm/customer/supportcontact/<mail_support_contact>/ | GET              | Search all Customer assigned for a Support Contact by this mail (profile_staff=="Support") |   |   |
 | http://127.0.0.1:8000/api/crm/contract/                                   | GET, POST        | Get all contracts into DB or create it                                                |   |   |
 | http://127.0.0.1:8000/api/crm/contract/amount/<amount_contract>/                   | GET              | Get contract by amount (with or without $)                                            |   |   |
 | http://127.0.0.1:8000/api/crm/contract/id/<id_contract>/                  | GET,PUT, DELETE  | Get a contract by this ID, update informations or delete.                             |   |   |
@@ -125,6 +126,7 @@
 | http://127.0.0.1:8000/api/crm/event/date/start/<date_start>/                 | GET              | Search a event by date_start                                                            |   |   |
 | http://127.0.0.1:8000/api/crm/event/date/end/<date_end>/                 | GET              | Search a event by date_end                                                              |   |   |
 | http://127.0.0.1:8000/api/crm/event/mail/<mail_customer>/                 | GET              | Search event by mail customer                                                              |   |   |
+| http://127.0.0.1:8000/api/crm/event/supportcontact/<mail_support_contact>/                 | GET              | Search event by mail support_contact assigned                                                              |   |   |
 | http://127.0.0.1:8000/api/crm/event/name/                 | GET              | Search a event by last_name, first_name or last+first_name customer                                                         |   |   |
 | http://127.0.0.1:8000/api/crm/need/                 | GET,  POST              | Get all needs into DB or create it                                                       |   |   |
 | http://127.0.0.1:8000/api/crm/need/id/<id_need>/                 | GET, PUT, DELETE             | Get a need by this ID, update informations or delete.                                                       |   |   |

@@ -3,10 +3,10 @@ from django.urls import path, re_path
 from rest_framework_simplejwt import views as DRF_jwt_views
 
 from authentication.views import UserSignUpView
-from crm.API.API_customer import CustomerViews
-from crm.API.API_contract import ContractViews
-from crm.API.API_event import EventViews
-from crm.API.API_need import NeedViews
+from crm.API.customer import CustomerViews
+from crm.API.contract import ContractViews
+from crm.API.event import EventViews
+from crm.API.need import NeedViews
 from crm.views.homepage import main_page
 
 admin.site.site_header = "EpicEvents CRM"
@@ -45,6 +45,10 @@ urlpatterns = [
           CustomerViews.as_view(
                {'get': "search_sales_contact_customer"}),
           name='customer_search_sales'),
+     path('api/crm/customer/supportcontact/<mail>/',
+          CustomerViews.as_view(
+               {'get': "search_support_contact_customer"}),
+          name='customer_search_support'),
 
      path('api/crm/contract/',
           ContractViews.as_view(
@@ -104,6 +108,10 @@ urlpatterns = [
           EventViews.as_view(
                {'get': "search_event_by_name_customer"}),
           name='event_by_name_customer'),
+     path('api/crm/event/supportcontact/<mail>/',
+          EventViews.as_view(
+               {'get': "search_event_mail_support_contact"}),
+          name='search_event_mail_support_contact'),
 
      path('api/crm/need/',
           NeedViews.as_view(

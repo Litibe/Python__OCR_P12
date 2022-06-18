@@ -440,3 +440,56 @@ class EventViews(ViewSet):
         else:
             return Response("UNAUTHORIZED for your Profile Staff",
                             status=status.HTTP_401_UNAUTHORIZED)
+
+    def search_event_mail_support_contact(self, request, mail):
+        """
+        GET Method - Get Event by email Support_contact
+        Return :
+            - Object Event
+        """
+        if request.user.profile_staff.event_read or (
+            request.user.profile_staff.event_CRU_assigned) or (
+                request.user.profile_staff.event_CRUD_all
+        ):
+            regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,5}\b'
+            if re.fullmatch(regex, mail):
+                support_contact = User.objects.filter(email=mail).first()
+                if support_contact is None:
+                    logger.info(
+                            "SEARCH_CUSTOMER_Support_contact_mail_not_in DB_" +
+                            "400_BAD_REQUEST")
+                    return Response(
+                            "No User into Database with this mail !",
+                            status=(
+                                status.HTTP_400_BAD_REQUEST))
+                else:
+                    if support_contact.profile_staff.name != "SUPPORT":
+                        logger.info(
+                            "SEARCH_CUSTOMER_Support_contact_mail_not" +
+                            "_profile_SUPPORT__400_BAD_REQUEST")
+                        return Response(
+                            "User Profile_staff not 'SUPPORT' with this mail",
+                            status=(
+                                status.HTTP_400_BAD_REQUEST))
+                    events = Event.objects.filter(
+                        support_contact__email=mail)
+                    serializer = srlz.EventSerializer(
+                        events, many=True)
+                    if serializer.data == []:
+                        return Response(
+                            "No Event Found with mail_support_contact : " + (
+                                mail),
+                            status=status.HTTP_204_NO_CONTENT)
+                    else:
+                        logger.info(
+                            "SEARCH_EVENT_CUSTOMER_MAIL__202 -" +
+                            "with profile : " +
+                            request.user.profile_staff.name)
+                        return Response(serializer.data,
+                                        status=status.HTTP_202_ACCEPTED)
+            else:
+                return Response("Please, thank to write a correct mail format",
+                                status=status.HTTP_406_NOT_ACCEPTABLE)
+        else:
+            return Response("UNAUTHORIZED for your Profile Staff",
+                            status=status.HTTP_401_UNAUTHORIZED)
