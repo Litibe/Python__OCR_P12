@@ -27,8 +27,6 @@
 
      Before you begin, please ensure you have this installed globally.
 
-
-
 3. Installation
    ```shell
    git clone https://github.com/Litibe/p12.git
@@ -74,7 +72,7 @@
 
    To run Pytest with tested code coverage: 
    ```
-   pytestpytest
+   pytest
    ```
 
    To run Pytest with export report coverage HTML with verbose mode and details:
