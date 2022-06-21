@@ -1,2 +1,5 @@
 .git
-env
+env/
+log/
+flake_rapport/
+htmlcov/

@@ -86,7 +86,7 @@
             For Python => snake_case
          - Convention Language Python : PEP8
       
-      For Flake8 and to have an html report without Python generation error, Open the file env/lib/ptyhon3.10/site_packages/flake8-html/plugin.py, on line 25 remove Markup and insert below : 
+      For Flake8 and to have an html report without Python generation error, Open the file env/lib/python3.10/site_packages/flake8-html/plugin.py, on line 25 remove Markup and insert below : 
        ```
          from markupsafe import Markup
        ```

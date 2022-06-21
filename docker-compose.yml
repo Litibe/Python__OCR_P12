@@ -3,13 +3,17 @@ version: "3.9"
 services:
   web:
     build: .
+    stdin_open: true # interactive
+    tty: true # interactive
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
-      - data_django_p12:/app
-      - log_django_p12:/app/log
+      - django_p12_log:/app/log/:rw
+      - django_p12_flake8:/app/flake_rapport/:rw
+      - django_p12_coverage:/app/htmlcov/:rw
     ports:
       - 8000:8000
 
 volumes:
-  data_django_p12:
-  log_django_p12:
+  django_p12_log:
+  django_p12_flake8:
+  django_p12_coverage:
