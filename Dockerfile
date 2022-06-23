@@ -4,7 +4,14 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 COPY requirements.txt /app/
+RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-COPY ./docker_update_flake8html/plugin.py usr/lib/python3.10/site_packages/flake8-html/plugin.py
 COPY . /app/
+
+EXPOSE 8000
+VOLUME /app/log/
+VOLUME /app/flake_rapport/
+VOLUME /app/htmlcov/
+
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
