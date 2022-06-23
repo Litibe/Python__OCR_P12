@@ -4,6 +4,12 @@
 
    Develop a secure CRM system internal to the company EpicEvents. A Fronted part managed with Django Admin and a Backend part with API endpoint management.
    3 user profiles have been created: MANAGE - SALES - SUPPORT with different levels of accreditation
+      identifiant - password - profile_staff : 
+         manage@epicevents.com - epicevents - MANAGE
+         sales@epicevents.com - epicevents - SALES
+         sales2@epicevents.com - epicevents - SALES
+         support@epicevents.com  - epicevents - SUPPORT
+         no_access@epicevents.com - epicecents - NO_ACCESS (profile_staff with False access for all, used for API_access)
 
 2. Getting Started
 
@@ -46,6 +52,9 @@
 
    - Rather than hunting around for the packages you need, you can install in one step. Type 
       ```
+      cd p12
+      ```
+      ```
       pip install -r requirements.txt
       ```
       This will install all the packages listed in the respective file. If you install a package, make sure others know by updating the requirements.txt file. An easy way to do this is 
@@ -61,8 +70,7 @@
 
 4. Current Setup SQL database
 
-   You have thus installed the local server on your machine. For the proper functioning of the CRM, the Django server uses a PostGreSQL Database hosted in the "Cloud" for data centralization. No settings for you, just to launch the server with an internet connection on your machine required.
-   Warning, an IPV6 internet connection is required for the remote connection to the PostGreSQL database. You can test your internet connection with [Ipleak](https://ipleak.net).
+   You have installed the local server on your machine. For the proper functioning of the CRM, the Django server uses a PostGreSQL Database hosted in the "Cloud" for data centralization - it only for testing to OCR. No settings for you, just to launch the server with an internet connection on your machine required.
 
 
 5. Testing
@@ -87,6 +95,7 @@
          - Convention Language Python : PEP8
       
       For Flake8 and to have an html report without Python generation error, Open the file env/lib/ptyhon3.10/site_packages/flake8-html/plugin.py, on line 25 remove Markup and insert below : 
+
        ```
          from markupsafe import Markup
        ```
