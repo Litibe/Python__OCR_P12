@@ -12,23 +12,17 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 from datetime import timedelta
 import os
-from pathlib import Path
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+print(BASE_DIR)
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-joi$_g%^3zhc$10_x_&fvp0@a3+j&^manxa)t--5--c+))od17'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ["127.0.0.1"]
-
+ALLOWED_HOSTS = ["*.litiboost.fr", "127.0.0.1", 'localhost']
+DEBUG = int(os.environ['DEBUG'])
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # Application definition
 
@@ -66,6 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'epic_events_crm.urls'
@@ -92,13 +87,14 @@ WSGI_APPLICATION = 'epic_events_crm.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ocr_12',
-        'USER': 'epic_events_django',
-        'PASSWORD': 'DNRnnb61695',
-        'HOST': 'node91402-env-ocr12-litibe.jcloud-ver-jpe.ik-server.com',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
         'PORT': '5432',
     }
 }
@@ -144,15 +140,15 @@ SITE_ID = 1
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_ROOT = BASE_DIR.joinpath('static/')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+print(STATIC_ROOT)
 STATIC_URL = '/static/'
-MEDIA_ROOT = BASE_DIR.joinpath('media/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "authentication.User"
 
 if DEBUG:
