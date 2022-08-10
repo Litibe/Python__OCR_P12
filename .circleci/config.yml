@@ -42,7 +42,7 @@ jobs:
   build_docker_and_push_to_hub:
     executor: docker-publisher
     environment:
-      IMAGE_NAME: $DOCKER_HUB_USER_ID/$IMAGE_NAME
+      IMAGE_NAME: litibe/ocr_p12
     steps:
       - checkout
       - setup_remote_docker
