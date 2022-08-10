@@ -1,0 +1,117 @@
+version: "2.1"
+orbs:
+  python: circleci/python@2.0.3
+  heroku: circleci/heroku@1.2.6
+  slack: circleci/slack@4.10.1
+executors:
+  docker-publisher:
+    docker:
+      - image: circleci/buildpack-deps
+jobs:
+  env-tests:
+    executor: python/default
+    steps:
+      - checkout
+      - run:
+          name: Create venv and pip requirements
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+      - run:
+          name: create .env
+          command: |
+            (echo SECRET_KEY=$SECRET_KEY
+            echo DEBUG=$DEBUG
+            echo DATABASE_NAME=$DATABASE_NAME
+            echo EMAIL_IDENT=$EMAIL_IDENT
+            echo EMAIL_PASSWORD_LITI=$EMAIL_PASSWORD_LITI
+            echo EMAIL_SMTP_LITI=$EMAIL_SMTP_LITI
+            echo SMS_FREE=$SMS_FREE
+            echo ENV=$ENV
+            echo DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+            echo SENTRY_KEY=$SENTRY_KEY
+            echo DB_NAME=$DB_NAME
+            echo DB_USER=$DB_USER
+            echo DB_PASSWORD=$DB_PASSWORD
+            echo DB_HOST=$DB_HOST
+            ) >> .env
+      - run:
+          name: Collect static to improve warning whitenoise in pytest
+          command: |
+            . venv/bin/activate
+            python manage.py collectstatic
+      - run:
+          name: manage.py check --deploy
+          command: |
+            . venv/bin/activate
+            python manage.py check --deploy
+  build_docker_and_push_to_hub:
+    executor: docker-publisher
+    environment:
+      IMAGE_NAME: litibe/litiboost_server
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: create .env
+          command: |
+            (echo SECRET_KEY=$SECRET_KEY
+            echo DEBUG=$DEBUG
+            echo DATABASE_NAME=$DATABASE_NAME
+            echo EMAIL_IDENT=$EMAIL_IDENT
+            echo EMAIL_PASSWORD_LITI=$EMAIL_PASSWORD_LITI
+            echo EMAIL_SMTP_LITI=$EMAIL_SMTP_LITI
+            echo SMS_FREE=$SMS_FREE
+            echo ENV=$ENV
+            echo DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+            echo SENTRY_KEY=$SENTRY_KEY
+            echo DB_NAME=$DB_NAME
+            echo DB_USER=$DB_USER
+            echo DB_PASSWORD=$DB_PASSWORD
+            echo DB_HOST=$DB_HOST
+            ) >> .env
+      - run:
+          name: Build Docker image
+          command: |
+            docker build -t $IMAGE_NAME:latest .
+            docker images
+      - run:
+          name: Publish Docker Image to Docker Hub
+          command: |
+            docker login -u "$DOCKER_HUB_USER_ID" -p "$DOCKER_HUB_PASSWORD"
+            IMAGE_TAG="0.0.${CIRCLE_BUILD_NUM}"
+            docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
+            docker push $IMAGE_NAME:latest
+            docker push $IMAGE_NAME:$IMAGE_TAG
+  deploy_to_digital_ocean:
+    executor: docker-publisher
+    environment:
+      IMAGE_NAME: litibe/litiboost_server
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build and deploy images on DigitalOcean
+          command: |
+            docker login -u "$DOCKER_HUB_USER_ID" -p "$DOCKER_HUB_PASSWORD"
+            docker pull $IMAGE_NAME:latest
+            docker login registry.digitalocean.com -u "$DIGITAL_OCEAN_ACCESS_TOKEN" -p "$DIGITAL_OCEAN_ACCESS_TOKEN"
+            docker tag $IMAGE_NAME:latest registry.digitalocean.com/litibe/$IMAGE_NAME:latest
+            docker push registry.digitalocean.com/litibe/$IMAGE_NAME:latest
+workflows:
+  Pineline_litiboost:
+    jobs:
+      - env-tests
+      - build_docker_and_push_to_hub:
+          requires:
+            - env-tests
+          filters:
+            branches:
+              only: master
+      - deploy_to_digital_ocean:
+          requires:
+            - build_docker_and_push_to_hub
+          filters:
+            branches:
+              only: digitalocean
