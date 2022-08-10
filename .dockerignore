@@ -1,5 +1,9 @@
 .git
 env/
+<<<<<<< HEAD
 log/
+=======
+envssl/
+>>>>>>> gui
 flake_rapport/
 htmlcov/
