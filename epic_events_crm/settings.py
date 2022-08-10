@@ -28,12 +28,23 @@ SECRET_KEY = 'django-insecure-joi$_g%^3zhc$10_x_&fvp0@a3+j&^manxa)t--5--c+))od17
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ["195.15.236.34", "*.litiboost.fr", "195.15.236.251"]
+ALLOWED_HOSTS = ["195.15.236.34", "10.101.23.171",
+    "2001:1600:0114:0000:0000:0000:0002:a803",
+    "localhost", "127.0.0.1",
+    "litiboost.fr", "www.litiboost.fr", "*.litiboost.fr",
+    "10.101.19.125", "195.15.236.251", "2001:1600:0114:0000:0000:0000:0002:a801",
+    "193.128.7.187", "2001:1600:0114:0000:0000:0000:0001:b000",
+    "env-6174749.jcloud-ver-jpe.ik-server.com",
+    "84.16.70.69", "2001:1600:0114:0000:0000:0000:0002:a800", "10.101.6.240", 
+    "docker101359-env-6835535.jcloud-ver-jpe.ik-server.com",
+    "env-6835535.jcloud-ver-jpe.ik-server.com",
+    "10.101.19.125", "195.15.236.251",
+    "2001:1600:0114:0000:0000:0000:0002:a801",
+    "node101359-env-6835535.jcloud-ver-jpe.ik-server.com"]
 
 DEBUG = int(os.environ['DEBUG'])
 SECRET_KEY = os.environ['SECRET_KEY']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-    # SECURITY
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
