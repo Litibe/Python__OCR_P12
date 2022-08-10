@@ -42,7 +42,7 @@ jobs:
   build_docker_and_push_to_hub:
     executor: docker-publisher
     environment:
-      IMAGE_NAME: litibe/litiboost_server
+      IMAGE_NAME: $DOCKER_HUB_USER_ID/$IMAGE_NAME
     steps:
       - checkout
       - setup_remote_docker
@@ -70,8 +70,8 @@ jobs:
             docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
             docker push $IMAGE_NAME:latest
             docker push $IMAGE_NAME:$IMAGE_TAG
-  workflows:
-  Pineline_OCR_P12:
+workflows:
+  Pineline:
     jobs:
       - env-tests
       - build_docker_and_push_to_hub:
