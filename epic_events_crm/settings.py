@@ -16,11 +16,9 @@ from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-print(BASE_DIR)
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 
-<<<<<<< HEAD
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
@@ -32,11 +30,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-=======
-ALLOWED_HOSTS = ["*.litiboost.fr", "127.0.0.1", 'localhost']
 DEBUG = int(os.environ['DEBUG'])
 SECRET_KEY = os.environ['SECRET_KEY']
->>>>>>> gui
+
 
 # Application definition
 
@@ -154,16 +150,10 @@ SITE_ID = 1
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-<<<<<<< HEAD
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
-STATIC_URL = '/static/'
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-=======
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-print(STATIC_ROOT)
 STATIC_URL = '/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
->>>>>>> gui
 MEDIA_URL = '/media/'
 
 # Default primary key field type

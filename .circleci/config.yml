@@ -70,23 +70,8 @@ jobs:
             docker tag $IMAGE_NAME:latest $IMAGE_NAME:$IMAGE_TAG
             docker push $IMAGE_NAME:latest
             docker push $IMAGE_NAME:$IMAGE_TAG
-  deploy_to_digital_ocean:
-    executor: docker-publisher
-    environment:
-      IMAGE_NAME: litibe/litiboost_server
-    steps:
-      - checkout
-      - setup_remote_docker
-      - run:
-          name: Build and deploy images on DigitalOcean
-          command: |
-            docker login -u "$DOCKER_HUB_USER_ID" -p "$DOCKER_HUB_PASSWORD"
-            docker pull $IMAGE_NAME:latest
-            docker login registry.digitalocean.com -u "$DIGITAL_OCEAN_ACCESS_TOKEN" -p "$DIGITAL_OCEAN_ACCESS_TOKEN"
-            docker tag $IMAGE_NAME:latest registry.digitalocean.com/litibe/$IMAGE_NAME:latest
-            docker push registry.digitalocean.com/litibe/$IMAGE_NAME:latest
-workflows:
-  Pineline_litiboost:
+  workflows:
+  Pineline_OCR_P12:
     jobs:
       - env-tests
       - build_docker_and_push_to_hub:
@@ -94,10 +79,4 @@ workflows:
             - env-tests
           filters:
             branches:
-              only: master
-      - deploy_to_digital_ocean:
-          requires:
-            - build_docker_and_push_to_hub
-          filters:
-            branches:
-              only: digitalocean
+              only: docker
