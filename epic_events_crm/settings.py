@@ -26,13 +26,20 @@ load_dotenv(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = 'django-insecure-joi$_g%^3zhc$10_x_&fvp0@a3+j&^manxa)t--5--c+))od17'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["195.15.236.34", "*.litiboost.fr", "195.15.236.251"]
 
 DEBUG = int(os.environ['DEBUG'])
 SECRET_KEY = os.environ['SECRET_KEY']
-
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    # SECURITY
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_AGE = 3600
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 300
 
 # Application definition
 
