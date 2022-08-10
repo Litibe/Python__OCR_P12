@@ -25,11 +25,10 @@ load_dotenv(os.path.join(BASE_DIR, ".env"))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-joi$_g%^3zhc$10_x_&fvp0@a3+j&^manxa)t--5--c+))od17'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
 ALLOWED_HOSTS = ["195.15.236.34", "10.101.23.171",
     "2001:1600:0114:0000:0000:0000:0002:a803",
+    "docker102789-env-6835535.jcloud-ver-jpe.ik-server.com",
+    "*.jcloud-ver-jpe.ik-server.com",
     "localhost", "127.0.0.1",
     "litiboost.fr", "www.litiboost.fr", "*.litiboost.fr",
     "10.101.19.125", "195.15.236.251", "2001:1600:0114:0000:0000:0000:0002:a801",
