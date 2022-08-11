@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-joi$_g%^3zhc$10_x_&fvp0@a3+j&^manxa)t--5--c+))od17
 
 ALLOWED_HOSTS = ["*"]
 
-DEBUG = int(os.environ['DEBUG'])
+DEBUG = True
 SECRET_KEY = os.environ['SECRET_KEY']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 USE_X_FORWARDED_HOST = True
