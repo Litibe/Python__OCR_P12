@@ -25,12 +25,29 @@ load_dotenv(os.path.join(BASE_DIR, ".env"))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-joi$_g%^3zhc$10_x_&fvp0@a3+j&^manxa)t--5--c+))od17'
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "localhost", "127.0.0.1",
+    "litiboost.fr", "www.litiboost.fr", "*.litiboost.fr",
+    "10.101.19.125", "195.15.236.251", "2001:1600:0114:0000:0000:0000:0002:a801",
+    "193.128.7.187", "2001:1600:0114:0000:0000:0000:0001:b000",
+    "env-6174749.jcloud-ver-jpe.ik-server.com",
+    "84.16.70.69", "2001:1600:0114:0000:0000:0000:0002:a800", "10.101.6.240", 
+    "docker101359-env-6835535.jcloud-ver-jpe.ik-server.com",
+    "env-6835535.jcloud-ver-jpe.ik-server.com",
+    "10.101.19.125", "195.15.236.251",
+    "2001:1600:0114:0000:0000:0000:0002:a801",
+    "node101359-env-6835535.jcloud-ver-jpe.ik-server.com",
+]
 
-DEBUG = True
+DEBUG = False
 SECRET_KEY = os.environ['SECRET_KEY']
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_AGE = 3600
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 300
 
 
 # Application definition
@@ -151,9 +168,9 @@ SITE_ID = 1
 
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
-STATIC_URL = '/static/'
+STATIC_URL = 'ocr_p12/static/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-MEDIA_URL = '/media/'
+MEDIA_URL = 'ocr_p12//media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
